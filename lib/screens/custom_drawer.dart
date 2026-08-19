@@ -60,7 +60,7 @@ class CustomDrawer extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 20.0),
             child: Text(
-              'GN Digital©',
+              'Sanai ©',
               style: GoogleFonts.kufam(
                 color: Color(0xFFEFF5E6),
                 fontSize: 10,
