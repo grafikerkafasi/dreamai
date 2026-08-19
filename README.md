@@ -9,16 +9,21 @@ verify it is available. In production (e.g. Render), the host injects
 environment variables directly, so it runs via plain `npm start` instead —
 there is no `.env` file on the server.
 
-Pass the backend URL to Flutter at launch:
+The backend is deployed at `https://dreamai-backend-mkit.onrender.com`
+(Render free tier + a Turso database for persistent quota state — see
+"Manual setup" below for how that's wired up). Pass a backend URL to
+Flutter at launch:
 
 ```sh
-flutter run --dart-define=API_BASE_URL=http://localhost:3000 --dart-define=USE_DEMO_ANALYSIS=false
+flutter run --dart-define=API_BASE_URL=https://dreamai-backend-mkit.onrender.com --dart-define=USE_DEMO_ANALYSIS=false
 ```
 
-Use `http://10.0.2.2:3000` for an Android emulator; a physical device needs
-your machine's reachable LAN address. `USE_DEMO_ANALYSIS` defaults to `true`,
-which returns a canned local interpretation and never calls the backend —
-pass `false` to actually exercise `/analyze` and the free/paid quota.
+For a locally-running backend instead, use `http://localhost:3000`
+(`http://10.0.2.2:3000` for an Android emulator; a physical device needs
+your machine's reachable LAN address). `USE_DEMO_ANALYSIS` defaults to
+`true`, which returns a canned local interpretation and never calls the
+backend — pass `false` to actually exercise `/analyze` and the free/paid
+quota.
 
 Run `npm test`, `flutter analyze`, and `flutter test` before shipping.
 
@@ -50,7 +55,18 @@ reinstalling the app doesn't reset the free count.
   under `kIsWeb`); the free/paid quota still applies during web/demo
   testing, but there's no purchase UI on that target.
 
-**Manual setup still needed (outside this repo) before this can go live:**
+**Done:**
+- ✅ Backend deployed to Render's free tier:
+  `https://dreamai-backend-mkit.onrender.com` (repo:
+  `github.com/grafikerkafasi/dreamai`, auto-deploys on push to `main`).
+- ✅ Persistent quota storage on [Turso](https://turso.tech)
+  (`TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` set on Render) — survives
+  redeploys, unlike a local SQLite file would on Render's ephemeral disk.
+- ✅ `OPENAI_API_KEY` and `REVENUECAT_WEBHOOK_AUTH` set on Render; the
+  webhook endpoint correctly rejects requests without the right
+  `Authorization` header (verified live).
+
+**Still needed before subscriptions can go live:**
 1. Create a RevenueCat account and project, add your iOS and Android apps.
 2. In App Store Connect and Google Play Console, create a $5/month
    auto-renewing subscription product; attach both to a RevenueCat
@@ -59,19 +75,9 @@ reinstalling the app doesn't reset the free count.
 3. Copy RevenueCat's public API keys and pass them at build/run time:
    `--dart-define=REVENUECAT_API_KEY_IOS=... --dart-define=REVENUECAT_API_KEY_ANDROID=...`
 4. In RevenueCat's dashboard, add a webhook pointing at
-   `https://<your-backend>/revenuecat-webhook`, and set an "Authorization
-   header value" — put that same secret in the backend's `.env` as
-   `REVENUECAT_WEBHOOK_AUTH` so the endpoint can reject spoofed requests.
-5. Create a free [Turso](https://turso.tech) database (`turso db create
-   dreamai`, then `turso db show dreamai --url` and `turso db tokens
-   create dreamai` for the URL/token) and set `TURSO_DATABASE_URL` /
-   `TURSO_AUTH_TOKEN` as environment variables on the host — without
-   these, `usage_store.js` falls back to a local file that won't survive
-   a redeploy on an ephemeral host.
-6. Deploy the backend (e.g. to [Render](https://render.com)'s free web
-   service tier) and set `OPENAI_API_KEY`, `REVENUECAT_WEBHOOK_AUTH`,
-   `TURSO_DATABASE_URL`, and `TURSO_AUTH_TOKEN` there as environment
-   variables — the host runs `npm start`, which does not read `.env`.
+   `https://dreamai-backend-mkit.onrender.com/revenuecat-webhook`, and set
+   its "Authorization header value" to the same secret already set as
+   `REVENUECAT_WEBHOOK_AUTH` on Render.
 
 Free and monthly limits are configurable via `FREE_DREAM_LIMIT` (default
 3) and `MONTHLY_DREAM_LIMIT` (default 30) in `.env`.
