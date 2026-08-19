@@ -1,0 +1,61 @@
+name: dream_ai
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.4.0
+  shared_preferences: ^2.2.2
+  lottie: ^2.6.0
+  google_fonts: ^6.1.0
+  purchases_flutter: ^10.9.1
+  uuid: ^4.6.0
+
+dev_dependencies:
+  flutter_native_splash: ^2.3.10
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/animations/splash.json
+    - assets/splash.png
+    - assets/images/homepage-bg.png
+    - assets/images/menu.png
+    - assets/images/close.png
+    - assets/images/logo.png
+    - assets/images/loading.png
+    - assets/images/empty_bg.png
+    - assets/images/interpreters/nietzsche.png
+    - assets/images/interpreters/freud.png
+    - assets/images/interpreters/jung.png
+    - assets/images/interpreters/yalom.png
+    - assets/images/interpreters/alan_watts.png
+    - assets/images/interpreters/schopenhauer.png
+    - assets/images/interpreters/fortune_teller.png
+    - assets/images/interpreters/viktor_frankl.png
+    - assets/images/interpreters/carl_rogers.png
+    - assets/images/interpreters/dostoyevsky.png
+    - assets/images/interpreters/buddha.png
+    - assets/images/interpreters/jesus.png
+    - assets/images/interpreters/imam.png
+    - assets/images/interpreters/rabbi.png
+    - assets/images/interpreters/hindu_guru.png
+
+flutter_native_splash:
+  color: "#1C263F"
+  image: assets/images/loading.png
+  android: true
+  ios: true
+  fullscreen: true
+
+  android_gravity: fill
+  ios_content_mode: scaleAspectFill
+  web_image_mode: cover

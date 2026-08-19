@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(jobs -l)",
+      "Bash(DEBUG_PORT=56450 node --experimental-websocket cdp_drive.mjs metrics)",
+      "Bash(cat /System/Volumes/Data/Users/macbook/.pub-cache/hosted/pub.dev/purchases_flutter-10.9.1/lib/errors.dart)",
+      "Read(//Users/macbook/.pub-cache/hosted/pub.dev/purchases_flutter-10.9.1/lib/**)"
+    ]
+  }
+}
