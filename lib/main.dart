@@ -141,113 +141,126 @@ class _DreamPageState extends State<DreamPage> {
             ),
           ),
           SafeArea(
-            child: Column(
-              children: [
-                // Header
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                        child: Image.asset('assets/images/menu.png', width: 35),
-                      ),
-                      const Spacer(),
-                      const AppLogoButton(),
-                      const Spacer(),
-                      const HistoryButton(),
-                    ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                   ),
-                ),
-
-                const SizedBox(height: 40),
-
-                Text(
-                  'Tell me your dream...',
-                  style: GoogleFonts.kufam(
-                    fontSize: 20,
-                    letterSpacing: 0.0,
-                    color: const Color(0xFFFF91B3),
-                    fontWeight: FontWeight.w300,
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: _buildContent(screenWidth),
                   ),
-                ),
-
-                const SizedBox(height: 30),
-
-                SizedBox(
-                  width: screenWidth * 0.7,
-                  child: TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    maxLines: 9,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.kufam(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xFFE0D4D4),
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color(0x5139415C),
-                      hintText: _isFocused ? null : _hintText,
-                      hintStyle: GoogleFonts.kufam(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xFFE0D4D4),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 30),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                SizedBox(
-                  width: screenWidth * 0.7,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      final text = _controller.text.trim();
-                      if (text.isNotEmpty) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                WhoShouldInterpretScreen(dreamText: text),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xDFF0F8E9),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 15),
-                    ),
-                    child: Text(
-                      'analyze',
-                      style: GoogleFonts.kufam(
-                        fontSize: 22,
-                        color: const Color(0xFF81546F),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const Spacer(),
-              ],
+                );
+              },
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildContent(double screenWidth) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Header
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: Image.asset('assets/images/menu.png', width: 35),
+              ),
+              const Spacer(),
+              const AppLogoButton(),
+              const Spacer(),
+              const HistoryButton(),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 40),
+
+        Text(
+          'Tell me your dream...',
+          style: GoogleFonts.kufam(
+            fontSize: 20,
+            letterSpacing: 0.0,
+            color: const Color(0xFFFF91B3),
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+
+        const SizedBox(height: 30),
+
+        SizedBox(
+          width: screenWidth * 0.7,
+          child: TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            maxLines: 9,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.kufam(
+              fontSize: 26,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFFE0D4D4),
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0x5139415C),
+              hintText: _isFocused ? null : _hintText,
+              hintStyle: GoogleFonts.kufam(
+                fontSize: 26,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFFE0D4D4),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 30),
+
+        SizedBox(
+          width: screenWidth * 0.7,
+          child: ElevatedButton(
+            onPressed: () {
+              final text = _controller.text.trim();
+              if (text.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => WhoShouldInterpretScreen(dreamText: text),
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xDFF0F8E9),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+            ),
+            child: Text(
+              'analyze',
+              style: GoogleFonts.kufam(
+                fontSize: 22,
+                color: const Color(0xFF81546F),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

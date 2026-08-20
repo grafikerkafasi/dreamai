@@ -64,7 +64,14 @@ jobs:
           echo "$APP_STORE_CONNECT_API_KEY_P8" | base64 --decode > ~/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8
 
       - name: Build Flutter iOS (no codesign)
-        run: flutter build ios --release --no-codesign
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          REVENUECAT_API_KEY_IOS: ${{ secrets.REVENUECAT_API_KEY_IOS }}
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=USE_DEMO_ANALYSIS=false \
+            --dart-define=API_BASE_URL="$API_BASE_URL" \
+            --dart-define=REVENUECAT_API_KEY_IOS="$REVENUECAT_API_KEY_IOS"
 
       - name: Archive with manual signing
         run: |
