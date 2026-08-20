@@ -10,9 +10,11 @@ class OpenAIService {
   static const _apiBaseUrl = String.fromEnvironment('API_BASE_URL');
   static final Dio _dio = Dio(
     BaseOptions(
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 35),
-      sendTimeout: const Duration(seconds: 10),
+      // Generous timeouts: the free-tier backend host can take ~20-30s to
+      // wake from an idle sleep before it even accepts the connection.
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 45),
+      sendTimeout: const Duration(seconds: 30),
       contentType: Headers.jsonContentType,
       responseType: ResponseType.json,
     ),
