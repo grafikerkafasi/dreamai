@@ -31,12 +31,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Future<void> _loadOffering() async {
-    final offering = await PurchaseService.getMonthlyOffering();
-    if (!mounted) return;
-    setState(() {
-      _offering = offering;
-      _loadingOffering = false;
-    });
+    try {
+      final offering = await PurchaseService.getMonthlyOffering();
+      if (!mounted) return;
+      setState(() {
+        _offering = offering;
+        _loadingOffering = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loadingOffering = false;
+        _error = 'Unable to load subscription options. Please try again.';
+      });
+    }
   }
 
   Future<void> _subscribe() async {
@@ -61,7 +69,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
         break;
       case SubscribeOutcome.notEntitled:
       case SubscribeOutcome.failure:
-        setState(() => _error = 'Purchase could not be completed. Please try again.');
+        setState(() =>
+            _error = 'Purchase could not be completed. Please try again.');
         break;
     }
   }
@@ -102,7 +111,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.auto_awesome, color: const Color(0xFFFF91B3), size: 48),
+                Icon(Icons.auto_awesome,
+                    color: const Color(0xFFFF91B3), size: 48),
                 const SizedBox(height: 20),
                 Text(
                   'Unlock more dream interpretations',
@@ -140,9 +150,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (_loadingOffering || _purchasing || package == null)
-                        ? null
-                        : _subscribe,
+                    onPressed:
+                        (_loadingOffering || _purchasing || package == null)
+                            ? null
+                            : _subscribe,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xDFF0F8E9),
                       shape: RoundedRectangleBorder(
