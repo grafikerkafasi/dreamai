@@ -37,7 +37,6 @@ flutter:
     - assets/splash.png
     - assets/images/homepage-bg.png
     - assets/images/menu.png
-    - assets/images/close.png
     - assets/images/logo.png
     - assets/images/loading.png
     - assets/images/empty_bg.png
