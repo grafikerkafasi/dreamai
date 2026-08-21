@@ -18,6 +18,7 @@ const ENTITLEMENT_LOOKUP_KEY = 'DreamAI Premium';
 
 let cachedProjectId = null;
 let cachedEntitlementId = null;
+let cachedProductStoreIds = null; // opaque RevenueCat product id -> store_identifier
 
 async function resolveProjectId(secretKey) {
   if (cachedProjectId) return cachedProjectId;
@@ -63,12 +64,32 @@ function creditProductMap() {
   return cachedCreditProductMap;
 }
 
+// GET /purchases identifies each purchase's product by RevenueCat's opaque
+// internal id (e.g. "prod742cbacf26"), not the App Store Connect / Play
+// Console identifier ("dreamai_credits_10") that CREDIT_PRODUCT_MAP is
+// keyed by — same opaque-id-vs-store-identifier split as entitlements
+// above. GET /v2/projects/{id}/products exposes the real one as
+// `store_identifier`, resolved once and cached.
+async function resolveProductStoreIds(secretKey, projectId) {
+  if (cachedProductStoreIds) return cachedProductStoreIds;
+
+  const products = await axios.get(`${RC_API_BASE}/projects/${projectId}/products`, {
+    headers: { Authorization: `Bearer ${secretKey}` },
+    timeout: 8000,
+  });
+  cachedProductStoreIds = {};
+  for (const product of products.data?.items ?? []) {
+    if (product.id && product.store_identifier) {
+      cachedProductStoreIds[product.id] = product.store_identifier;
+    }
+  }
+  return cachedProductStoreIds;
+}
+
 // Looks up a customer's one-time purchases on RevenueCat and returns the
-// ones that match a configured credit pack, however RevenueCat happens to
-// name the purchase/product id fields (schema not yet verified against a
-// live purchase as of writing — this defensively checks a few plausible
-// names). The caller is expected to de-dupe against already-applied
-// purchase ids (see usage_store.creditExtraDreams) before crediting.
+// ones that match a configured credit pack. The caller is expected to
+// de-dupe against already-applied purchase ids (see
+// usage_store.creditExtraDreams) before crediting.
 async function fetchUnredeemedCreditPurchases(deviceId) {
   const secretKey = process.env.REVENUECAT_SECRET_API_KEY;
   const productMap = creditProductMap();
@@ -77,6 +98,7 @@ async function fetchUnredeemedCreditPurchases(deviceId) {
   try {
     const projectId = await resolveProjectId(secretKey);
     if (!projectId) return [];
+    const storeIds = await resolveProductStoreIds(secretKey, projectId);
 
     const response = await axios.get(
       `${RC_API_BASE}/projects/${projectId}/customers/${encodeURIComponent(deviceId)}/purchases`,
@@ -86,7 +108,8 @@ async function fetchUnredeemedCreditPurchases(deviceId) {
 
     return items
       .map((item) => {
-        const productId = item.product_id ?? item.store_product_id ?? null;
+        const opaqueProductId = item.product_id ?? item.store_product_id ?? null;
+        const productId = opaqueProductId ? storeIds[opaqueProductId] : null;
         const purchaseId =
           item.id ?? item.transaction_id ?? item.store_transaction_id ?? null;
         const credits = productId ? productMap[productId] : undefined;
