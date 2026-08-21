@@ -14,6 +14,19 @@ const client = process.env.TURSO_DATABASE_URL
       url: `file:${process.env.USAGE_DB_PATH || path.join(__dirname, 'usage.db')}`,
     });
 
+// CREATE TABLE IF NOT EXISTS is a no-op against a table that already
+// exists in production, so a new column added there (extra_credits)
+// needs its own migration for installs that predate it — ALTER TABLE
+// throws if the column is already present (fresh installs get it via
+// CREATE TABLE above), which we simply ignore.
+async function ensureExtraCreditsColumn() {
+  try {
+    await client.execute('ALTER TABLE usage ADD COLUMN extra_credits INTEGER NOT NULL DEFAULT 0');
+  } catch (err) {
+    if (!/duplicate column/i.test(err.message || '')) throw err;
+  }
+}
+
 const ready = Promise.all([
   client.execute(`
     CREATE TABLE IF NOT EXISTS usage (
@@ -25,7 +38,7 @@ const ready = Promise.all([
       extra_credits INTEGER NOT NULL DEFAULT 0,
       updated_at TEXT NOT NULL DEFAULT ''
     )
-  `),
+  `).then(ensureExtraCreditsColumn),
   // Records every one-time credit-pack purchase we've already applied, so
   // crediting stays a no-op on retries — whether the same purchase reaches
   // us twice via the webhook, or via the /redeem-credits self-heal check
