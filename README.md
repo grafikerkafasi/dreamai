@@ -27,10 +27,21 @@ quota.
 
 Run `npm test`, `flutter analyze`, and `flutter test` before shipping.
 
-## Monetization: free tier + $5/month subscription
+## Monetization: pricing (source of truth)
+
+This is the current, canonical pricing for DreamAI — update this section
+first if pricing changes, then bring the code in line with it:
+
+- **DreamAI Pro:** $4.99/month → 50 dream interpretations/month
+- **Get More Dreams** (one-time credit packs, no subscription needed):
+  - 10 Dreams → $1.99 (`dreamai_credits_10`)
+  - 30 Dreams → $4.99 (`dreamai_credits_30`)
+  - 100 Dreams → $9.99 (`dreamai_credits_100`)
+
+## Monetization: free tier + $4.99/month subscription
 
 The first 3 dream interpretations per device are free; after that, a
-subscription unlocks up to 30 per month. This is enforced **server-side**,
+subscription unlocks up to 50 per month. This is enforced **server-side**,
 keyed by an anonymous per-install device ID (no login required), so
 reinstalling the app doesn't reset the free count.
 
@@ -77,7 +88,7 @@ reinstalling the app doesn't reset the free count.
 
 **Still needed before subscriptions can go live:**
 1. Create a RevenueCat account and project, add your iOS and Android apps.
-2. In App Store Connect and Google Play Console, create a $5/month
+2. In App Store Connect and Google Play Console, create a $4.99/month
    auto-renewing subscription product; attach both to a RevenueCat
    **entitlement** whose exact Identifier is `DreamAI Premium` (matching
    `PurchaseService.entitlementId` in `purchase_service.dart` and the key
@@ -97,14 +108,14 @@ reinstalling the app doesn't reset the free count.
    missed or delayed.
 
 Free and monthly limits are configurable via `FREE_DREAM_LIMIT` (default
-3) and `MONTHLY_DREAM_LIMIT` (default 30) in `.env`.
+3) and `MONTHLY_DREAM_LIMIT` (default 50) in `.env`.
 
 ## Monetization: one-time credit packs
 
 Independent of the subscription, a user can buy a one-time pack of bonus
 dream interpretations (`lib/screens/buy_credits_screen.dart`, linked from
 the hamburger menu as "Get More Dreams") — useful for someone who burns
-through their 30/month fast but doesn't want to wait for the next billing
+through their 50/month fast but doesn't want to wait for the next billing
 period, or a free-tier user who wants a few more without subscribing.
 
 **How it works:** mirrors the subscription path above rather than
@@ -141,11 +152,14 @@ real data to check against.
    offering the subscription uses.
 3. Set `CREDIT_PRODUCT_MAP` on Render to a JSON object mapping each
    product id to how many credits it grants, e.g.
-   `{"dreamai_credits_10":10,"dreamai_credits_30":30}`. This is what both
-   the webhook handler and `/redeem-credits` use to know how many credits
-   a purchase is worth — nothing is hardcoded in source, so adding a new
-   pack later is just an env var edit.
-4. The existing RevenueCat webhook (already pointed at
+   `{"dreamai_credits_10":10,"dreamai_credits_30":30,"dreamai_credits_100":100}`.
+   This is what both the webhook handler and `/redeem-credits` use to know
+   how many credits a purchase is worth — nothing is hardcoded in source,
+   so adding a new pack later is just an env var edit. Update the pricing
+   table at the top of this section too if amounts change.
+4. Also update `dreamai_credits_10`/`_30`/`_100`'s store price tiers to
+   $1.99/$4.99/$9.99 respectively when creating them.
+5. The existing RevenueCat webhook (already pointed at
    `/revenuecat-webhook`, see the subscription section above) automatically
    covers `NON_RENEWING_PURCHASE` events too — no separate webhook needed.
 

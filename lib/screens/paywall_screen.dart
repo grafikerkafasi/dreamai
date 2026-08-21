@@ -90,7 +90,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
   @override
   Widget build(BuildContext context) {
     final package = _offering?.monthly ?? _firstAvailablePackage;
-    final priceText = package?.storeProduct.priceString ?? '\$5.00/month';
+    final priceText = package?.storeProduct.priceString ?? '\$4.99/month';
 
     return Container(
       decoration: const BoxDecoration(
@@ -139,7 +139,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Up to 30 dream interpretations a month for $priceText.',
+                  'Up to 50 dream interpretations a month for $priceText.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.kufam(
                     fontSize: 16,

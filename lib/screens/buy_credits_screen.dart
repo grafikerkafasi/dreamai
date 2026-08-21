@@ -8,7 +8,7 @@ import 'info_screen.dart';
 
 /// Lets a user top up with a one-time credit pack, independent of whether
 /// their free/monthly quota is exhausted — a subscriber who just burns
-/// through their 30 fast has no other way to keep going until next month
+/// through their 50 fast has no other way to keep going until next month
 /// without this.
 class BuyCreditsScreen extends StatefulWidget {
   const BuyCreditsScreen({super.key});
@@ -89,7 +89,10 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final packages = _offering?.availablePackages ?? const [];
+    // Show cheapest-to-priciest regardless of how they're ordered in the
+    // RevenueCat dashboard, so pack size and price always line up visually.
+    final packages = [...?_offering?.availablePackages]
+      ..sort((a, b) => a.storeProduct.price.compareTo(b.storeProduct.price));
 
     return DreamPageScaffold(
       title: 'Get More Dreams',
