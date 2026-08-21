@@ -138,7 +138,7 @@ String _avatarPath(String? interpreter) {
   return 'assets/images/interpreters/${interpreter.toLowerCase().replaceAll(' ', '_')}.png';
 }
 
-class _DreamCard extends StatelessWidget {
+class _DreamCard extends StatefulWidget {
   const _DreamCard({
     required this.dreamText,
     required this.resultText,
@@ -154,34 +154,40 @@ class _DreamCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   @override
+  State<_DreamCard> createState() => _DreamCardState();
+}
+
+class _DreamCardState extends State<_DreamCard> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(20),
       side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
     );
-    final date = _formatDate(timestamp);
+    final date = _formatDate(widget.timestamp);
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
+        onExpansionChanged: (value) => setState(() => _expanded = value),
         shape: shape,
         collapsedShape: shape,
         backgroundColor: const Color(0x5139415C),
         collapsedBackgroundColor: const Color(0x5139415C),
-        iconColor: const Color(0xFFFF91B3),
-        collapsedIconColor: const Color(0xFFFF91B3),
-        tilePadding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
+        tilePadding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
         childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(100),
           child: Image.asset(
-            _avatarPath(interpreter),
+            _avatarPath(widget.interpreter),
             width: 40,
             height: 40,
             fit: BoxFit.cover,
           ),
         ),
         title: Text(
-          interpreter ?? 'Unknown interpreter',
+          widget.interpreter ?? 'Unknown interpreter',
           style: GoogleFonts.kufam(
             color: const Color(0xFFFF91B3),
             fontSize: 14,
@@ -190,31 +196,36 @@ class _DreamCard extends StatelessWidget {
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  dreamText,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.kufam(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline_rounded,
-                    color: Color(0xFFFFB4B4), size: 20),
-                splashRadius: 20,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: onDelete,
-              ),
-            ],
+          child: Text(
+            widget.dreamText,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.kufam(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
           ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.delete_outline_rounded,
+                  color: Color(0xFFFFB4B4), size: 20),
+              splashRadius: 20,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              onPressed: widget.onDelete,
+            ),
+            const SizedBox(width: 4),
+            AnimatedRotation(
+              turns: _expanded ? 0.5 : 0,
+              duration: const Duration(milliseconds: 200),
+              child: const Icon(Icons.expand_more_rounded,
+                  color: Color(0xFFFF91B3)),
+            ),
+          ],
         ),
         children: [
           if (date != null) ...[
@@ -237,7 +248,7 @@ class _DreamCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            resultText,
+            widget.resultText,
             style: GoogleFonts.kufam(
               color: const Color(0xFFE0D4D4),
               fontSize: 15,
