@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../services/dream_storage_service.dart';
 import 'app_logo_button.dart';
 import 'custom_drawer.dart'; // Drawer için import
@@ -85,7 +87,7 @@ class _PreviousDreamsScreenState extends State<PreviousDreamsScreen> {
                             color: Color(0xFFFF91B3), size: 48),
                         const SizedBox(height: 16),
                         Text(
-                          'No dreams yet.',
+                          AppLocalizations.of(context)!.noDreamsYet,
                           style: GoogleFonts.kufam(
                             color: Colors.white70,
                             fontSize: 18,
@@ -114,27 +116,12 @@ class _PreviousDreamsScreenState extends State<PreviousDreamsScreen> {
   }
 }
 
-const _monthAbbr = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-String? _formatDate(String? isoTimestamp) {
+String? _formatDate(String? isoTimestamp, Locale locale) {
   if (isoTimestamp == null) return null;
   final parsed = DateTime.tryParse(isoTimestamp);
   if (parsed == null) return null;
   final local = parsed.toLocal();
-  return '${_monthAbbr[local.month - 1]} ${local.day}, ${local.year}';
+  return DateFormat.yMMMd(locale.toString()).format(local);
 }
 
 String _avatarPath(String? interpreter) {
@@ -168,11 +155,12 @@ class _DreamCardState extends State<_DreamCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(20),
       side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
     );
-    final date = _formatDate(widget.timestamp);
+    final date = _formatDate(widget.timestamp, Localizations.localeOf(context));
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
@@ -193,7 +181,7 @@ class _DreamCardState extends State<_DreamCard> {
           ),
         ),
         title: Text(
-          widget.interpreter ?? 'Unknown interpreter',
+          widget.interpreter ?? l10n.unknownInterpreter,
           style: GoogleFonts.kufam(
             color: const Color(0xFFFF91B3),
             fontSize: 14,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_routes.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'screens/who_should_interpret_screen.dart';
 import 'screens/previous_dreams_screen.dart';
 import 'screens/buy_credits_screen.dart';
@@ -25,87 +26,82 @@ class DreamAIApp extends StatelessWidget {
     return MaterialApp(
       title: 'DreamAI',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       initialRoute: AppRoutes.dream,
       routes: {
         AppRoutes.dream: (context) => const DreamPage(),
         AppRoutes.previousDreams: (context) => const PreviousDreamsScreen(),
         AppRoutes.buyCredits: (context) => const BuyCreditsScreen(),
         AppRoutes.contact: (context) => const ContactScreen(),
-        AppRoutes.privacy: (context) => const InfoScreen(
-              title: 'Privacy Policy',
-              sections: [
-                InfoSection(
-                  heading: 'Dream content',
-                  body:
-                      'Your dream text is sent to OpenAI to generate an interpretation. We don\'t retain it in any database or log once the response is returned. If you save a result with "My Past Dreams," it stays only on your device — it is never uploaded to our servers.',
-                ),
-                InfoSection(
-                  heading: 'Device identifier',
-                  body:
-                      'DreamAI creates a random, app-specific device identifier (not tied to your name or Apple ID). It\'s used to enforce free/monthly usage limits, match purchases to your device, and prevent fraud or abuse.',
-                ),
-                InfoSection(
-                  heading: 'Purchases and subscriptions',
-                  body:
-                      'Payments are handled by the App Store and RevenueCat — we never see or store your card details. We keep limited records tied to your device identifier (subscription status, purchased credit counts) to deliver what you\'ve paid for.',
-                ),
-                InfoSection(
-                  heading: 'Support requests',
-                  body:
-                      'DreamAI doesn\'t require an account. If you contact us for support, we only process the details you choose to share with us for that purpose.',
-                ),
-                InfoSection(
-                  heading: 'How we use this information',
-                  body:
-                      'Solely to generate interpretations, run the app\'s core features, enforce usage limits, prevent abuse, respond to support requests, and keep the service reliable. We do not use it for targeted advertising or cross-app tracking.',
-                ),
-                InfoSection(
-                  heading: 'Third-party services',
-                  body:
-                      'OpenAI, RevenueCat, and the App Store each process data under their own privacy policies. We only share what\'s operationally necessary — never more than that.',
-                ),
-                InfoSection(
-                  heading: 'Data retention',
-                  body:
-                      'Dream text isn\'t retained after a response is generated. Anything saved locally with "My Past Dreams" stays until you delete it. Backend usage/purchase records are kept only as long as needed to operate the service.',
-                ),
-                InfoSection(
-                  heading: 'Your choices',
-                  body:
-                      'You can delete any saved dream at any time from "My Past Dreams." To request deletion of records held on our servers, contact us — we\'ll review and honor the request in line with applicable law.',
-                ),
-                InfoSection(
-                  heading: 'Children\'s privacy',
-                  body:
-                      'DreamAI does not require an account and does not knowingly collect names, email addresses, or other profile information from children.',
-                ),
-                InfoSection(
-                  heading: 'Changes to this policy',
-                  body:
-                      'If this policy changes, we\'ll post the update here with a revised date.',
-                ),
-                InfoSection(
-                  heading: 'Contact',
-                  body:
-                      'Questions about this policy? Reach us at a.yasiny.yilmaz@gmail.com.',
-                ),
-              ],
-            ),
-        AppRoutes.terms: (context) => const InfoScreen(
-              title: 'Terms and Conditions',
-              sections: [
-                InfoSection(
-                  heading: 'For reflection, not diagnosis',
-                  body:
-                      'DreamAI offers creative and reflective interpretations for entertainment. It is not medical, mental-health, legal, or professional advice.',
-                ),
-                InfoSection(
-                  heading: 'Use with care',
-                  body:
-                      'Please avoid entering information that is highly sensitive or belongs to someone else. If a dream raises urgent concerns, contact a qualified professional or local emergency service.',
-                ),
-              ],
-            ),
+        AppRoutes.privacy: (context) {
+          final l10n = AppLocalizations.of(context)!;
+          return InfoScreen(
+            title: l10n.privacyPolicyTitle,
+            sections: [
+              InfoSection(
+                heading: l10n.privacySectionDreamContentHeading,
+                body: l10n.privacySectionDreamContentBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionDeviceIdHeading,
+                body: l10n.privacySectionDeviceIdBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionPurchasesHeading,
+                body: l10n.privacySectionPurchasesBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionSupportHeading,
+                body: l10n.privacySectionSupportBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionUsageHeading,
+                body: l10n.privacySectionUsageBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionThirdPartyHeading,
+                body: l10n.privacySectionThirdPartyBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionRetentionHeading,
+                body: l10n.privacySectionRetentionBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionChoicesHeading,
+                body: l10n.privacySectionChoicesBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionChildrenHeading,
+                body: l10n.privacySectionChildrenBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionChangesHeading,
+                body: l10n.privacySectionChangesBody,
+              ),
+              InfoSection(
+                heading: l10n.privacySectionContactHeading,
+                body: l10n.privacySectionContactBody,
+              ),
+            ],
+          );
+        },
+        AppRoutes.terms: (context) {
+          final l10n = AppLocalizations.of(context)!;
+          return InfoScreen(
+            title: l10n.termsTitle,
+            sections: [
+              InfoSection(
+                heading: l10n.termsSectionReflectionHeading,
+                body: l10n.termsSectionReflectionBody,
+              ),
+              InfoSection(
+                heading: l10n.termsSectionCareHeading,
+                body: l10n.termsSectionCareBody,
+              ),
+            ],
+          );
+        },
       },
     );
   }
@@ -119,13 +115,6 @@ class DreamPage extends StatefulWidget {
 }
 
 class _DreamPageState extends State<DreamPage> {
-  static const _placeholderDreams = [
-    'A large fairy bird caught me and brought me up to the clouds.',
-    'I was swimming through an ocean made of stars.',
-    'My childhood home turned into a maze of mirrors.',
-    'I could fly, but only a few inches off the ground.',
-    'A stranger handed me a key that glowed in the dark.',
-  ];
   static const _typeDelay = Duration(milliseconds: 40);
   static const _holdDelay = Duration(milliseconds: 1400);
 
@@ -134,6 +123,7 @@ class _DreamPageState extends State<DreamPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isFocused = false;
   String _hintText = '';
+  bool _typewriterStarted = false;
 
   @override
   void initState() {
@@ -143,13 +133,28 @@ class _DreamPageState extends State<DreamPage> {
         _isFocused = _focusNode.hasFocus;
       });
     });
-    _runPlaceholderTypewriter();
   }
 
-  Future<void> _runPlaceholderTypewriter() async {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_typewriterStarted) {
+      _typewriterStarted = true;
+      final l10n = AppLocalizations.of(context)!;
+      _runPlaceholderTypewriter([
+        l10n.dreamPlaceholder1,
+        l10n.dreamPlaceholder2,
+        l10n.dreamPlaceholder3,
+        l10n.dreamPlaceholder4,
+        l10n.dreamPlaceholder5,
+      ]);
+    }
+  }
+
+  Future<void> _runPlaceholderTypewriter(List<String> dreams) async {
     var index = 0;
     while (mounted) {
-      final dream = _placeholderDreams[index % _placeholderDreams.length];
+      final dream = dreams[index % dreams.length];
       for (var i = 1; i <= dream.length; i++) {
         if (!mounted) return;
         setState(() => _hintText = dream.substring(0, i));
@@ -170,6 +175,7 @@ class _DreamPageState extends State<DreamPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -195,7 +201,7 @@ class _DreamPageState extends State<DreamPage> {
                     child: ConstrainedBox(
                       constraints:
                           BoxConstraints(minHeight: constraints.maxHeight),
-                      child: _buildContent(screenWidth),
+                      child: _buildContent(screenWidth, l10n),
                     ),
                   );
                 },
@@ -207,7 +213,7 @@ class _DreamPageState extends State<DreamPage> {
     );
   }
 
-  Widget _buildContent(double screenWidth) {
+  Widget _buildContent(double screenWidth, AppLocalizations l10n) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -231,7 +237,7 @@ class _DreamPageState extends State<DreamPage> {
         const SizedBox(height: 40),
 
         Text(
-          'Tell me your dream...',
+          l10n.dreamHint,
           style: GoogleFonts.kufam(
             fontSize: 20,
             letterSpacing: 0.0,
@@ -297,7 +303,7 @@ class _DreamPageState extends State<DreamPage> {
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
             ),
             child: Text(
-              'analyze',
+              l10n.analyzeButton,
               style: GoogleFonts.kufam(
                 fontSize: 22,
                 color: const Color(0xFF81546F),

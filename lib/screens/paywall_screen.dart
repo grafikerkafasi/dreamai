@@ -4,6 +4,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app_routes.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../services/purchase_service.dart';
 
 const _privacyPolicyUrl = 'https://sanai.uk/dreamai/privacy-policy.html';
@@ -46,7 +47,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       if (!mounted) return;
       setState(() {
         _loadingOffering = false;
-        _error = 'Unable to load subscription options. Please try again.';
+        _error = AppLocalizations.of(context)!.subscriptionLoadError;
       });
     }
   }
@@ -74,7 +75,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       case SubscribeOutcome.notEntitled:
       case SubscribeOutcome.failure:
         setState(() =>
-            _error = 'Purchase could not be completed. Please try again.');
+            _error = AppLocalizations.of(context)!.purchaseFailedGeneric);
         break;
     }
   }
@@ -87,12 +88,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
     if (restored) {
       Navigator.pop(context, true);
     } else {
-      setState(() => _error = 'No active subscription found for this device.');
+      setState(
+          () => _error = AppLocalizations.of(context)!.noActiveSubscription);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final package = _offering?.monthly ?? _firstAvailablePackage;
     final priceText = package?.storeProduct.priceString ?? '\$4.99/month';
 
@@ -127,7 +130,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     color: const Color(0xFFFF91B3), size: 48),
                 const SizedBox(height: 20),
                 Text(
-                  'Unlock more dream interpretations',
+                  l10n.unlockMoreDreams,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.kufam(
                     fontSize: 22,
@@ -143,7 +146,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Up to 50 dream interpretations a month for $priceText.',
+                  l10n.subscriptionOfferBody(priceText),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.kufam(
                     fontSize: 16,
@@ -181,10 +184,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           )
                         : Text(
                             _loadingOffering
-                                ? 'Loading...'
+                                ? l10n.loadingButton
                                 : package == null
-                                    ? 'Not available'
-                                    : 'Subscribe',
+                                    ? l10n.notAvailableButton
+                                    : l10n.subscribeButton,
                             style: GoogleFonts.kufam(
                               fontSize: 18,
                               color: const Color(0xFF81546F),
@@ -197,13 +200,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 TextButton(
                   onPressed: _purchasing ? null : _restore,
                   child: Text(
-                    'Restore purchases',
+                    l10n.restorePurchases,
                     style: GoogleFonts.kufam(color: Colors.white70),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'For reflection and entertainment only — not medical or mental-health advice.',
+                  l10n.reflectionDisclaimer,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.kufam(
                     fontSize: 11,
@@ -219,7 +222,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       onPressed: () =>
                           Navigator.of(context).pushNamed(AppRoutes.terms),
                       child: Text(
-                        'Terms of Use',
+                        l10n.termsOfUse,
                         style: GoogleFonts.kufam(
                           fontSize: 12,
                           color: Colors.white54,
@@ -236,7 +239,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         mode: LaunchMode.externalApplication,
                       ),
                       child: Text(
-                        'Privacy Policy',
+                        l10n.privacyPolicyLink,
                         style: GoogleFonts.kufam(
                           fontSize: 12,
                           color: Colors.white54,

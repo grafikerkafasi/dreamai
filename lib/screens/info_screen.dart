@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'app_logo_button.dart';
 import 'custom_drawer.dart';
 import 'history_button.dart';
@@ -72,7 +73,7 @@ class _DreamPageScaffoldState extends State<DreamPageScaffold> {
               elevation: 0,
               centerTitle: true,
               leading: IconButton(
-                tooltip: 'Open menu',
+                tooltip: AppLocalizations.of(context)!.openMenuTooltip,
                 onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                 icon: Image.asset('assets/images/menu.png', width: 35),
               ),

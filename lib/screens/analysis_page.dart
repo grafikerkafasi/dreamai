@@ -6,18 +6,13 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../openai_service.dart';
 import '../services/dream_storage_service.dart';
 import 'app_logo_button.dart';
 import 'custom_drawer.dart'; // Drawer'ı ekledik
 import 'history_button.dart';
 import 'paywall_screen.dart';
-
-/// Turns an interpreter's name into its English possessive form, e.g.
-/// "Freud" -> "Freud's", "Alan Watts" -> "Alan Watts'".
-String _possessive(String name) {
-  return name.endsWith('s') ? "$name'" : "$name's";
-}
 
 class AnalysisPage extends StatefulWidget {
   final String dreamText;
@@ -113,11 +108,11 @@ class _AnalysisPageState extends State<AnalysisPage> {
       final file = File('${tempDir.path}/dreamai_analysis.png');
       await file.writeAsBytes(byteData.buffer.asUint8List());
 
+      if (!mounted) return;
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          text:
-              '${_possessive(widget.interpreter)} take on my dream — via DreamAI',
+          text: AppLocalizations.of(context)!.shareText(widget.interpreter),
         ),
       );
     } finally {
@@ -127,6 +122,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final String imagePath =
         'assets/images/interpreters/${widget.interpreter.toLowerCase().replaceAll(' ', '_')}.png';
 
@@ -208,7 +204,8 @@ class _AnalysisPageState extends State<AnalysisPage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'My dream analysis by ${widget.interpreter}',
+                                  l10n.dreamAnalysisByInterpreter(
+                                      widget.interpreter),
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.kufam(
                                     fontSize: 20,
@@ -246,7 +243,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                                 size: 26,
                                 color: Colors.white70,
                               ),
-                              tooltip: 'Back',
+                              tooltip: l10n.backTooltip,
                             ),
                             Expanded(
                               child: Center(
@@ -264,7 +261,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                                       : const Icon(Icons.ios_share_rounded,
                                           size: 26, color: Colors.white),
                                   label: Text(
-                                    'share',
+                                    l10n.shareButton,
                                     style: GoogleFonts.kufam(
                                       fontSize: 24,
                                       color: Colors.white,
@@ -283,7 +280,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'For reflection and entertainment only — not medical or mental-health advice.',
+                          l10n.reflectionDisclaimer,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.kufam(
                             fontSize: 11,
@@ -382,7 +379,7 @@ class _AnalyzingProgressState extends State<_AnalyzingProgress>
           ),
           const SizedBox(height: 20),
           Text(
-            'Interpreting your dream…',
+            AppLocalizations.of(context)!.interpretingDream,
             textAlign: TextAlign.center,
             style: GoogleFonts.kufam(
               color: Colors.white70,
@@ -418,7 +415,10 @@ class _ErrorState extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: onRetry, child: const Text('Try again')),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: Text(AppLocalizations.of(context)!.tryAgainButton),
+            ),
           ],
         ),
       ),

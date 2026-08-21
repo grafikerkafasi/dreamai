@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   dio: ^5.4.0
   shared_preferences: ^2.2.2
   lottie: ^2.6.0
@@ -28,6 +31,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/animations/splash.json
     - assets/splash.png

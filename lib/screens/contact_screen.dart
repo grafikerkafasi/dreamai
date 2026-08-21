@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'info_screen.dart';
 
 class ContactScreen extends StatelessWidget {
@@ -16,24 +17,25 @@ class ContactScreen extends StatelessWidget {
         await launchUrl(_mailUri, mode: LaunchMode.externalApplication);
     if (!launched && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open your mail app.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.mailAppError)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DreamPageScaffold(
-      title: 'Contact',
+      title: l10n.contactTitle,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(28, 32, 28, 48),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Contact', style: DreamPageStyles.heading),
+            Text(l10n.contactTitle, style: DreamPageStyles.heading),
             const SizedBox(height: 12),
             Text(
-              'We value your feedback and ideas — they help us make DreamAI better for everyone. Reach out anytime and we\'ll get back to you.',
+              l10n.contactBody,
               style: DreamPageStyles.body,
             ),
             const SizedBox(height: 28),
@@ -44,7 +46,7 @@ class ContactScreen extends StatelessWidget {
                 foregroundColor: const Color(0xFF81546F),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text('Contact Us'),
+              child: Text(l10n.contactUsButton),
             ),
           ],
         ),

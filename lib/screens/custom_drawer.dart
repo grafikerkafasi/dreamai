@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../app_routes.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class CustomDrawer extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -9,6 +10,7 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Drawer(
       backgroundColor: Colors.black,
       child: Column(
@@ -30,33 +32,33 @@ class CustomDrawer extends StatelessWidget {
           Column(
             children: [
               _buildDrawerButton(
-                text: 'Tell Your Dream',
+                text: l10n.tellYourDream,
                 onTap: () => _replaceWith(context, AppRoutes.dream),
               ),
               _divider(),
               _buildDrawerButton(
-                text: 'Past Dreams',
+                text: l10n.pastDreams,
                 onTap: () => _push(context, AppRoutes.previousDreams),
               ),
               _divider(),
               _buildDrawerButton(
-                text: 'Get More Dreams',
+                text: l10n.getMoreDreamsTitle,
                 color: const Color(0xFFFF91B3),
                 onTap: () => _push(context, AppRoutes.buyCredits),
               ),
               _divider(),
               _buildDrawerButton(
-                text: 'Contact',
+                text: l10n.contactTitle,
                 onTap: () => _push(context, AppRoutes.contact),
               ),
               _divider(),
               _buildDrawerButton(
-                text: 'Privacy Policy',
+                text: l10n.privacyPolicyLink,
                 onTap: () => _push(context, AppRoutes.privacy),
               ),
               _divider(),
               _buildDrawerButton(
-                text: 'Terms and Conditions',
+                text: l10n.termsTitle,
                 onTap: () => _push(context, AppRoutes.terms),
               ),
             ],

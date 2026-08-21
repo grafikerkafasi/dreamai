@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app_routes.dart';
+import '../l10n/generated/app_localizations.dart';
 
 /// Quick shortcut to "My past dreams", shown in the top-right corner of the
 /// AppBar to mirror the hamburger menu on the top-left.
@@ -11,7 +12,7 @@ class HistoryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      tooltip: 'My past dreams',
+      tooltip: AppLocalizations.of(context)!.myPastDreamsTooltip,
       onPressed: () => Navigator.of(context).pushNamed(AppRoutes.previousDreams),
       icon: const Icon(Icons.history_rounded, color: _color, size: 32),
     );

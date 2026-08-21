@@ -1,0 +1,104 @@
+{
+  "@@locale": "tr",
+
+  "dreamHint": "Rüyanı anlat...",
+  "analyzeButton": "yorumla",
+
+  "dreamPlaceholder1": "Kocaman bir peri kuşu beni yakaladı ve bulutlara çıkardı.",
+  "dreamPlaceholder2": "Yıldızlardan oluşan bir okyanusta yüzüyordum.",
+  "dreamPlaceholder3": "Çocukluk evim aynalardan oluşan bir labirente dönüştü.",
+  "dreamPlaceholder4": "Uçabiliyordum ama yerden sadece birkaç santim yükseklikte.",
+  "dreamPlaceholder5": "Bir yabancı bana karanlıkta parlayan bir anahtar verdi.",
+
+  "chooseInterpreter": "Bir Yorumcu Seç",
+  "dreamsLeftThisMonth": "{count, plural, other{Bu ay {count} rüya hakkın kaldı}}",
+  "@dreamsLeftThisMonth": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "freeDreamsLeft": "{count, plural, other{{count} ücretsiz rüya hakkın kaldı}}",
+  "@freeDreamsLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "dreamAnalysisByInterpreter": "{interpreter} gözünden rüya analizim",
+  "@dreamAnalysisByInterpreter": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+  "shareButton": "paylaş",
+  "backTooltip": "Geri",
+  "tryAgainButton": "Tekrar dene",
+  "interpretingDream": "Rüyan yorumlanıyor…",
+  "reflectionDisclaimer": "Yalnızca eğlence ve düşünme amaçlıdır — tıbbi veya ruh sağlığı tavsiyesi değildir.",
+  "shareText": "{interpreter} yorumuyla rüya analizim — DreamAI ile",
+  "@shareText": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+
+  "getMoreDreamsTitle": "Daha Fazla Rüya Al",
+  "creditPacksIntro": "Hakkın mı azaldı? Abonelik gerekmeden, tek seferlik bir kredi paketiyle yükle — süresi de dolmaz.",
+  "dreamsAvailable": "{count, plural, other{{count} rüya yorumu hakkın var}}",
+  "@dreamsAvailable": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "creditPacksLoadError": "Kredi paketleri yüklenemedi. Lütfen tekrar deneyin.",
+  "creditPacksUnavailable": "Kredi paketleri şu anda mevcut değil. Lütfen daha sonra tekrar kontrol edin.",
+  "creditsAddedSnackbar": "Krediler eklendi — iyi eğlenceler!",
+  "purchaseFailedGeneric": "Satın alma tamamlanamadı. Lütfen tekrar deneyin.",
+  "termsOfUse": "Kullanım Koşulları",
+  "privacyPolicyLink": "Gizlilik Politikası",
+
+  "unlockMoreDreams": "Daha fazla rüya yorumunun kilidini aç",
+  "subscriptionOfferBody": "Ayda {price} karşılığında ayda 50'ye kadar rüya yorumu.",
+  "@subscriptionOfferBody": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionLoadError": "Abonelik seçenekleri yüklenemedi. Lütfen tekrar deneyin.",
+  "noActiveSubscription": "Bu cihaz için aktif bir abonelik bulunamadı.",
+  "loadingButton": "Yükleniyor...",
+  "notAvailableButton": "Mevcut değil",
+  "subscribeButton": "Abone ol",
+  "restorePurchases": "Satın alımları geri yükle",
+
+  "contactTitle": "İletişim",
+  "contactBody": "Geri bildirimlerinize ve fikirlerinize değer veriyoruz — DreamAI'yi herkes için daha iyi hale getirmemize yardımcı oluyorlar. Bize istediğiniz zaman ulaşabilirsiniz, geri döneceğiz.",
+  "contactUsButton": "Bize Ulaşın",
+  "mailAppError": "Mail uygulaması açılamadı.",
+
+  "tellYourDream": "Rüyanı Anlat",
+  "pastDreams": "Geçmiş Rüyalar",
+  "myPastDreamsTooltip": "Geçmiş rüyalarım",
+  "openMenuTooltip": "Menüyü aç",
+
+  "noDreamsYet": "Henüz rüya yok.",
+  "unknownInterpreter": "Bilinmeyen yorumcu",
+
+  "privacyPolicyTitle": "Gizlilik Politikası",
+  "privacySectionDreamContentHeading": "Rüya içeriği",
+  "privacySectionDreamContentBody": "Rüya metniniz bir yorum oluşturmak için OpenAI'ye gönderilir. Yanıt döndükten sonra bunu hiçbir veritabanında veya günlükte tutmuyoruz. Bir sonucu \"Geçmiş Rüyalarım\" ile kaydederseniz, yalnızca cihazınızda kalır — sunucularımıza asla yüklenmez.",
+  "privacySectionDeviceIdHeading": "Cihaz kimliği",
+  "privacySectionDeviceIdBody": "DreamAI, adınıza veya Apple Kimliğinize bağlı olmayan, rastgele ve uygulamaya özel bir cihaz kimliği oluşturur. Bu kimlik, ücretsiz/aylık kullanım limitlerini uygulamak, satın alımları cihazınızla eşleştirmek ve dolandırıcılık veya kötüye kullanımı önlemek için kullanılır.",
+  "privacySectionPurchasesHeading": "Satın alımlar ve abonelikler",
+  "privacySectionPurchasesBody": "Ödemeler App Store ve RevenueCat tarafından işlenir — kart bilgilerinizi asla görmeyiz veya saklamayız. Ödediğiniz hizmeti sunabilmek için cihaz kimliğinize bağlı sınırlı kayıtlar (abonelik durumu, satın alınan kredi sayıları) tutarız.",
+  "privacySectionSupportHeading": "Destek talepleri",
+  "privacySectionSupportBody": "DreamAI hesap gerektirmez. Destek için bizimle iletişime geçerseniz, yalnızca o amaçla bizimle paylaşmayı tercih ettiğiniz bilgileri işleriz.",
+  "privacySectionUsageHeading": "Bu bilgileri nasıl kullanıyoruz",
+  "privacySectionUsageBody": "Yalnızca yorumlar oluşturmak, uygulamanın temel özelliklerini çalıştırmak, kullanım limitlerini uygulamak, kötüye kullanımı önlemek, destek taleplerine yanıt vermek ve hizmeti güvenilir tutmak için. Bu bilgileri hedefli reklamcılık veya uygulamalar arası takip için kullanmıyoruz.",
+  "privacySectionThirdPartyHeading": "Üçüncü taraf hizmetler",
+  "privacySectionThirdPartyBody": "OpenAI, RevenueCat ve App Store, verileri kendi gizlilik politikaları kapsamında işler. Yalnızca operasyonel olarak gerekli olanı paylaşırız — asla daha fazlasını değil.",
+  "privacySectionRetentionHeading": "Veri saklama",
+  "privacySectionRetentionBody": "Rüya metni, bir yanıt oluşturulduktan sonra saklanmaz. \"Geçmiş Rüyalarım\" ile yerel olarak kaydedilen her şey siz silene kadar kalır. Sunucu tarafındaki kullanım/satın alma kayıtları yalnızca hizmeti sürdürmek için gereken süre boyunca tutulur.",
+  "privacySectionChoicesHeading": "Seçimleriniz",
+  "privacySectionChoicesBody": "\"Geçmiş Rüyalarım\" bölümünden istediğiniz zaman kayıtlı bir rüyayı silebilirsiniz. Sunucularımızda tutulan kayıtların silinmesini talep etmek için bizimle iletişime geçin — talebi inceleyip yürürlükteki yasalara uygun şekilde işleme alacağız.",
+  "privacySectionChildrenHeading": "Çocukların gizliliği",
+  "privacySectionChildrenBody": "DreamAI hesap gerektirmez ve çocuklardan bilerek isim, e-posta adresi veya başka profil bilgisi toplamaz.",
+  "privacySectionChangesHeading": "Bu politikadaki değişiklikler",
+  "privacySectionChangesBody": "Bu politika değişirse, güncellemeyi revize edilmiş bir tarihle burada yayımlarız.",
+  "privacySectionContactHeading": "İletişim",
+  "privacySectionContactBody": "Bu politikayla ilgili sorularınız mı var? Bize a.yasiny.yilmaz@gmail.com adresinden ulaşabilirsiniz.",
+
+  "termsTitle": "Kullanım Şartları",
+  "termsSectionReflectionHeading": "Düşünmek için, teşhis için değil",
+  "termsSectionReflectionBody": "DreamAI, eğlence amaçlı yaratıcı ve düşünmeye yönelik yorumlar sunar. Tıbbi, ruh sağlığı, hukuki veya profesyonel bir tavsiye değildir.",
+  "termsSectionCareHeading": "Dikkatli kullanın",
+  "termsSectionCareBody": "Lütfen son derece hassas olan veya başkasına ait bilgileri girmekten kaçının. Bir rüya acil endişelere yol açıyorsa, kalifiye bir uzmana veya yerel acil servise başvurun."
+}

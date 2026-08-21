@@ -4,6 +4,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app_routes.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../openai_service.dart';
 import '../services/purchase_service.dart';
 import 'info_screen.dart';
@@ -47,7 +48,7 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
       if (!mounted) return;
       setState(() {
         _loadingOffering = false;
-        _error = 'Unable to load credit packs. Please try again.';
+        _error = AppLocalizations.of(context)!.creditPacksLoadError;
       });
     }
   }
@@ -75,18 +76,18 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
       if (usage != null) _usage = usage;
     });
 
+    final l10n = AppLocalizations.of(context)!;
     switch (outcome) {
       case SubscribeOutcome.success:
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Credits added — enjoy!')),
+          SnackBar(content: Text(l10n.creditsAddedSnackbar)),
         );
         break;
       case SubscribeOutcome.cancelled:
         break;
       case SubscribeOutcome.notEntitled:
       case SubscribeOutcome.failure:
-        setState(() =>
-            _error = 'Purchase could not be completed. Please try again.');
+        setState(() => _error = l10n.purchaseFailedGeneric);
         break;
     }
   }
@@ -95,24 +96,25 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
   Widget build(BuildContext context) {
     // Show cheapest-to-priciest regardless of how they're ordered in the
     // RevenueCat dashboard, so pack size and price always line up visually.
+    final l10n = AppLocalizations.of(context)!;
     final packages = [...?_offering?.availablePackages]
       ..sort((a, b) => a.storeProduct.price.compareTo(b.storeProduct.price));
 
     return DreamPageScaffold(
-      title: 'Get More Dreams',
+      title: l10n.getMoreDreamsTitle,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(28, 32, 28, 48),
         children: [
-          Text('Get More Dreams', style: DreamPageStyles.heading),
+          Text(l10n.getMoreDreamsTitle, style: DreamPageStyles.heading),
           const SizedBox(height: 12),
           Text(
-            'Running low? Top up with a one-time credit pack — no subscription needed, and they never expire.',
+            l10n.creditPacksIntro,
             style: DreamPageStyles.body,
           ),
           if (_usage != null) ...[
             const SizedBox(height: 12),
             Text(
-              '${_usage!.remaining} dream interpretations available',
+              l10n.dreamsAvailable(_usage!.remaining),
               style: DreamPageStyles.subheading,
             ),
           ],
@@ -134,7 +136,7 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
             )
           else if (packages.isEmpty)
             Text(
-              'Credit packs aren\'t available right now. Please check back later.',
+              l10n.creditPacksUnavailable,
               style: DreamPageStyles.body,
             )
           else
@@ -156,7 +158,7 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
                 onPressed: () =>
                     Navigator.of(context).pushNamed(AppRoutes.terms),
                 child: Text(
-                  'Terms of Use',
+                  l10n.termsOfUse,
                   style: GoogleFonts.kufam(
                     fontSize: 12,
                     color: Colors.white54,
@@ -173,7 +175,7 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
                   mode: LaunchMode.externalApplication,
                 ),
                 child: Text(
-                  'Privacy Policy',
+                  l10n.privacyPolicyLink,
                   style: GoogleFonts.kufam(
                     fontSize: 12,
                     color: Colors.white54,

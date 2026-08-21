@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../openai_service.dart';
 import 'analysis_page.dart';
 import 'app_logo_button.dart';
@@ -34,6 +35,7 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dreamText = widget.dreamText;
     final interpreters = OpenAIService.getAvailableInterpreters();
     final imageMap = {
@@ -102,7 +104,7 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
               children: [
                 const SizedBox(height: 20),
                 Text(
-                  'Choose an Interpreter',
+                  l10n.chooseInterpreter,
                   style: GoogleFonts.kufam(
                     color: const Color(0xFFFF91B3),
                     fontSize: 20,
@@ -113,8 +115,8 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
                   const SizedBox(height: 6),
                   Text(
                     _usage!.subscribed
-                        ? '${_usage!.remaining} dreams left this month'
-                        : '${_usage!.remaining} free dreams left',
+                        ? l10n.dreamsLeftThisMonth(_usage!.remaining)
+                        : l10n.freeDreamsLeft(_usage!.remaining),
                     style: GoogleFonts.kufam(
                       color: const Color(0xFFFAEAD6),
                       fontSize: 13,

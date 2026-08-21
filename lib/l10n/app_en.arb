@@ -1,0 +1,104 @@
+{
+  "@@locale": "en",
+
+  "dreamHint": "Tell me your dream...",
+  "analyzeButton": "analyze",
+
+  "dreamPlaceholder1": "A large fairy bird caught me and brought me up to the clouds.",
+  "dreamPlaceholder2": "I was swimming through an ocean made of stars.",
+  "dreamPlaceholder3": "My childhood home turned into a maze of mirrors.",
+  "dreamPlaceholder4": "I could fly, but only a few inches off the ground.",
+  "dreamPlaceholder5": "A stranger handed me a key that glowed in the dark.",
+
+  "chooseInterpreter": "Choose an Interpreter",
+  "dreamsLeftThisMonth": "{count, plural, one{{count} dream left this month} other{{count} dreams left this month}}",
+  "@dreamsLeftThisMonth": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "freeDreamsLeft": "{count, plural, one{{count} free dream left} other{{count} free dreams left}}",
+  "@freeDreamsLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "dreamAnalysisByInterpreter": "My dream analysis by {interpreter}",
+  "@dreamAnalysisByInterpreter": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+  "shareButton": "share",
+  "backTooltip": "Back",
+  "tryAgainButton": "Try again",
+  "interpretingDream": "Interpreting your dream…",
+  "reflectionDisclaimer": "For reflection and entertainment only — not medical or mental-health advice.",
+  "shareText": "Dream analysis by {interpreter} — via DreamAI",
+  "@shareText": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+
+  "getMoreDreamsTitle": "Get More Dreams",
+  "creditPacksIntro": "Running low? Top up with a one-time credit pack — no subscription needed, and they never expire.",
+  "dreamsAvailable": "{count, plural, one{{count} dream interpretation available} other{{count} dream interpretations available}}",
+  "@dreamsAvailable": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "creditPacksLoadError": "Unable to load credit packs. Please try again.",
+  "creditPacksUnavailable": "Credit packs aren't available right now. Please check back later.",
+  "creditsAddedSnackbar": "Credits added — enjoy!",
+  "purchaseFailedGeneric": "Purchase could not be completed. Please try again.",
+  "termsOfUse": "Terms of Use",
+  "privacyPolicyLink": "Privacy Policy",
+
+  "unlockMoreDreams": "Unlock more dream interpretations",
+  "subscriptionOfferBody": "Up to 50 dream interpretations a month for {price}.",
+  "@subscriptionOfferBody": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionLoadError": "Unable to load subscription options. Please try again.",
+  "noActiveSubscription": "No active subscription found for this device.",
+  "loadingButton": "Loading...",
+  "notAvailableButton": "Not available",
+  "subscribeButton": "Subscribe",
+  "restorePurchases": "Restore purchases",
+
+  "contactTitle": "Contact",
+  "contactBody": "We value your feedback and ideas — they help us make DreamAI better for everyone. Reach out anytime and we'll get back to you.",
+  "contactUsButton": "Contact Us",
+  "mailAppError": "Could not open your mail app.",
+
+  "tellYourDream": "Tell Your Dream",
+  "pastDreams": "Past Dreams",
+  "myPastDreamsTooltip": "My past dreams",
+  "openMenuTooltip": "Open menu",
+
+  "noDreamsYet": "No dreams yet.",
+  "unknownInterpreter": "Unknown interpreter",
+
+  "privacyPolicyTitle": "Privacy Policy",
+  "privacySectionDreamContentHeading": "Dream content",
+  "privacySectionDreamContentBody": "Your dream text is sent to OpenAI to generate an interpretation. We don't retain it in any database or log once the response is returned. If you save a result with \"My Past Dreams,\" it stays only on your device — it is never uploaded to our servers.",
+  "privacySectionDeviceIdHeading": "Device identifier",
+  "privacySectionDeviceIdBody": "DreamAI creates a random, app-specific device identifier (not tied to your name or Apple ID). It's used to enforce free/monthly usage limits, match purchases to your device, and prevent fraud or abuse.",
+  "privacySectionPurchasesHeading": "Purchases and subscriptions",
+  "privacySectionPurchasesBody": "Payments are handled by the App Store and RevenueCat — we never see or store your card details. We keep limited records tied to your device identifier (subscription status, purchased credit counts) to deliver what you've paid for.",
+  "privacySectionSupportHeading": "Support requests",
+  "privacySectionSupportBody": "DreamAI doesn't require an account. If you contact us for support, we only process the details you choose to share with us for that purpose.",
+  "privacySectionUsageHeading": "How we use this information",
+  "privacySectionUsageBody": "Solely to generate interpretations, run the app's core features, enforce usage limits, prevent abuse, respond to support requests, and keep the service reliable. We do not use it for targeted advertising or cross-app tracking.",
+  "privacySectionThirdPartyHeading": "Third-party services",
+  "privacySectionThirdPartyBody": "OpenAI, RevenueCat, and the App Store each process data under their own privacy policies. We only share what's operationally necessary — never more than that.",
+  "privacySectionRetentionHeading": "Data retention",
+  "privacySectionRetentionBody": "Dream text isn't retained after a response is generated. Anything saved locally with \"My Past Dreams\" stays until you delete it. Backend usage/purchase records are kept only as long as needed to operate the service.",
+  "privacySectionChoicesHeading": "Your choices",
+  "privacySectionChoicesBody": "You can delete any saved dream at any time from \"My Past Dreams.\" To request deletion of records held on our servers, contact us — we'll review and honor the request in line with applicable law.",
+  "privacySectionChildrenHeading": "Children's privacy",
+  "privacySectionChildrenBody": "DreamAI does not require an account and does not knowingly collect names, email addresses, or other profile information from children.",
+  "privacySectionChangesHeading": "Changes to this policy",
+  "privacySectionChangesBody": "If this policy changes, we'll post the update here with a revised date.",
+  "privacySectionContactHeading": "Contact",
+  "privacySectionContactBody": "Questions about this policy? Reach us at a.yasiny.yilmaz@gmail.com.",
+
+  "termsTitle": "Terms and Conditions",
+  "termsSectionReflectionHeading": "For reflection, not diagnosis",
+  "termsSectionReflectionBody": "DreamAI offers creative and reflective interpretations for entertainment. It is not medical, mental-health, legal, or professional advice.",
+  "termsSectionCareHeading": "Use with care",
+  "termsSectionCareBody": "Please avoid entering information that is highly sensitive or belongs to someone else. If a dream raises urgent concerns, contact a qualified professional or local emergency service."
+}
