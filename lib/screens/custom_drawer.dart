@@ -30,12 +30,12 @@ class CustomDrawer extends StatelessWidget {
           Column(
             children: [
               _buildDrawerButton(
-                text: 'Tell your dream',
+                text: 'Tell Your Dream',
                 onTap: () => _replaceWith(context, AppRoutes.dream),
               ),
               _divider(),
               _buildDrawerButton(
-                text: "My past dreams",
+                text: 'Past Dreams',
                 onTap: () => _push(context, AppRoutes.previousDreams),
               ),
               _divider(),
@@ -50,7 +50,7 @@ class CustomDrawer extends StatelessWidget {
               ),
               _divider(),
               _buildDrawerButton(
-                text: 'Terms And Conditions',
+                text: 'Terms and Conditions',
                 onTap: () => _push(context, AppRoutes.terms),
               ),
             ],
