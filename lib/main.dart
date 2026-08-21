@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_routes.dart';
 import 'screens/who_should_interpret_screen.dart';
 import 'screens/previous_dreams_screen.dart';
+import 'screens/buy_credits_screen.dart';
 import 'screens/custom_drawer.dart'; // ← Drawer'ı import et
 import 'screens/app_logo_button.dart';
 import 'screens/contact_screen.dart';
@@ -28,6 +29,7 @@ class DreamAIApp extends StatelessWidget {
       routes: {
         AppRoutes.dream: (context) => const DreamPage(),
         AppRoutes.previousDreams: (context) => const PreviousDreamsScreen(),
+        AppRoutes.buyCredits: (context) => const BuyCreditsScreen(),
         AppRoutes.contact: (context) => const ContactScreen(),
         AppRoutes.privacy: (context) => const InfoScreen(
               title: 'Privacy Policy',

@@ -99,6 +99,56 @@ reinstalling the app doesn't reset the free count.
 Free and monthly limits are configurable via `FREE_DREAM_LIMIT` (default
 3) and `MONTHLY_DREAM_LIMIT` (default 30) in `.env`.
 
+## Monetization: one-time credit packs
+
+Independent of the subscription, a user can buy a one-time pack of bonus
+dream interpretations (`lib/screens/buy_credits_screen.dart`, linked from
+the hamburger menu as "Get More Dreams") — useful for someone who burns
+through their 30/month fast but doesn't want to wait for the next billing
+period, or a free-tier user who wants a few more without subscribing.
+
+**How it works:** mirrors the subscription path above rather than
+inventing a new mechanism — same RevenueCat webhook (`NON_RENEWING_PURCHASE`
+event) as the primary path, plus the same kind of live REST fallback (this
+time via `POST /redeem-credits`, called right after `purchase_service.dart`
+completes a purchase, so the balance updates immediately instead of
+waiting on the webhook). Applying a purchase is idempotent — each RevenueCat
+purchase id is recorded in `redeemed_purchases` before its credits are
+added, so the webhook and the self-heal call can never double-credit the
+same purchase. `/analyze` spends a credit only after the free/monthly
+allowance is exhausted.
+
+**⚠️ Not yet verified against a live purchase.** `revenuecat_client.js`'s
+`fetchUnredeemedCreditPurchases` reads RevenueCat's `GET
+/v2/projects/{id}/customers/{id}/purchases` and guesses at the purchase/
+product id field names (`product_id`/`store_product_id`,
+`id`/`transaction_id`/`store_transaction_id`) since no real purchase exists
+yet to confirm the exact response shape — check Render's logs against a
+real sandbox purchase before relying on this in production, the same way
+today's entitlement-id and v1-vs-v2 API bugs only turned up once there was
+real data to check against.
+
+**Still needed before this can go live:**
+1. In App Store Connect and Google Play Console, create one or more
+   **consumable** (not auto-renewing) in-app purchase products — e.g.
+   `dreamai_credits_10` for a 10-pack. Give each a clear title/description
+   in the store listing ("10 Extra Dreams" / "10 more dream
+   interpretations, no expiry") — the app shows those directly rather than
+   hardcoding pack sizes.
+2. In RevenueCat, add each as a **Non-Subscription** product and put them
+   in a **new offering** whose Identifier is exactly `credits` (matching
+   `PurchaseService.creditsOfferingId`) — separate from the `default`
+   offering the subscription uses.
+3. Set `CREDIT_PRODUCT_MAP` on Render to a JSON object mapping each
+   product id to how many credits it grants, e.g.
+   `{"dreamai_credits_10":10,"dreamai_credits_30":30}`. This is what both
+   the webhook handler and `/redeem-credits` use to know how many credits
+   a purchase is worth — nothing is hardcoded in source, so adding a new
+   pack later is just an env var edit.
+4. The existing RevenueCat webhook (already pointed at
+   `/revenuecat-webhook`, see the subscription section above) automatically
+   covers `NON_RENEWING_PURCHASE` events too — no separate webhook needed.
+
 ## Contact email
 
 The contact form posts to the Node service and sends to

@@ -14,16 +14,32 @@ const client = process.env.TURSO_DATABASE_URL
       url: `file:${process.env.USAGE_DB_PATH || path.join(__dirname, 'usage.db')}`,
     });
 
-const ready = client.execute(`
-  CREATE TABLE IF NOT EXISTS usage (
-    device_id TEXT PRIMARY KEY,
-    free_used INTEGER NOT NULL DEFAULT 0,
-    subscribed INTEGER NOT NULL DEFAULT 0,
-    period_start TEXT NOT NULL DEFAULT '',
-    period_used INTEGER NOT NULL DEFAULT 0,
-    updated_at TEXT NOT NULL DEFAULT ''
-  )
-`);
+const ready = Promise.all([
+  client.execute(`
+    CREATE TABLE IF NOT EXISTS usage (
+      device_id TEXT PRIMARY KEY,
+      free_used INTEGER NOT NULL DEFAULT 0,
+      subscribed INTEGER NOT NULL DEFAULT 0,
+      period_start TEXT NOT NULL DEFAULT '',
+      period_used INTEGER NOT NULL DEFAULT 0,
+      extra_credits INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT ''
+    )
+  `),
+  // Records every one-time credit-pack purchase we've already applied, so
+  // crediting stays a no-op on retries — whether the same purchase reaches
+  // us twice via the webhook, or via the /redeem-credits self-heal check
+  // (see revenuecat_client.js) after the webhook already handled it.
+  client.execute(`
+    CREATE TABLE IF NOT EXISTS redeemed_purchases (
+      purchase_id TEXT PRIMARY KEY,
+      device_id TEXT NOT NULL,
+      product_id TEXT NOT NULL,
+      credits INTEGER NOT NULL,
+      redeemed_at TEXT NOT NULL
+    )
+  `),
+]);
 
 function currentPeriod() {
   const now = new Date();
@@ -39,7 +55,7 @@ async function getOrCreateRow(deviceId) {
   if (result.rows.length > 0) return { ...result.rows[0] };
 
   await client.execute({
-    sql: 'INSERT INTO usage (device_id, free_used, subscribed, period_start, period_used, updated_at) VALUES (?, 0, 0, ?, 0, ?)',
+    sql: 'INSERT INTO usage (device_id, free_used, subscribed, period_start, period_used, extra_credits, updated_at) VALUES (?, 0, 0, ?, 0, 0, ?)',
     args: [deviceId, currentPeriod(), new Date().toISOString()],
   });
   return {
@@ -48,6 +64,7 @@ async function getOrCreateRow(deviceId) {
     subscribed: 0,
     period_start: currentPeriod(),
     period_used: 0,
+    extra_credits: 0,
   };
 }
 
@@ -63,46 +80,46 @@ function rollPeriodIfNeeded(row) {
 async function persist(row) {
   await client.execute({
     sql: `UPDATE usage
-          SET free_used = ?, subscribed = ?, period_start = ?, period_used = ?, updated_at = ?
+          SET free_used = ?, subscribed = ?, period_start = ?, period_used = ?, extra_credits = ?, updated_at = ?
           WHERE device_id = ?`,
     args: [
       row.free_used,
       row.subscribed,
       row.period_start,
       row.period_used,
+      row.extra_credits,
       new Date().toISOString(),
       row.device_id,
     ],
   });
 }
 
-// Returns { allowed, reason, freeUsed, freeLimit, periodUsed, periodLimit, subscribed }
+// Returns { allowed, reason, freeUsed, freeLimit, periodUsed, periodLimit,
+// subscribed, extraCredits, useExtraCredit }. useExtraCredit tells the
+// caller which counter recordSuccessfulAnalysis should decrement.
 async function checkQuota(deviceId, freeLimit, monthlyLimit) {
   const row = rollPeriodIfNeeded(await getOrCreateRow(deviceId));
   const subscribed = Boolean(row.subscribed);
+  const withinPlan = subscribed
+    ? row.period_used < monthlyLimit
+    : row.free_used < freeLimit;
 
-  if (subscribed) {
-    const allowed = row.period_used < monthlyLimit;
-    return {
-      allowed,
-      reason: allowed ? null : 'MONTHLY_LIMIT_REACHED',
-      freeUsed: row.free_used,
-      freeLimit,
-      periodUsed: row.period_used,
-      periodLimit: monthlyLimit,
-      subscribed,
-    };
+  const allowed = withinPlan || row.extra_credits > 0;
+  let reason = null;
+  if (!allowed) {
+    reason = subscribed ? 'MONTHLY_LIMIT_REACHED' : 'FREE_LIMIT_REACHED';
   }
 
-  const allowed = row.free_used < freeLimit;
   return {
     allowed,
-    reason: allowed ? null : 'FREE_LIMIT_REACHED',
+    reason,
     freeUsed: row.free_used,
     freeLimit,
     periodUsed: row.period_used,
     periodLimit: monthlyLimit,
     subscribed,
+    extraCredits: row.extra_credits,
+    useExtraCredit: allowed && !withinPlan,
   };
 }
 
@@ -115,12 +132,15 @@ async function getUsage(deviceId, freeLimit, monthlyLimit) {
     freeLimit,
     periodUsed: row.period_used,
     periodLimit: monthlyLimit,
+    extraCredits: row.extra_credits,
   };
 }
 
-async function recordSuccessfulAnalysis(deviceId) {
+async function recordSuccessfulAnalysis(deviceId, useExtraCredit) {
   const row = rollPeriodIfNeeded(await getOrCreateRow(deviceId));
-  if (row.subscribed) {
+  if (useExtraCredit) {
+    row.extra_credits = Math.max(0, row.extra_credits - 1);
+  } else if (row.subscribed) {
     row.period_used += 1;
   } else {
     row.free_used += 1;
@@ -150,4 +170,30 @@ async function applySubscriptionEvent(deviceId, eventType) {
   await persist(row);
 }
 
-module.exports = { checkQuota, getUsage, recordSuccessfulAnalysis, applySubscriptionEvent };
+// Idempotently credits a one-time credit-pack purchase. Returns true if this
+// call actually applied it (false if purchaseId was already redeemed).
+async function creditExtraDreams(deviceId, purchaseId, productId, credits) {
+  await ready;
+  try {
+    await client.execute({
+      sql: 'INSERT INTO redeemed_purchases (purchase_id, device_id, product_id, credits, redeemed_at) VALUES (?, ?, ?, ?, ?)',
+      args: [purchaseId, deviceId, productId, credits, new Date().toISOString()],
+    });
+  } catch (err) {
+    // Primary key collision means this purchase was already redeemed.
+    return false;
+  }
+
+  const row = await getOrCreateRow(deviceId);
+  row.extra_credits += credits;
+  await persist(row);
+  return true;
+}
+
+module.exports = {
+  checkQuota,
+  getUsage,
+  recordSuccessfulAnalysis,
+  applySubscriptionEvent,
+  creditExtraDreams,
+};

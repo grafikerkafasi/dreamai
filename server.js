@@ -2,8 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
-const { checkQuota, getUsage, recordSuccessfulAnalysis, applySubscriptionEvent } = require('./usage_store');
-const { isEntitledOnRevenueCat } = require('./revenuecat_client');
+const {
+  checkQuota,
+  getUsage,
+  recordSuccessfulAnalysis,
+  applySubscriptionEvent,
+  creditExtraDreams,
+} = require('./usage_store');
+const {
+  isEntitledOnRevenueCat,
+  fetchUnredeemedCreditPurchases,
+  creditProductMap,
+} = require('./revenuecat_client');
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -54,8 +64,33 @@ app.post('/revenuecat-webhook', async (req, res) => {
     return res.status(400).json({ error: 'Malformed webhook payload.' });
   }
 
-  await applySubscriptionEvent(deviceId, eventType);
+  if (eventType === 'NON_RENEWING_PURCHASE') {
+    const productId = event?.product_id;
+    const purchaseId = event?.transaction_id ?? event?.id;
+    const credits = productId ? creditProductMap()[productId] : undefined;
+    if (purchaseId && credits) {
+      await creditExtraDreams(deviceId, String(purchaseId), productId, credits);
+    }
+  } else {
+    await applySubscriptionEvent(deviceId, eventType);
+  }
   res.status(200).json({ ok: true });
+});
+
+app.post('/redeem-credits', async (req, res) => {
+  const deviceId = readDeviceId(req, res);
+  if (!deviceId) return;
+
+  const purchases = await fetchUnredeemedCreditPurchases(deviceId);
+  for (const purchase of purchases) {
+    await creditExtraDreams(
+      deviceId,
+      purchase.purchaseId,
+      purchase.productId,
+      purchase.credits,
+    );
+  }
+  res.json(await getUsage(deviceId, freeLimit, monthlyLimit));
 });
 
 function createMailTransport() {
@@ -125,12 +160,27 @@ app.post('/analyze', async (req, res) => {
   }
 
   let quota = await checkQuota(deviceId, freeLimit, monthlyLimit);
-  if (!quota.allowed && quota.reason === 'FREE_LIMIT_REACHED') {
-    // The local record may be stale if the RevenueCat webhook was missed
-    // or hasn't arrived yet; double-check directly before turning away a
-    // paying customer.
-    if (await isEntitledOnRevenueCat(deviceId)) {
+  if (!quota.allowed) {
+    // The local record may be stale if a RevenueCat webhook was missed or
+    // hasn't arrived yet (subscription, or a one-time credit-pack
+    // purchase); double-check directly before turning away a paying
+    // customer.
+    let healed = false;
+    if (quota.reason === 'FREE_LIMIT_REACHED' && (await isEntitledOnRevenueCat(deviceId))) {
       await applySubscriptionEvent(deviceId, 'INITIAL_PURCHASE');
+      healed = true;
+    }
+    const purchases = await fetchUnredeemedCreditPurchases(deviceId);
+    for (const purchase of purchases) {
+      const applied = await creditExtraDreams(
+        deviceId,
+        purchase.purchaseId,
+        purchase.productId,
+        purchase.credits,
+      );
+      if (applied) healed = true;
+    }
+    if (healed) {
       quota = await checkQuota(deviceId, freeLimit, monthlyLimit);
     }
   }
@@ -145,6 +195,7 @@ app.post('/analyze', async (req, res) => {
       periodUsed: quota.periodUsed,
       periodLimit: quota.periodLimit,
       subscribed: quota.subscribed,
+      extraCredits: quota.extraCredits,
     });
   }
 
@@ -173,7 +224,7 @@ app.post('/analyze', async (req, res) => {
     if (!result) {
       throw new Error('OpenAI returned an empty response.');
     }
-    await recordSuccessfulAnalysis(deviceId);
+    await recordSuccessfulAnalysis(deviceId, quota.useExtraCredit);
     return res.json({ result });
   } catch (err) {
     console.error(err.response?.data || err.message);

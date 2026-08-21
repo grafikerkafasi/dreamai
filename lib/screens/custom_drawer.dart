@@ -40,6 +40,12 @@ class CustomDrawer extends StatelessWidget {
               ),
               _divider(),
               _buildDrawerButton(
+                text: 'Get More Dreams',
+                color: const Color(0xFFFF91B3),
+                onTap: () => _push(context, AppRoutes.buyCredits),
+              ),
+              _divider(),
+              _buildDrawerButton(
                 text: 'Contact',
                 onTap: () => _push(context, AppRoutes.contact),
               ),
@@ -73,8 +79,11 @@ class CustomDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerButton(
-      {required String text, required VoidCallback onTap}) {
+  Widget _buildDrawerButton({
+    required String text,
+    required VoidCallback onTap,
+    Color color = const Color(0xFFEFF5E6),
+  }) {
     return TextButton(
       onPressed: onTap,
       style: TextButton.styleFrom(
@@ -83,7 +92,7 @@ class CustomDrawer extends StatelessWidget {
       child: Text(
         text,
         style: GoogleFonts.kufam(
-          color: Color(0xFFEFF5E6),
+          color: color,
           fontSize: 20,
           fontWeight: FontWeight.w400,
         ),

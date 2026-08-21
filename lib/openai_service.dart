@@ -90,6 +90,35 @@ class OpenAIService {
         freeLimit: data['freeLimit'] as int? ?? 0,
         periodUsed: data['periodUsed'] as int? ?? 0,
         periodLimit: data['periodLimit'] as int? ?? 0,
+        extraCredits: data['extraCredits'] as int? ?? 0,
+      );
+    } on DioException {
+      return null;
+    }
+  }
+
+  /// Tells the backend to look up any credit-pack purchases on RevenueCat
+  /// that haven't been applied locally yet (belt-and-suspenders alongside
+  /// the /revenuecat-webhook path — see revenuecat_client.js). Safe to call
+  /// right after a purchase completes; returns the refreshed usage, or null
+  /// if the lookup itself failed.
+  static Future<UsageInfo?> redeemCredits() async {
+    if (_useDemoAnalysis || _apiBaseUrl.isEmpty) return null;
+    try {
+      final deviceId = await DeviceIdService.getId();
+      final response = await _dio.post<Map<String, dynamic>>(
+        '$_apiBaseUrl/redeem-credits',
+        options: Options(headers: {'X-Device-Id': deviceId}),
+      );
+      final data = response.data;
+      if (data == null) return null;
+      return UsageInfo(
+        subscribed: data['subscribed'] == true,
+        freeUsed: data['freeUsed'] as int? ?? 0,
+        freeLimit: data['freeLimit'] as int? ?? 0,
+        periodUsed: data['periodUsed'] as int? ?? 0,
+        periodLimit: data['periodLimit'] as int? ?? 0,
+        extraCredits: data['extraCredits'] as int? ?? 0,
       );
     } on DioException {
       return null;
@@ -111,6 +140,7 @@ class UsageInfo {
     required this.freeLimit,
     required this.periodUsed,
     required this.periodLimit,
+    this.extraCredits = 0,
   });
 
   final bool subscribed;
@@ -118,9 +148,11 @@ class UsageInfo {
   final int freeLimit;
   final int periodUsed;
   final int periodLimit;
+  final int extraCredits;
 
   int get remaining =>
-      subscribed ? (periodLimit - periodUsed) : (freeLimit - freeUsed);
+      (subscribed ? (periodLimit - periodUsed) : (freeLimit - freeUsed)) +
+      extraCredits;
 }
 
 class DreamAnalysisException implements Exception {

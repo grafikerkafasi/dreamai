@@ -16,6 +16,11 @@ class PurchaseService {
   // dashboard (Product catalog > Entitlements) — not its display name.
   static const entitlementId = 'DreamAI Premium';
 
+  // The RevenueCat *offering* identifier that holds the one-time
+  // credit-pack products (distinct from the "default" subscription
+  // offering) — must match what's created in the dashboard.
+  static const creditsOfferingId = 'credits';
+
   static const _iosApiKey = String.fromEnvironment('REVENUECAT_API_KEY_IOS');
   static const _androidApiKey =
       String.fromEnvironment('REVENUECAT_API_KEY_ANDROID');
@@ -50,12 +55,38 @@ class PurchaseService {
     return offerings.current;
   }
 
+  /// The offering holding one-time credit-pack products, or null if it
+  /// doesn't exist yet (e.g. not configured in RevenueCat) or the SDK
+  /// isn't configured.
+  static Future<Offering?> getCreditsOffering() async {
+    if (!_configured) return null;
+    final offerings = await Purchases.getOfferings();
+    return offerings.all[creditsOfferingId];
+  }
+
   static Future<SubscribeOutcome> purchase(Package package) async {
     try {
       final result = await Purchases.purchase(PurchaseParams.package(package));
-      final active = result.customerInfo.entitlements.active
-          .containsKey(entitlementId);
+      final active =
+          result.customerInfo.entitlements.active.containsKey(entitlementId);
       return active ? SubscribeOutcome.success : SubscribeOutcome.notEntitled;
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
+        return SubscribeOutcome.cancelled;
+      }
+      return SubscribeOutcome.failure;
+    }
+  }
+
+  /// Buys a one-time credit pack. Unlike [purchase], there's no entitlement
+  /// to check afterwards — success just means the store confirmed the
+  /// purchase; the backend applies the actual credits (via webhook, or the
+  /// caller should follow up with OpenAIService.redeemCredits()).
+  static Future<SubscribeOutcome> purchaseConsumable(Package package) async {
+    try {
+      await Purchases.purchase(PurchaseParams.package(package));
+      return SubscribeOutcome.success;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) {

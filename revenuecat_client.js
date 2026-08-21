@@ -19,20 +19,24 @@ const ENTITLEMENT_LOOKUP_KEY = 'DreamAI Premium';
 let cachedProjectId = null;
 let cachedEntitlementId = null;
 
+async function resolveProjectId(secretKey) {
+  if (cachedProjectId) return cachedProjectId;
+  const projects = await axios.get(`${RC_API_BASE}/projects`, {
+    headers: { Authorization: `Bearer ${secretKey}` },
+    timeout: 8000,
+  });
+  cachedProjectId = projects.data?.items?.[0]?.id ?? null;
+  return cachedProjectId;
+}
+
 async function resolveEntitlementId(secretKey) {
   if (cachedEntitlementId) return cachedEntitlementId;
 
-  if (!cachedProjectId) {
-    const projects = await axios.get(`${RC_API_BASE}/projects`, {
-      headers: { Authorization: `Bearer ${secretKey}` },
-      timeout: 8000,
-    });
-    cachedProjectId = projects.data?.items?.[0]?.id ?? null;
-  }
-  if (!cachedProjectId) return null;
+  const projectId = await resolveProjectId(secretKey);
+  if (!projectId) return null;
 
   const entitlements = await axios.get(
-    `${RC_API_BASE}/projects/${cachedProjectId}/entitlements`,
+    `${RC_API_BASE}/projects/${projectId}/entitlements`,
     { headers: { Authorization: `Bearer ${secretKey}` }, timeout: 8000 }
   );
   const match = entitlements.data?.items?.find(
@@ -40,6 +44,59 @@ async function resolveEntitlementId(secretKey) {
   );
   cachedEntitlementId = match?.id ?? null;
   return cachedEntitlementId;
+}
+
+// Maps a RevenueCat one-time-purchase product id to how many bonus dream
+// interpretations it grants, e.g. {"dreamai_credits_10": 10}. Configured via
+// env rather than hardcoded so new packs/prices don't need a code change —
+// see README for the product ids this expects you to create in App Store
+// Connect / Play Console.
+let cachedCreditProductMap = null;
+function creditProductMap() {
+  if (cachedCreditProductMap) return cachedCreditProductMap;
+  try {
+    cachedCreditProductMap = JSON.parse(process.env.CREDIT_PRODUCT_MAP || '{}');
+  } catch (err) {
+    console.error('CREDIT_PRODUCT_MAP is not valid JSON:', err.message);
+    cachedCreditProductMap = {};
+  }
+  return cachedCreditProductMap;
+}
+
+// Looks up a customer's one-time purchases on RevenueCat and returns the
+// ones that match a configured credit pack, however RevenueCat happens to
+// name the purchase/product id fields (schema not yet verified against a
+// live purchase as of writing — this defensively checks a few plausible
+// names). The caller is expected to de-dupe against already-applied
+// purchase ids (see usage_store.creditExtraDreams) before crediting.
+async function fetchUnredeemedCreditPurchases(deviceId) {
+  const secretKey = process.env.REVENUECAT_SECRET_API_KEY;
+  const productMap = creditProductMap();
+  if (!secretKey || Object.keys(productMap).length === 0) return [];
+
+  try {
+    const projectId = await resolveProjectId(secretKey);
+    if (!projectId) return [];
+
+    const response = await axios.get(
+      `${RC_API_BASE}/projects/${projectId}/customers/${encodeURIComponent(deviceId)}/purchases`,
+      { headers: { Authorization: `Bearer ${secretKey}` }, timeout: 8000 }
+    );
+    const items = response.data?.items ?? [];
+
+    return items
+      .map((item) => {
+        const productId = item.product_id ?? item.store_product_id ?? null;
+        const purchaseId =
+          item.id ?? item.transaction_id ?? item.store_transaction_id ?? null;
+        const credits = productId ? productMap[productId] : undefined;
+        return { purchaseId, productId, credits };
+      })
+      .filter((p) => p.purchaseId && p.productId && p.credits);
+  } catch (err) {
+    console.error('RevenueCat purchase lookup failed:', err.response?.data || err.message);
+    return [];
+  }
 }
 
 async function isEntitledOnRevenueCat(deviceId) {
@@ -62,4 +119,8 @@ async function isEntitledOnRevenueCat(deviceId) {
   }
 }
 
-module.exports = { isEntitledOnRevenueCat };
+module.exports = {
+  isEntitledOnRevenueCat,
+  fetchUnredeemedCreditPurchases,
+  creditProductMap,
+};
