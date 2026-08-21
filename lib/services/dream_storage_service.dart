@@ -6,13 +6,18 @@ class DreamStorageService {
   static const _maxEntries = 100;
 
   // Rüyayı ve yorumunu kaydet
-  static Future<void> saveDream(String dream, String result) async {
+  static Future<void> saveDream(
+    String dream,
+    String result,
+    String interpreter,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final List<String> current = prefs.getStringList(_key) ?? [];
 
     final newEntry = jsonEncode({
       'dream': dream,
       'result': result,
+      'interpreter': interpreter,
       'timestamp': DateTime.now().toIso8601String(),
     });
 

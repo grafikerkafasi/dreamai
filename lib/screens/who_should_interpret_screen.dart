@@ -23,6 +23,10 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
   @override
   void initState() {
     super.initState();
+    _refreshUsage();
+  }
+
+  void _refreshUsage() {
     OpenAIService.getUsage().then((usage) {
       if (mounted) setState(() => _usage = usage);
     });
@@ -130,8 +134,8 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
                           'assets/images/interpreters/placeholder.png';
 
                       return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => AnalysisPage(
@@ -140,6 +144,7 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
                               ),
                             ),
                           );
+                          if (mounted) _refreshUsage();
                         },
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

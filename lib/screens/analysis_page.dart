@@ -60,7 +60,11 @@ class _AnalysisPageState extends State<AnalysisPage> {
         widget.dreamText,
         widget.interpreter,
       );
-      await DreamStorageService.saveDream(widget.dreamText, result);
+      await DreamStorageService.saveDream(
+        widget.dreamText,
+        result,
+        widget.interpreter,
+      );
       if (!mounted) return;
       setState(() {
         _result = result;
@@ -163,9 +167,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
           actions: const [HistoryButton()],
         ),
         body: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
+            ? const Center(child: _AnalyzingProgress())
             : _errorMessage != null
                 ? _ErrorState(message: _errorMessage!, onRetry: _analyzeDream)
                 : SingleChildScrollView(
@@ -277,6 +279,103 @@ class _AnalysisPageState extends State<AnalysisPage> {
                       ],
                     ),
                   ),
+      ),
+    );
+  }
+}
+
+/// A pill-shaped progress bar that eases toward ~92% over an estimated
+/// wait (the backend can take 30-50s to wake from an idle sleep, on top
+/// of the model's own latency) and holds there until the real response
+/// arrives, so users see steady motion instead of a bare spinner.
+class _AnalyzingProgress extends StatefulWidget {
+  const _AnalyzingProgress();
+
+  @override
+  State<_AnalyzingProgress> createState() => _AnalyzingProgressState();
+}
+
+class _AnalyzingProgressState extends State<_AnalyzingProgress>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 45),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              final progress =
+                  Curves.easeOut.transform(_controller.value) * 0.92;
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+                  return Container(
+                    height: 22,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(11),
+                      color: const Color(0xFF1C1030),
+                      border: Border.all(
+                        color: const Color(0xFFF4B183),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFF4B183).withValues(alpha: 0.4),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(11),
+                        child: SizedBox(
+                          width: width * progress,
+                          height: 22,
+                          child: Image.asset(
+                            'assets/images/homepage-bg.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Interpreting your dream…',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.kufam(
+              color: Colors.white70,
+              fontSize: 15,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ],
       ),
     );
   }

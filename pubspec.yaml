@@ -1,7 +1,7 @@
 name: dream_ai
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.0+9
+version: 1.0.0+10
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -38,6 +38,7 @@ flutter:
     - assets/images/loading.png
     - assets/images/empty_bg.png
     - assets/images/dreamai-icon.png
+    - assets/images/interpreters/placeholder.png
     - assets/images/interpreters/nietzsche.png
     - assets/images/interpreters/freud.png
     - assets/images/interpreters/jung.png

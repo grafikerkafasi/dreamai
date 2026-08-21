@@ -68,52 +68,89 @@ class _PreviousDreamsScreenState extends State<PreviousDreamsScreen> {
           actions: const [SizedBox(width: 55)],
         ),
         body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
-          : _dreams.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.nights_stay_rounded,
-                          color: Color(0xFFFF91B3), size: 48),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No dreams yet.',
-                        style: GoogleFonts.kufam(
-                          color: Colors.white70,
-                          fontSize: 18,
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.white))
+            : _dreams.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.nights_stay_rounded,
+                            color: Color(0xFFFF91B3), size: 48),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No dreams yet.',
+                          style: GoogleFonts.kufam(
+                            color: Colors.white70,
+                            fontSize: 18,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                    itemCount: _dreams.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final dream = _dreams[index];
+                      return _DreamCard(
+                        dreamText: dream['dream'] as String,
+                        resultText: dream['result'] as String,
+                        interpreter: dream['interpreter'] as String?,
+                        timestamp: dream['timestamp'] as String?,
+                        onDelete: () => _deleteDream(index),
+                      );
+                    },
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-                  itemCount: _dreams.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final dream = _dreams[index];
-                    return _DreamCard(
-                      dreamText: dream['dream'] as String,
-                      resultText: dream['result'] as String,
-                      onDelete: () => _deleteDream(index),
-                    );
-                  },
-                ),
       ),
     );
   }
+}
+
+const _monthAbbr = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+String? _formatDate(String? isoTimestamp) {
+  if (isoTimestamp == null) return null;
+  final parsed = DateTime.tryParse(isoTimestamp);
+  if (parsed == null) return null;
+  final local = parsed.toLocal();
+  return '${_monthAbbr[local.month - 1]} ${local.day}, ${local.year}';
+}
+
+String _avatarPath(String? interpreter) {
+  if (interpreter == null || interpreter.isEmpty) {
+    return 'assets/images/interpreters/placeholder.png';
+  }
+  return 'assets/images/interpreters/${interpreter.toLowerCase().replaceAll(' ', '_')}.png';
 }
 
 class _DreamCard extends StatelessWidget {
   const _DreamCard({
     required this.dreamText,
     required this.resultText,
+    required this.interpreter,
+    required this.timestamp,
     required this.onDelete,
   });
 
   final String dreamText;
   final String resultText;
+  final String? interpreter;
+  final String? timestamp;
   final VoidCallback onDelete;
 
   @override
@@ -122,6 +159,7 @@ class _DreamCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
     );
+    final date = _formatDate(timestamp);
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
@@ -131,33 +169,68 @@ class _DreamCard extends StatelessWidget {
         collapsedBackgroundColor: const Color(0x5139415C),
         iconColor: const Color(0xFFFF91B3),
         collapsedIconColor: const Color(0xFFFF91B3),
-        tilePadding: const EdgeInsets.fromLTRB(20, 6, 12, 6),
+        tilePadding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
         childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        leading: const Icon(Icons.auto_awesome,
-            color: Color(0xFFFF91B3), size: 20),
-        title: Row(
-          children: [
-            Expanded(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: Image.asset(
+            _avatarPath(interpreter),
+            width: 40,
+            height: 40,
+            fit: BoxFit.cover,
+          ),
+        ),
+        title: Text(
+          interpreter ?? 'Unknown interpreter',
+          style: GoogleFonts.kufam(
+            color: const Color(0xFFFF91B3),
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  dreamText,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.kufam(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded,
+                    color: Color(0xFFFFB4B4), size: 20),
+                splashRadius: 20,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: onDelete,
+              ),
+            ],
+          ),
+        ),
+        children: [
+          if (date != null) ...[
+            Align(
+              alignment: Alignment.centerLeft,
               child: Text(
-                dreamText,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                date,
                 style: GoogleFonts.kufam(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
+                  color: Colors.white54,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w300,
                 ),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline_rounded,
-                  color: Color(0xFFFFB4B4), size: 22),
-              splashRadius: 20,
-              onPressed: onDelete,
-            ),
+            const SizedBox(height: 8),
           ],
-        ),
-        children: [
           Opacity(
             opacity: 0.5,
             child: Divider(thickness: 1, color: const Color(0x80E0E3E7)),
