@@ -66,6 +66,11 @@ function createMailTransport() {
     host: SMTP_HOST,
     port: Number(SMTP_PORT),
     secure: process.env.SMTP_SECURE === 'true',
+    // Render's network has flaky/unroutable IPv6 for some hosts, which
+    // otherwise manifests as the TCP connect just hanging until nodemailer's
+    // own timeout ("Connection timeout") rather than failing fast.
+    family: 4,
+    connectionTimeout: 15000,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
   });
 }
