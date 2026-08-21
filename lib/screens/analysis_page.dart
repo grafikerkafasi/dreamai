@@ -1,5 +1,10 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../openai_service.dart';
 import '../services/dream_storage_service.dart';
@@ -35,6 +40,8 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>(); // Drawer için
+  final GlobalKey _shareCardKey = GlobalKey();
+  bool _sharing = false;
 
   @override
   void initState() {
@@ -83,14 +90,35 @@ class _AnalysisPageState extends State<AnalysisPage> {
     }
   }
 
-  void _shareResult() {
-    if (_result.isEmpty) return;
-    SharePlus.instance.share(
-      ShareParams(
-        text:
-            '${_possessive(widget.interpreter)} take on my dream:\n\n"$_result"\n\n— via DreamAI',
-      ),
-    );
+  Future<void> _shareResult() async {
+    if (_result.isEmpty || _sharing) return;
+    setState(() => _sharing = true);
+    try {
+      final boundary = _shareCardKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+      if (boundary == null) return;
+
+      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+      final image = await boundary.toImage(
+        pixelRatio: pixelRatio < 2.5 ? 2.5 : pixelRatio,
+      );
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return;
+
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/dreamai_analysis.png');
+      await file.writeAsBytes(byteData.buffer.asUint8List());
+
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text:
+              '${_possessive(widget.interpreter)} take on my dream — via DreamAI',
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _sharing = false);
+    }
   }
 
   @override
@@ -156,50 +184,89 @@ class _AnalysisPageState extends State<AnalysisPage> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: Image.asset(
-                            imagePath,
-                            width: 120,
-                            height: 120,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          widget.interpreter,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.kufam(
-                            color: const Color(0xFFFAEAD6),
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          '${_possessive(widget.interpreter)} Dream Analysis',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.kufam(
-                            fontSize: 20,
-                            color: const Color(0xFFFF91B3),
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          _result,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.kufam(
-                            fontSize: 18,
-                            color: Colors.white,
-                            height: 1.5,
+                        RepaintBoundary(
+                          key: _shareCardKey,
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 28),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              image: const DecorationImage(
+                                image:
+                                    AssetImage('assets/images/homepage-bg.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: Image.asset(
+                                    imagePath,
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  widget.interpreter,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.kufam(
+                                    color: const Color(0xFFFAEAD6),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Text(
+                                  '${_possessive(widget.interpreter)} Dream Analysis',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.kufam(
+                                    fontSize: 20,
+                                    color: const Color(0xFFFF91B3),
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  _result,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.kufam(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                    height: 1.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  'via DreamAI',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.kufam(
+                                    fontSize: 13,
+                                    color: Colors.white54,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 40),
                         TextButton.icon(
-                          onPressed: _shareResult,
-                          icon: const Icon(Icons.ios_share_rounded,
-                              size: 26, color: Colors.white),
+                          onPressed: _sharing ? null : _shareResult,
+                          icon: _sharing
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.ios_share_rounded,
+                                  size: 26, color: Colors.white),
                           label: Text(
                             'share',
                             style: GoogleFonts.kufam(
