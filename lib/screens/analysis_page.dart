@@ -281,6 +281,15 @@ class _AnalysisPageState extends State<AnalysisPage> {
                             const SizedBox(width: 40),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'For reflection and entertainment only — not medical or mental-health advice.',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.kufam(
+                            fontSize: 11,
+                            color: Colors.white54,
+                          ),
+                        ),
                         const SizedBox(height: 40),
                       ],
                     ),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../app_routes.dart';
 import '../services/purchase_service.dart';
+
+const _privacyPolicyUrl = 'https://sanai.uk/dreamai/privacy-policy.html';
 
 class PaywallScreen extends StatefulWidget {
   final String message;
@@ -196,6 +200,51 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     'Restore purchases',
                     style: GoogleFonts.kufam(color: Colors.white70),
                   ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'For reflection and entertainment only — not medical or mental-health advice.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.kufam(
+                    fontSize: 11,
+                    color: Colors.white54,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () =>
+                          Navigator.of(context).pushNamed(AppRoutes.terms),
+                      child: Text(
+                        'Terms of Use',
+                        style: GoogleFonts.kufam(
+                          fontSize: 12,
+                          color: Colors.white54,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    Text('  •  ',
+                        style: GoogleFonts.kufam(
+                            fontSize: 12, color: Colors.white38)),
+                    TextButton(
+                      onPressed: () => launchUrl(
+                        Uri.parse(_privacyPolicyUrl),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: Text(
+                        'Privacy Policy',
+                        style: GoogleFonts.kufam(
+                          fontSize: 12,
+                          color: Colors.white54,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

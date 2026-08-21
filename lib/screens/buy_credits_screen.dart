@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../app_routes.dart';
 import '../openai_service.dart';
 import '../services/purchase_service.dart';
 import 'info_screen.dart';
+
+const _privacyPolicyUrl = 'https://sanai.uk/dreamai/privacy-policy.html';
 
 /// Lets a user top up with a one-time credit pack, independent of whether
 /// their free/monthly quota is exhausted — a subscriber who just burns
@@ -143,6 +147,42 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
               ),
               const SizedBox(height: 14),
             ],
+          const SizedBox(height: 14),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.terms),
+                child: Text(
+                  'Terms of Use',
+                  style: GoogleFonts.kufam(
+                    fontSize: 12,
+                    color: Colors.white54,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              Text('  •  ',
+                  style:
+                      GoogleFonts.kufam(fontSize: 12, color: Colors.white38)),
+              TextButton(
+                onPressed: () => launchUrl(
+                  Uri.parse(_privacyPolicyUrl),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: Text(
+                  'Privacy Policy',
+                  style: GoogleFonts.kufam(
+                    fontSize: 12,
+                    color: Colors.white54,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

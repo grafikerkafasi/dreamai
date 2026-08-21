@@ -35,19 +35,59 @@ class DreamAIApp extends StatelessWidget {
               title: 'Privacy Policy',
               sections: [
                 InfoSection(
-                  heading: 'Your dreams stay on your device',
+                  heading: 'Dream content',
                   body:
-                      'In demo mode, dream entries and demo analyses are stored only in this app on your device. They are not sent to us or to an AI service.',
+                      'Your dream text is sent to OpenAI to generate an interpretation. We don\'t retain it in any database or log once the response is returned. If you save a result with "My Past Dreams," it stays only on your device — it is never uploaded to our servers.',
                 ),
                 InfoSection(
-                  heading: 'When AI mode is enabled',
+                  heading: 'Device identifier',
                   body:
-                      'If you later enable AI mode, the dream text and selected interpretation style are sent to the analysis service to produce a response. Do not include sensitive personal information.',
+                      'DreamAI creates a random, app-specific device identifier (not tied to your name or Apple ID). It\'s used to enforce free/monthly usage limits, match purchases to your device, and prevent fraud or abuse.',
+                ),
+                InfoSection(
+                  heading: 'Purchases and subscriptions',
+                  body:
+                      'Payments are handled by the App Store and RevenueCat — we never see or store your card details. We keep limited records tied to your device identifier (subscription status, purchased credit counts) to deliver what you\'ve paid for.',
+                ),
+                InfoSection(
+                  heading: 'Support requests',
+                  body:
+                      'DreamAI doesn\'t require an account. If you contact us for support, we only process the details you choose to share with us for that purpose.',
+                ),
+                InfoSection(
+                  heading: 'How we use this information',
+                  body:
+                      'Solely to generate interpretations, run the app\'s core features, enforce usage limits, prevent abuse, respond to support requests, and keep the service reliable. We do not use it for targeted advertising or cross-app tracking.',
+                ),
+                InfoSection(
+                  heading: 'Third-party services',
+                  body:
+                      'OpenAI, RevenueCat, and the App Store each process data under their own privacy policies. We only share what\'s operationally necessary — never more than that.',
+                ),
+                InfoSection(
+                  heading: 'Data retention',
+                  body:
+                      'Dream text isn\'t retained after a response is generated. Anything saved locally with "My Past Dreams" stays until you delete it. Backend usage/purchase records are kept only as long as needed to operate the service.',
                 ),
                 InfoSection(
                   heading: 'Your choices',
                   body:
-                      'You can remove a saved dream at any time from My past dreams. This policy will be updated before any additional data collection is introduced.',
+                      'You can delete any saved dream at any time from "My Past Dreams." To request deletion of records held on our servers, contact us — we\'ll review and honor the request in line with applicable law.',
+                ),
+                InfoSection(
+                  heading: 'Children\'s privacy',
+                  body:
+                      'DreamAI does not require an account and does not knowingly collect names, email addresses, or other profile information from children.',
+                ),
+                InfoSection(
+                  heading: 'Changes to this policy',
+                  body:
+                      'If this policy changes, we\'ll post the update here with a revised date.',
+                ),
+                InfoSection(
+                  heading: 'Contact',
+                  body:
+                      'Questions about this policy? Reach us at a.yasiny.yilmaz@gmail.com.',
                 ),
               ],
             ),
