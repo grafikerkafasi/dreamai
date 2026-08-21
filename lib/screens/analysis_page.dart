@@ -127,10 +127,14 @@ class _AnalysisPageState extends State<AnalysisPage> {
         'assets/images/interpreters/${widget.interpreter.toLowerCase().replaceAll(' ', '_')}.png';
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/homepage-bg.png'),
+          image: const AssetImage('assets/images/homepage-bg.png'),
           fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withValues(alpha: 0.6),
+            BlendMode.srcOver,
+          ),
         ),
       ),
       child: Scaffold(
@@ -168,22 +172,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(
-                              Icons.chevron_left_rounded,
-                              size: 26,
-                              color: Colors.white70,
-                            ),
-                            tooltip: 'Back',
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 20),
                         RepaintBoundary(
                           key: _shareCardKey,
                           child: Container(
@@ -211,17 +200,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  widget.interpreter,
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.kufam(
-                                    color: const Color(0xFFFAEAD6),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                Text(
-                                  '${_possessive(widget.interpreter)} Dream Analysis',
+                                  'My dream analysis by ${widget.interpreter}',
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.kufam(
                                     fontSize: 20,
@@ -240,44 +219,59 @@ class _AnalysisPageState extends State<AnalysisPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 24),
-                                Text(
-                                  'via DreamAI',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.kufam(
-                                    fontSize: 13,
-                                    color: Colors.white54,
-                                    fontWeight: FontWeight.w300,
-                                  ),
+                                Image.asset(
+                                  'assets/images/logo.png',
+                                  height: 26,
+                                  fit: BoxFit.contain,
                                 ),
                               ],
                             ),
                           ),
                         ),
                         const SizedBox(height: 40),
-                        TextButton.icon(
-                          onPressed: _sharing ? null : _shareResult,
-                          icon: _sharing
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Icon(Icons.ios_share_rounded,
-                                  size: 26, color: Colors.white),
-                          label: Text(
-                            'share',
-                            style: GoogleFonts.kufam(
-                              fontSize: 24,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(
+                                Icons.chevron_left_rounded,
+                                size: 26,
+                                color: Colors.white70,
+                              ),
+                              tooltip: 'Back',
                             ),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                          ),
+                            Expanded(
+                              child: Center(
+                                child: TextButton.icon(
+                                  onPressed: _sharing ? null : _shareResult,
+                                  icon: _sharing
+                                      ? const SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Icon(Icons.ios_share_rounded,
+                                          size: 26, color: Colors.white),
+                                  label: Text(
+                                    'share',
+                                    style: GoogleFonts.kufam(
+                                      fontSize: 24,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 40),
+                          ],
                         ),
                         const SizedBox(height: 40),
                       ],
