@@ -65,24 +65,30 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
         key: _scaffoldKey,
         drawer: CustomDrawer(scaffoldKey: _scaffoldKey),
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          leading: Padding(
-            padding: const EdgeInsetsDirectional.only(start: 20),
-            child: GestureDetector(
-              onTap: () => _scaffoldKey.currentState?.openDrawer(),
-              child: Image.asset(
-                'assets/images/menu.png',
-                width: 35,
-                height: 35,
-                fit: BoxFit.contain,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight + 17),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 17),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              leading: Padding(
+                padding: const EdgeInsetsDirectional.only(start: 20),
+                child: GestureDetector(
+                  onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                  child: Image.asset(
+                    'assets/images/menu.png',
+                    width: 35,
+                    height: 35,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
+              title: const Center(child: AppLogoButton()),
+              actions: const [HistoryButton()],
             ),
           ),
-          title: const Center(child: AppLogoButton()),
-          actions: const [HistoryButton()],
         ),
         body: Stack(
           children: [

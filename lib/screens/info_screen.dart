@@ -63,17 +63,23 @@ class _DreamPageScaffoldState extends State<DreamPageScaffold> {
         key: _scaffoldKey,
         backgroundColor: Colors.transparent,
         drawer: CustomDrawer(scaffoldKey: _scaffoldKey),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          leading: IconButton(
-            tooltip: 'Open menu',
-            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-            icon: Image.asset('assets/images/menu.png', width: 35),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight + 17),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 17),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              leading: IconButton(
+                tooltip: 'Open menu',
+                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                icon: Image.asset('assets/images/menu.png', width: 35),
+              ),
+              title: const AppLogoButton(),
+              actions: const [HistoryButton()],
+            ),
           ),
-          title: const AppLogoButton(),
-          actions: const [HistoryButton()],
         ),
         body: widget.child,
       ),

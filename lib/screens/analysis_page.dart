@@ -145,26 +145,32 @@ class _AnalysisPageState extends State<AnalysisPage> {
         key: _scaffoldKey, // Scaffold'a key atandı
         backgroundColor: Colors.transparent,
         drawer: CustomDrawer(scaffoldKey: _scaffoldKey), // Drawer eklendi
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: GestureDetector(
-              onTap: () {
-                _scaffoldKey.currentState?.openDrawer(); // Drawer'ı aç
-              },
-              child: Image.asset(
-                'assets/images/menu.png',
-                width: 35,
-                height: 35,
-                fit: BoxFit.contain,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight + 17),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 17),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: GestureDetector(
+                  onTap: () {
+                    _scaffoldKey.currentState?.openDrawer(); // Drawer'ı aç
+                  },
+                  child: Image.asset(
+                    'assets/images/menu.png',
+                    width: 35,
+                    height: 35,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
+              title: const Center(child: AppLogoButton()),
+              actions: const [HistoryButton()],
             ),
           ),
-          title: const Center(child: AppLogoButton()),
-          actions: const [HistoryButton()],
         ),
         body: _loading
             ? const Center(child: _AnalyzingProgress())

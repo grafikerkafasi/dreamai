@@ -49,23 +49,29 @@ class _PreviousDreamsScreenState extends State<PreviousDreamsScreen> {
         key: _scaffoldKey,
         drawer: CustomDrawer(scaffoldKey: _scaffoldKey),
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: GestureDetector(
-              onTap: () => _scaffoldKey.currentState?.openDrawer(),
-              child: Image.asset(
-                'assets/images/menu.png',
-                width: 35,
-                height: 35,
-                fit: BoxFit.contain,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight + 17),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 17),
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 20),
+                child: GestureDetector(
+                  onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                  child: Image.asset(
+                    'assets/images/menu.png',
+                    width: 35,
+                    height: 35,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
+              title: const Center(child: AppLogoButton()),
+              actions: const [SizedBox(width: 55)],
             ),
           ),
-          title: const Center(child: AppLogoButton()),
-          actions: const [SizedBox(width: 55)],
         ),
         body: _loading
             ? const Center(
