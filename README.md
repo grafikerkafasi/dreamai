@@ -129,15 +129,25 @@ added, so the webhook and the self-heal call can never double-credit the
 same purchase. `/analyze` spends a credit only after the free/monthly
 allowance is exhausted.
 
-**⚠️ Not yet verified against a live purchase.** `revenuecat_client.js`'s
-`fetchUnredeemedCreditPurchases` reads RevenueCat's `GET
-/v2/projects/{id}/customers/{id}/purchases` and guesses at the purchase/
-product id field names (`product_id`/`store_product_id`,
-`id`/`transaction_id`/`store_transaction_id`) since no real purchase exists
-yet to confirm the exact response shape — check Render's logs against a
-real sandbox purchase before relying on this in production, the same way
-today's entitlement-id and v1-vs-v2 API bugs only turned up once there was
-real data to check against.
+**Verified against real sandbox purchases** (self-heal path only — see
+below): `GET /v2/projects/{id}/customers/{id}/purchases` identifies each
+purchase's product by RevenueCat's own opaque internal id (e.g.
+`"prod742cbacf26"`), not the App Store Connect identifier
+(`"dreamai_credits_10"`) `CREDIT_PRODUCT_MAP` is keyed by — the same
+opaque-id-vs-store-identifier split hit with entitlements above. The real
+identifier is only exposed as `store_identifier` on `GET
+/v2/projects/{id}/products`, which `fetchUnredeemedCreditPurchases` now
+resolves and caches before matching against `CREDIT_PRODUCT_MAP`.
+
+**⚠️ The webhook path (`NON_RENEWING_PURCHASE` in `/revenuecat-webhook`)
+is still unverified** — it assumes the webhook payload's `event.product_id`
+is already the store identifier (RevenueCat's older webhook format
+predates the v2 REST API and has historically used store-native ids
+directly), but this hasn't been confirmed against a real delivery. Not
+urgent: `/redeem-credits` (called right after every purchase in
+`buy_credits_screen.dart`, and from `/analyze`'s own self-heal check) is
+the verified, always-triggered path — the webhook is genuinely
+belt-and-suspenders here, not load-bearing.
 
 **Still needed before this can go live:**
 1. In App Store Connect and Google Play Console, create one or more
