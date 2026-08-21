@@ -13,7 +13,7 @@ class HistoryButton extends StatelessWidget {
     return IconButton(
       tooltip: 'My past dreams',
       onPressed: () => Navigator.of(context).pushNamed(AppRoutes.previousDreams),
-      icon: const Icon(Icons.history_rounded, color: _color, size: 26),
+      icon: const Icon(Icons.history_rounded, color: _color, size: 32),
     );
   }
 }

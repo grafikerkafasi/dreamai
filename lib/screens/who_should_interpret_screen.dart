@@ -50,120 +50,129 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
       'Hindu Guru': 'assets/images/interpreters/hindu_guru.png',
     };
 
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: CustomDrawer(scaffoldKey: _scaffoldKey),
-      backgroundColor: const Color(0xFF1C263F),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(start: 20),
-          child: GestureDetector(
-            onTap: () => _scaffoldKey.currentState?.openDrawer(),
-            child: Image.asset(
-              'assets/images/menu.png',
-              width: 35,
-              height: 35,
-              fit: BoxFit.contain,
-            ),
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/homepage-bg.png'),
+          fit: BoxFit.cover,
         ),
-        title: const Center(child: AppLogoButton()),
-        actions: const [HistoryButton()],
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/empty_bg.png',
-              fit: BoxFit.fill,
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: CustomDrawer(scaffoldKey: _scaffoldKey),
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          leading: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 20),
+            child: GestureDetector(
+              onTap: () => _scaffoldKey.currentState?.openDrawer(),
+              child: Image.asset(
+                'assets/images/menu.png',
+                width: 35,
+                height: 35,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-          Column(
-            children: [
-              const SizedBox(height: 20),
-              Text(
-                'Choose an Interpreter',
-                style: GoogleFonts.kufam(
-                  color: const Color(0xFFFF91B3),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                ),
+          title: const Center(child: AppLogoButton()),
+          actions: const [HistoryButton()],
+        ),
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/empty_bg.png',
+                fit: BoxFit.fill,
               ),
-              if (_usage != null) ...[
-                const SizedBox(height: 6),
+            ),
+            Column(
+              children: [
+                const SizedBox(height: 20),
                 Text(
-                  _usage!.subscribed
-                      ? '${_usage!.remaining} dreams left this month'
-                      : '${_usage!.remaining} free dreams left',
+                  'Choose an Interpreter',
                   style: GoogleFonts.kufam(
-                    color: const Color(0xFFFAEAD6),
-                    fontSize: 13,
+                    color: const Color(0xFFFF91B3),
+                    fontSize: 20,
                     fontWeight: FontWeight.w300,
                   ),
                 ),
-              ],
-              const SizedBox(height: 20),
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.only(bottom: 0),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.9,
+                if (_usage != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    _usage!.subscribed
+                        ? '${_usage!.remaining} dreams left this month'
+                        : '${_usage!.remaining} free dreams left',
+                    style: GoogleFonts.kufam(
+                      color: const Color(0xFFFAEAD6),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
-                  itemCount: interpreters.length,
-                  itemBuilder: (context, index) {
-                    final name = interpreters[index];
-                    final imagePath = imageMap[name] ??
-                        'assets/images/interpreters/placeholder.png';
+                ],
+                const SizedBox(height: 20),
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.only(bottom: 0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 0.9,
+                    ),
+                    itemCount: interpreters.length,
+                    itemBuilder: (context, index) {
+                      final name = interpreters[index];
+                      final imagePath = imageMap[name] ??
+                          'assets/images/interpreters/placeholder.png';
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AnalysisPage(
-                              dreamText: dreamText,
-                              interpreter: name,
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AnalysisPage(
+                                dreamText: dreamText,
+                                interpreter: name,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: Image.asset(
-                              imagePath,
-                              width: 160,
-                              height: 160,
-                              fit: BoxFit.contain,
+                          );
+                        },
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: Image.asset(
+                                imagePath,
+                                width: 160,
+                                height: 160,
+                                fit: BoxFit.contain,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            name,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.kufam(
-                              color: const Color(0xFFFAEAD6),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w100,
+                            const SizedBox(height: 10),
+                            Text(
+                              name,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.kufam(
+                                color: const Color(0xFFFAEAD6),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w100,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

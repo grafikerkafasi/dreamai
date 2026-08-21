@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../openai_service.dart';
 import '../services/dream_storage_service.dart';
 import 'app_logo_button.dart';
 import 'custom_drawer.dart'; // Drawer'ı ekledik
 import 'history_button.dart';
 import 'paywall_screen.dart';
+
+/// Turns an interpreter's name into its English possessive form, e.g.
+/// "Freud" -> "Freud's", "Alan Watts" -> "Alan Watts'".
+String _possessive(String name) {
+  return name.endsWith('s') ? "$name'" : "$name's";
+}
 
 class AnalysisPage extends StatefulWidget {
   final String dreamText;
@@ -76,6 +83,16 @@ class _AnalysisPageState extends State<AnalysisPage> {
     }
   }
 
+  void _shareResult() {
+    if (_result.isEmpty) return;
+    SharePlus.instance.share(
+      ShareParams(
+        text:
+            '${_possessive(widget.interpreter)} take on my dream:\n\n"$_result"\n\n— via DreamAI',
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final String imagePath =
@@ -123,7 +140,22 @@ class _AnalysisPageState extends State<AnalysisPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       children: [
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(
+                              Icons.chevron_left_rounded,
+                              size: 26,
+                              color: Colors.white70,
+                            ),
+                            tooltip: 'Back',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(100),
                           child: Image.asset(
@@ -133,9 +165,20 @@ class _AnalysisPageState extends State<AnalysisPage> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 16),
                         Text(
-                          'Dream analysis',
+                          widget.interpreter,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.kufam(
+                            color: const Color(0xFFFAEAD6),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          '${_possessive(widget.interpreter)} Dream Analysis',
+                          textAlign: TextAlign.center,
                           style: GoogleFonts.kufam(
                             fontSize: 20,
                             color: const Color(0xFFFF91B3),
@@ -154,11 +197,11 @@ class _AnalysisPageState extends State<AnalysisPage> {
                         ),
                         const SizedBox(height: 40),
                         TextButton.icon(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.chevron_left_rounded,
-                              size: 30, color: Colors.white),
+                          onPressed: _shareResult,
+                          icon: const Icon(Icons.ios_share_rounded,
+                              size: 26, color: Colors.white),
                           label: Text(
-                            'back',
+                            'share',
                             style: GoogleFonts.kufam(
                               fontSize: 24,
                               color: Colors.white,

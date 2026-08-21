@@ -54,6 +54,15 @@ reinstalling the app doesn't reset the free count.
 - RevenueCat is web-unavailable by design (`purchase_service.dart` no-ops
   under `kIsWeb`); the free/paid quota still applies during web/demo
   testing, but there's no purchase UI on that target.
+- The webhook can be missed or delayed (not yet configured in RevenueCat,
+  Render's free tier asleep when it fires, etc.), which would otherwise
+  paywall a customer who already paid. As a fallback, when `/analyze`
+  finds a device over its free quota and not marked subscribed, it
+  queries RevenueCat's REST API directly (`revenuecat_client.js`) before
+  saying no; if that shows an active `premium` entitlement, it updates
+  the local record and lets the request through. Requires
+  `REVENUECAT_SECRET_API_KEY` on Render — without it, this check is
+  silently skipped and the account depends on the webhook alone.
 
 **Done:**
 - ✅ Backend deployed to Render's free tier:
@@ -78,6 +87,11 @@ reinstalling the app doesn't reset the free count.
    `https://dreamai-backend-mkit.onrender.com/revenuecat-webhook`, and set
    its "Authorization header value" to the same secret already set as
    `REVENUECAT_WEBHOOK_AUTH` on Render.
+5. Copy RevenueCat's **secret** API key (Project settings > API keys,
+   starts with `sk_` — not the public iOS/Android keys from step 3) and
+   set it as `REVENUECAT_SECRET_API_KEY` on Render, so `/analyze` can
+   self-heal a device's subscribed flag if the webhook above is ever
+   missed or delayed.
 
 Free and monthly limits are configurable via `FREE_DREAM_LIMIT` (default
 3) and `MONTHLY_DREAM_LIMIT` (default 30) in `.env`.

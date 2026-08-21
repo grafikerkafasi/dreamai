@@ -104,6 +104,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.maybePop(context),
+            icon: const Icon(
+              Icons.chevron_left_rounded,
+              color: Color(0xFFFF91B3),
+              size: 30,
+            ),
+          ),
         ),
         body: Center(
           child: Padding(

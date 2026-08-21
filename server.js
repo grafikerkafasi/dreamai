@@ -3,6 +3,7 @@ const cors = require('cors');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const { checkQuota, getUsage, recordSuccessfulAnalysis, applySubscriptionEvent } = require('./usage_store');
+const { isEntitledOnRevenueCat } = require('./revenuecat_client');
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -118,7 +119,16 @@ app.post('/analyze', async (req, res) => {
     return res.status(503).json({ error: 'The analysis service is not configured.' });
   }
 
-  const quota = await checkQuota(deviceId, freeLimit, monthlyLimit);
+  let quota = await checkQuota(deviceId, freeLimit, monthlyLimit);
+  if (!quota.allowed && quota.reason === 'FREE_LIMIT_REACHED') {
+    // The local record may be stale if the RevenueCat webhook was missed
+    // or hasn't arrived yet; double-check directly before turning away a
+    // paying customer.
+    if (await isEntitledOnRevenueCat(deviceId)) {
+      await applySubscriptionEvent(deviceId, 'INITIAL_PURCHASE');
+      quota = await checkQuota(deviceId, freeLimit, monthlyLimit);
+    }
+  }
   if (!quota.allowed) {
     return res.status(402).json({
       error: quota.reason === 'MONTHLY_LIMIT_REACHED'

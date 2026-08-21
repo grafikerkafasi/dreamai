@@ -102,15 +102,12 @@ class CustomDrawer extends StatelessWidget {
   }
 
   Widget _divider() {
-    return Opacity(
-      opacity: 0.5,
-      child: Divider(
-        thickness: 1,
-        height: 1,
-        indent: 24,
-        endIndent: 24,
-        color: Color(0x80E0E3E7),
-      ),
+    return const Divider(
+      thickness: 1,
+      height: 1,
+      indent: 24,
+      endIndent: 24,
+      color: Color(0x26E0E3E7), // ~15% opaque
     );
   }
 }
