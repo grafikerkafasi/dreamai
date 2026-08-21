@@ -18,7 +18,9 @@ async function isEntitledOnRevenueCat(deviceId) {
         timeout: 8000,
       }
     );
-    const entitlement = response.data?.subscriber?.entitlements?.premium;
+    // Must match the entitlement's exact "Identifier" in the RevenueCat
+    // dashboard (Product catalog > Entitlements) — not its display name.
+    const entitlement = response.data?.subscriber?.entitlements?.['DreamAI Premium'];
     if (!entitlement) return false;
     // Entitlements without an expiration date (e.g. lifetime/non-subscription
     // grants) never lapse; subscriptions always carry an expires_date.

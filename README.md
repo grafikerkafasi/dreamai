@@ -59,8 +59,8 @@ reinstalling the app doesn't reset the free count.
   paywall a customer who already paid. As a fallback, when `/analyze`
   finds a device over its free quota and not marked subscribed, it
   queries RevenueCat's REST API directly (`revenuecat_client.js`) before
-  saying no; if that shows an active `premium` entitlement, it updates
-  the local record and lets the request through. Requires
+  saying no; if that shows an active `DreamAI Premium` entitlement, it
+  updates the local record and lets the request through. Requires
   `REVENUECAT_SECRET_API_KEY` on Render — without it, this check is
   silently skipped and the account depends on the webhook alone.
 
@@ -79,8 +79,11 @@ reinstalling the app doesn't reset the free count.
 1. Create a RevenueCat account and project, add your iOS and Android apps.
 2. In App Store Connect and Google Play Console, create a $5/month
    auto-renewing subscription product; attach both to a RevenueCat
-   **entitlement** named `premium` (the ID `purchase_service.dart` checks)
-   and a RevenueCat **offering** containing a monthly package.
+   **entitlement** whose exact Identifier is `DreamAI Premium` (matching
+   `PurchaseService.entitlementId` in `purchase_service.dart` and the key
+   `revenuecat_client.js` reads from the REST API — RevenueCat's
+   Identifier field, not its Display Name) and a RevenueCat **offering**
+   containing a monthly package.
 3. Copy RevenueCat's public API keys and pass them at build/run time:
    `--dart-define=REVENUECAT_API_KEY_IOS=... --dart-define=REVENUECAT_API_KEY_ANDROID=...`
 4. In RevenueCat's dashboard, add a webhook pointing at

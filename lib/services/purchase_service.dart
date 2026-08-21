@@ -12,7 +12,9 @@ import 'device_id_service.dart';
 /// subscription". The backend's usage_store.js is the source of truth
 /// for quota, kept in sync via RevenueCat's webhook.
 class PurchaseService {
-  static const entitlementId = 'premium';
+  // Must match the entitlement's exact "Identifier" in the RevenueCat
+  // dashboard (Product catalog > Entitlements) — not its display name.
+  static const entitlementId = 'DreamAI Premium';
 
   static const _iosApiKey = String.fromEnvironment('REVENUECAT_API_KEY_IOS');
   static const _androidApiKey =
