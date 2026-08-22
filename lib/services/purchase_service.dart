@@ -93,6 +93,8 @@ class PurchaseService {
         return SubscribeOutcome.cancelled;
       }
       return SubscribeOutcome.failure;
+    } catch (_) {
+      return SubscribeOutcome.failure;
     }
   }
 

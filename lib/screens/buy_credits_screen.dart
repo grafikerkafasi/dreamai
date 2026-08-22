@@ -64,11 +64,23 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
       _error = null;
     });
 
-    final outcome = await PurchaseService.purchaseConsumable(package);
+    SubscribeOutcome outcome;
+    try {
+      outcome = await PurchaseService.purchaseConsumable(package)
+          .timeout(const Duration(seconds: 60));
+    } catch (_) {
+      // Covers timeouts and any error PurchaseService didn't already
+      // translate into a SubscribeOutcome, so the spinner never gets
+      // stuck forever on an unexpected failure.
+      outcome = SubscribeOutcome.failure;
+    }
+
     // The backend applies credits via the RevenueCat webhook, but that can
     // lag or (if the webhook was never configured) never arrive — ask it
     // to double-check directly so the balance updates right away.
-    final usage = await OpenAIService.redeemCredits();
+    final usage = outcome == SubscribeOutcome.success
+        ? await OpenAIService.redeemCredits()
+        : null;
     if (!mounted) return;
 
     setState(() {

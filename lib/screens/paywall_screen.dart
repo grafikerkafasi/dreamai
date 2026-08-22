@@ -61,7 +61,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
       _error = null;
     });
 
-    final outcome = await PurchaseService.purchase(package);
+    SubscribeOutcome outcome;
+    try {
+      outcome = await PurchaseService.purchase(package)
+          .timeout(const Duration(seconds: 60));
+    } catch (_) {
+      outcome = SubscribeOutcome.failure;
+    }
     if (!mounted) return;
 
     setState(() => _purchasing = false);
@@ -74,15 +80,21 @@ class _PaywallScreenState extends State<PaywallScreen> {
         break;
       case SubscribeOutcome.notEntitled:
       case SubscribeOutcome.failure:
-        setState(() =>
-            _error = AppLocalizations.of(context)!.purchaseFailedGeneric);
+        setState(
+            () => _error = AppLocalizations.of(context)!.purchaseFailedGeneric);
         break;
     }
   }
 
   Future<void> _restore() async {
     setState(() => _purchasing = true);
-    final restored = await PurchaseService.restore();
+    bool restored;
+    try {
+      restored =
+          await PurchaseService.restore().timeout(const Duration(seconds: 60));
+    } catch (_) {
+      restored = false;
+    }
     if (!mounted) return;
     setState(() => _purchasing = false);
     if (restored) {
