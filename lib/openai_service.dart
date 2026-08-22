@@ -45,10 +45,15 @@ class OpenAIService {
             : 'Act like $interpreter and interpret the dream.');
 
     try {
+      final languageDirective = isTurkish
+          ? 'IMPORTANT: Write your entire reply in Turkish, regardless of the language of the dream text above.'
+          : 'IMPORTANT: Write your entire reply in English, regardless of the language of the dream text above.';
       final deviceId = await DeviceIdService.getId();
       final response = await _dio.post<Map<String, dynamic>>(
         '$_apiBaseUrl/analyze',
-        data: {'prompt': 'Dream:\n$dream\n\n$systemMessage'},
+        data: {
+          'prompt': 'Dream:\n$dream\n\n$systemMessage\n\n$languageDirective'
+        },
         options: Options(headers: {'X-Device-Id': deviceId}),
       );
       final result = response.data?['result'];
