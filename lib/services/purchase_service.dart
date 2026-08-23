@@ -76,6 +76,10 @@ class PurchaseService {
         return SubscribeOutcome.cancelled;
       }
       return SubscribeOutcome.failure;
+    } catch (_) {
+      // Anything the SDK throws that isn't a PlatformException still has to
+      // become an outcome, or the caller's loading indicator hangs forever.
+      return SubscribeOutcome.failure;
     }
   }
 
@@ -100,8 +104,14 @@ class PurchaseService {
 
   static Future<bool> restore() async {
     if (!_configured) return false;
-    final info = await Purchases.restorePurchases();
-    return info.entitlements.active.containsKey(entitlementId);
+    try {
+      final info = await Purchases.restorePurchases();
+      return info.entitlements.active.containsKey(entitlementId);
+    } catch (_) {
+      // Same reason as above: report "nothing restored" rather than letting
+      // the exception escape and strand the caller's spinner.
+      return false;
+    }
   }
 }
 

@@ -64,23 +64,26 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
       _error = null;
     });
 
-    SubscribeOutcome outcome;
-    try {
-      outcome = await PurchaseService.purchaseConsumable(package)
-          .timeout(const Duration(seconds: 60));
-    } catch (_) {
-      // Covers timeouts and any error PurchaseService didn't already
-      // translate into a SubscribeOutcome, so the spinner never gets
-      // stuck forever on an unexpected failure.
-      outcome = SubscribeOutcome.failure;
-    }
+    // Deliberately no timeout: the store's purchase sheet is user-driven
+    // (Apple ID password, Face ID, "Ask to Buy" approval), so a slow
+    // confirmation is normal rather than a hang — and a Dart-side timeout
+    // wouldn't cancel the transaction anyway, it would only report failure
+    // for a purchase the user was actually charged for. PurchaseService
+    // maps every error onto a SubscribeOutcome, so the spinner always
+    // resolves on its own.
+    final previousCredits = _usage?.extraCredits;
+    final outcome = await PurchaseService.purchaseConsumable(package);
 
     // The backend applies credits via the RevenueCat webhook, but that can
     // lag or (if the webhook was never configured) never arrive — ask it
-    // to double-check directly so the balance updates right away.
-    final usage = outcome == SubscribeOutcome.success
-        ? await OpenAIService.redeemCredits()
-        : null;
+    // to double-check directly so the balance updates right away. Run this
+    // even when the outcome wasn't success: /redeem-credits applies every
+    // unredeemed purchase RevenueCat knows about for this device and is
+    // idempotent, so it also recovers a purchase that completed at the
+    // store while the app saw an error.
+    final usage = outcome == SubscribeOutcome.cancelled
+        ? null
+        : await OpenAIService.redeemCredits();
     if (!mounted) return;
 
     setState(() {
@@ -88,19 +91,20 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
       if (usage != null) _usage = usage;
     });
 
+    // The store call may report failure on a purchase the backend then
+    // found and credited anyway — trust the balance going up over the
+    // outcome, so the user never sees an error next to credits they got.
+    final credited = usage != null &&
+        previousCredits != null &&
+        usage.extraCredits > previousCredits;
+
     final l10n = AppLocalizations.of(context)!;
-    switch (outcome) {
-      case SubscribeOutcome.success:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.creditsAddedSnackbar)),
-        );
-        break;
-      case SubscribeOutcome.cancelled:
-        break;
-      case SubscribeOutcome.notEntitled:
-      case SubscribeOutcome.failure:
-        setState(() => _error = l10n.purchaseFailedGeneric);
-        break;
+    if (outcome == SubscribeOutcome.success || credited) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.creditsAddedSnackbar)),
+      );
+    } else if (outcome != SubscribeOutcome.cancelled) {
+      setState(() => _error = l10n.purchaseFailedGeneric);
     }
   }
 

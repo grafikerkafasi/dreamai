@@ -61,13 +61,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
       _error = null;
     });
 
-    SubscribeOutcome outcome;
-    try {
-      outcome = await PurchaseService.purchase(package)
-          .timeout(const Duration(seconds: 60));
-    } catch (_) {
-      outcome = SubscribeOutcome.failure;
-    }
+    // No timeout: the store sheet waits on the user (password, Face ID,
+    // "Ask to Buy"), and a Dart-side timeout can't cancel the transaction —
+    // it would only misreport a purchase that actually went through.
+    // PurchaseService turns every error into an outcome instead.
+    final outcome = await PurchaseService.purchase(package);
     if (!mounted) return;
 
     setState(() => _purchasing = false);
@@ -88,13 +86,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Future<void> _restore() async {
     setState(() => _purchasing = true);
-    bool restored;
-    try {
-      restored =
-          await PurchaseService.restore().timeout(const Duration(seconds: 60));
-    } catch (_) {
-      restored = false;
-    }
+    final restored = await PurchaseService.restore();
     if (!mounted) return;
     setState(() => _purchasing = false);
     if (restored) {
