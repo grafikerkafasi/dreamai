@@ -26,10 +26,13 @@ class OpenAIService {
       throw const DreamAnalysisException('Please enter a dream first.');
     }
 
-    final isTurkish = RegExp(r'[şğıçöüİŞĞÇÖÜ]').hasMatch(dream);
     if (_useDemoAnalysis) {
       await Future<void>.delayed(const Duration(milliseconds: 700));
-      return _demoAnalysis(interpreter, isTurkish);
+      // The offline demo text is canned, so there is no model to judge the
+      // language for us — a diacritic guess is the best available option
+      // here, and only picks between two hardcoded strings.
+      final looksTurkish = RegExp(r'[şğıçöüİŞĞÇÖÜ]').hasMatch(dream);
+      return _demoAnalysis(interpreter, looksTurkish);
     }
 
     if (_apiBaseUrl.isEmpty) {
@@ -38,16 +41,22 @@ class OpenAIService {
       );
     }
 
-    final systemMessage = interpreterPrompts[interpreter]
-            ?[isTurkish ? 'tr' : 'en'] ??
-        (isTurkish
-            ? '$interpreter gibi davranarak bu rüyayı yorumla.'
-            : 'Act like $interpreter and interpret the dream.');
+    // Always the English persona: it is an instruction *to* the model, not
+    // the language it should answer in. Handing the model a Turkish persona
+    // used to be what silently forced Turkish output, so the reply language
+    // is now stated once, explicitly, and left for the model to resolve.
+    final systemMessage = interpreterPrompts[interpreter] ??
+        'Act like $interpreter and interpret the dream.';
 
     try {
-      final languageDirective = isTurkish
-          ? 'IMPORTANT: Write your entire reply in Turkish, regardless of the language of the dream text above.'
-          : 'IMPORTANT: Write your entire reply in English, regardless of the language of the dream text above.';
+      // Deliberately names no language. The model identifies the dream's
+      // language itself — including text typed without its diacritics —
+      // which is the whole point: users get an answer in whatever language
+      // they wrote in, not in one of two we tried to guess between.
+      const languageDirective = 'IMPORTANT: Write your entire reply in the '
+          'same language the dream above is written in. Judge that from the '
+          "dream's own words, and do not switch to another language even if "
+          'these instructions are in English.';
       final deviceId = await DeviceIdService.getId();
       final response = await _dio.post<Map<String, dynamic>>(
         '$_apiBaseUrl/analyze',
