@@ -211,7 +211,8 @@ class _DreamPageState extends State<DreamPage> {
                     child: ConstrainedBox(
                       constraints:
                           BoxConstraints(minHeight: constraints.maxHeight),
-                      child: _buildContent(screenWidth, l10n),
+                      child: _buildContent(
+                          screenWidth, constraints.maxHeight, l10n),
                     ),
                   );
                 },
@@ -223,7 +224,9 @@ class _DreamPageState extends State<DreamPage> {
     );
   }
 
-  Widget _buildContent(double screenWidth, AppLocalizations l10n) {
+  Widget _buildContent(
+      double screenWidth, double screenHeight, AppLocalizations l10n) {
+    final fieldHeight = screenHeight * 0.55;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -244,7 +247,7 @@ class _DreamPageState extends State<DreamPage> {
           ),
         ),
 
-        const SizedBox(height: 40),
+        const SizedBox(height: 24),
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -264,10 +267,14 @@ class _DreamPageState extends State<DreamPage> {
 
         SizedBox(
           width: screenWidth * 0.7,
+          height: fieldHeight,
           child: TextField(
             controller: _controller,
             focusNode: _focusNode,
-            maxLines: 9,
+            expands: true,
+            maxLines: null,
+            minLines: null,
+            textAlignVertical: TextAlignVertical.top,
             textAlign: TextAlign.center,
             style: GoogleFonts.kufam(
               fontSize: 26,
@@ -289,7 +296,7 @@ class _DreamPageState extends State<DreamPage> {
                 borderSide: BorderSide.none,
               ),
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             ),
           ),
         ),
