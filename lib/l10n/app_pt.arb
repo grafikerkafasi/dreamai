@@ -1,0 +1,104 @@
+{
+  "@@locale": "pt",
+
+  "dreamHint": "Toque abaixo e conte seu sonho",
+  "analyzeButton": "analisar",
+
+  "dreamPlaceholder1": "Um grande pássaro-fada me pegou e me levou até as nuvens.",
+  "dreamPlaceholder2": "Eu estava nadando em um oceano feito de estrelas.",
+  "dreamPlaceholder3": "A casa da minha infância se transformou em um labirinto de espelhos.",
+  "dreamPlaceholder4": "Eu conseguia voar, mas apenas alguns centímetros acima do chão.",
+  "dreamPlaceholder5": "Um estranho me entregou uma chave que brilhava no escuro.",
+
+  "chooseInterpreter": "Escolha um Intérprete",
+  "dreamsLeftThisMonth": "{count, plural, one{Você tem {count} sonho restante este mês} other{Você tem {count} sonhos restantes este mês}}",
+  "@dreamsLeftThisMonth": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "freeDreamsLeft": "{count, plural, one{Você tem {count} sonho grátis restante} other{Você tem {count} sonhos grátis restantes}}",
+  "@freeDreamsLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "dreamAnalysisByInterpreter": "Minha análise de sonho por {interpreter}",
+  "@dreamAnalysisByInterpreter": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+  "shareButton": "compartilhar",
+  "backTooltip": "Voltar",
+  "tryAgainButton": "Tentar novamente",
+  "interpretingDream": "Interpretando seu sonho…",
+  "reflectionDisclaimer": "Apenas para reflexão e entretenimento — não é aconselhamento médico ou de saúde mental.",
+  "shareText": "Análise de sonho por {interpreter} — via DreamAI",
+  "@shareText": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+
+  "getMoreDreamsTitle": "Obtenha Mais Sonhos",
+  "creditPacksIntro": "Está ficando sem créditos? Recarregue com um pacote avulso — sem assinatura, e eles nunca expiram.",
+  "dreamsAvailable": "{count, plural, one{{count} interpretação de sonho disponível} other{{count} interpretações de sonho disponíveis}}",
+  "@dreamsAvailable": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "creditPacksLoadError": "Não foi possível carregar os pacotes de créditos. Tente novamente.",
+  "creditPacksUnavailable": "Os pacotes de créditos não estão disponíveis no momento. Volte a verificar mais tarde.",
+  "creditsAddedSnackbar": "Créditos adicionados — aproveite!",
+  "purchaseFailedGeneric": "Não foi possível concluir a compra. Tente novamente.",
+  "termsOfUse": "Termos de Uso",
+  "privacyPolicyLink": "Política de Privacidade",
+
+  "unlockMoreDreams": "Desbloqueie mais interpretações de sonhos",
+  "subscriptionOfferBody": "Até 50 interpretações de sonhos por mês por {price}.",
+  "@subscriptionOfferBody": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionLoadError": "Não foi possível carregar as opções de assinatura. Tente novamente.",
+  "noActiveSubscription": "Nenhuma assinatura ativa encontrada para este dispositivo.",
+  "loadingButton": "Carregando...",
+  "notAvailableButton": "Não disponível",
+  "subscribeButton": "Assinar",
+  "restorePurchases": "Restaurar compras",
+
+  "contactTitle": "Contato",
+  "contactBody": "Valorizamos seu feedback e suas ideias — eles nos ajudam a melhorar o DreamAI para todos. Entre em contato quando quiser e responderemos.",
+  "contactUsButton": "Fale Conosco",
+  "mailAppError": "Não foi possível abrir seu aplicativo de e-mail.",
+
+  "tellYourDream": "Conte Seu Sonho",
+  "pastDreams": "Sonhos Anteriores",
+  "myPastDreamsTooltip": "Meus sonhos anteriores",
+  "openMenuTooltip": "Abrir menu",
+
+  "noDreamsYet": "Ainda não há sonhos.",
+  "unknownInterpreter": "Intérprete desconhecido",
+
+  "privacyPolicyTitle": "Política de Privacidade",
+  "privacySectionDreamContentHeading": "Conteúdo do sonho",
+  "privacySectionDreamContentBody": "O texto do seu sonho é enviado à OpenAI para gerar uma interpretação. Não o mantemos em nenhum banco de dados ou registro depois que a resposta é retornada. Se você salvar um resultado em \"Meus Sonhos Anteriores\", ele permanece apenas no seu dispositivo — nunca é enviado aos nossos servidores.",
+  "privacySectionDeviceIdHeading": "Identificador do dispositivo",
+  "privacySectionDeviceIdBody": "O DreamAI cria um identificador de dispositivo aleatório e específico do app (não vinculado ao seu nome ou Apple ID). Ele é usado para aplicar os limites de uso gratuito/mensal, associar compras ao seu dispositivo e prevenir fraude ou abuso.",
+  "privacySectionPurchasesHeading": "Compras e assinaturas",
+  "privacySectionPurchasesBody": "Os pagamentos são processados pela App Store e pela RevenueCat — nunca vemos nem armazenamos os dados do seu cartão. Mantemos registros limitados vinculados ao identificador do seu dispositivo (status da assinatura, quantidade de créditos comprados) para entregar o que você pagou.",
+  "privacySectionSupportHeading": "Solicitações de suporte",
+  "privacySectionSupportBody": "O DreamAI não exige conta. Se você entrar em contato para suporte, processamos apenas os dados que você optar por compartilhar para essa finalidade.",
+  "privacySectionUsageHeading": "Como usamos essas informações",
+  "privacySectionUsageBody": "Somente para gerar interpretações, executar os recursos principais do app, aplicar limites de uso, prevenir abusos, responder a solicitações de suporte e manter o serviço confiável. Não as usamos para publicidade direcionada ou rastreamento entre apps.",
+  "privacySectionThirdPartyHeading": "Serviços de terceiros",
+  "privacySectionThirdPartyBody": "OpenAI, RevenueCat e a App Store processam dados sob suas próprias políticas de privacidade. Compartilhamos apenas o operacionalmente necessário — nunca mais do que isso.",
+  "privacySectionRetentionHeading": "Retenção de dados",
+  "privacySectionRetentionBody": "O texto do sonho não é retido após a geração de uma resposta. Tudo o que for salvo localmente em \"Meus Sonhos Anteriores\" permanece até que você o exclua. Os registros de uso/compra do servidor são mantidos apenas pelo tempo necessário para operar o serviço.",
+  "privacySectionChoicesHeading": "Suas escolhas",
+  "privacySectionChoicesBody": "Você pode excluir qualquer sonho salvo a qualquer momento em \"Meus Sonhos Anteriores\". Para solicitar a exclusão de registros mantidos em nossos servidores, entre em contato conosco — analisaremos e atenderemos o pedido de acordo com a lei aplicável.",
+  "privacySectionChildrenHeading": "Privacidade das crianças",
+  "privacySectionChildrenBody": "O DreamAI não exige conta e não coleta intencionalmente nomes, endereços de e-mail ou outras informações de perfil de crianças.",
+  "privacySectionChangesHeading": "Alterações nesta política",
+  "privacySectionChangesBody": "Se esta política mudar, publicaremos a atualização aqui com uma data revisada.",
+  "privacySectionContactHeading": "Contato",
+  "privacySectionContactBody": "Dúvidas sobre esta política? Fale conosco em a.yasiny.yilmaz@gmail.com.",
+
+  "termsTitle": "Termos e Condições",
+  "termsSectionReflectionHeading": "Para reflexão, não para diagnóstico",
+  "termsSectionReflectionBody": "O DreamAI oferece interpretações criativas e reflexivas para entretenimento. Não é aconselhamento médico, de saúde mental, jurídico ou profissional.",
+  "termsSectionCareHeading": "Use com cuidado",
+  "termsSectionCareBody": "Evite inserir informações muito sensíveis ou que pertençam a outra pessoa. Se um sonho gerar preocupações urgentes, procure um profissional qualificado ou o serviço de emergência local."
+}

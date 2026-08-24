@@ -18,6 +18,15 @@ void main() async {
   runApp(const DreamAIApp());
 }
 
+Locale resolveAppLocale(Locale? locale, Iterable<Locale> supportedLocales) {
+  for (final supported in supportedLocales) {
+    if (supported.languageCode == locale?.languageCode) {
+      return supported;
+    }
+  }
+  return const Locale('en');
+}
+
 class DreamAIApp extends StatelessWidget {
   const DreamAIApp({super.key});
 
@@ -28,6 +37,7 @@ class DreamAIApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: resolveAppLocale,
       initialRoute: AppRoutes.dream,
       routes: {
         AppRoutes.dream: (context) => const DreamPage(),
@@ -236,13 +246,17 @@ class _DreamPageState extends State<DreamPage> {
 
         const SizedBox(height: 40),
 
-        Text(
-          l10n.dreamHint,
-          style: GoogleFonts.kufam(
-            fontSize: 20,
-            letterSpacing: 0.0,
-            color: const Color(0xFFFF91B3),
-            fontWeight: FontWeight.w300,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            l10n.dreamHint,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.kufam(
+              fontSize: 20,
+              letterSpacing: 0.0,
+              color: const Color(0xFFFF91B3),
+              fontWeight: FontWeight.w300,
+            ),
           ),
         ),
 
@@ -267,7 +281,8 @@ class _DreamPageState extends State<DreamPage> {
               hintStyle: GoogleFonts.kufam(
                 fontSize: 26,
                 fontWeight: FontWeight.w400,
-                color: const Color(0xFFE0D4D4),
+                fontStyle: FontStyle.italic,
+                color: const Color(0xFFE0D4D4).withValues(alpha: 0.45),
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),

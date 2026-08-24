@@ -1,0 +1,104 @@
+{
+  "@@locale": "hi",
+
+  "dreamHint": "नीचे टैप करें और अपना सपना बताएं",
+  "analyzeButton": "विश्लेषण करें",
+
+  "dreamPlaceholder1": "एक विशाल परी-पक्षी ने मुझे पकड़ लिया और बादलों तक ले गई।",
+  "dreamPlaceholder2": "मैं तारों से बने एक समुद्र में तैर रहा था।",
+  "dreamPlaceholder3": "मेरा बचपन का घर आईनों की भूलभुलैया में बदल गया।",
+  "dreamPlaceholder4": "मैं उड़ सकता था, लेकिन ज़मीन से बस कुछ इंच ऊपर।",
+  "dreamPlaceholder5": "एक अजनबी ने मुझे अंधेरे में चमकने वाली एक चाबी दी।",
+
+  "chooseInterpreter": "एक व्याख्याकार चुनें",
+  "dreamsLeftThisMonth": "{count, plural, one{इस महीने {count} सपना बचा है} other{इस महीने {count} सपने बचे हैं}}",
+  "@dreamsLeftThisMonth": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "freeDreamsLeft": "{count, plural, one{{count} मुफ़्त सपना बचा है} other{{count} मुफ़्त सपने बचे हैं}}",
+  "@freeDreamsLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "dreamAnalysisByInterpreter": "{interpreter} द्वारा मेरे सपने का विश्लेषण",
+  "@dreamAnalysisByInterpreter": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+  "shareButton": "शेयर करें",
+  "backTooltip": "वापस",
+  "tryAgainButton": "फिर कोशिश करें",
+  "interpretingDream": "आपके सपने की व्याख्या हो रही है…",
+  "reflectionDisclaimer": "केवल चिंतन और मनोरंजन के लिए — यह चिकित्सा या मानसिक स्वास्थ्य सलाह नहीं है।",
+  "shareText": "{interpreter} द्वारा सपने का विश्लेषण — DreamAI के माध्यम से",
+  "@shareText": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+
+  "getMoreDreamsTitle": "और सपने प्राप्त करें",
+  "creditPacksIntro": "कम पड़ रहे हैं? बिना सदस्यता के एक बार का क्रेडिट पैक लें — ये कभी खत्म नहीं होते।",
+  "dreamsAvailable": "{count, plural, one{{count} सपने की व्याख्या उपलब्ध है} other{{count} सपनों की व्याख्याएं उपलब्ध हैं}}",
+  "@dreamsAvailable": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "creditPacksLoadError": "क्रेडिट पैक लोड नहीं हो सके। कृपया फिर से कोशिश करें।",
+  "creditPacksUnavailable": "क्रेडिट पैक अभी उपलब्ध नहीं हैं। कृपया बाद में फिर से देखें।",
+  "creditsAddedSnackbar": "क्रेडिट जोड़ दिए गए — आनंद लें!",
+  "purchaseFailedGeneric": "खरीदारी पूरी नहीं हो सकी। कृपया फिर से कोशिश करें।",
+  "termsOfUse": "उपयोग की शर्तें",
+  "privacyPolicyLink": "गोपनीयता नीति",
+
+  "unlockMoreDreams": "और सपनों की व्याख्याएं अनलॉक करें",
+  "subscriptionOfferBody": "{price} में महीने में 50 तक सपनों की व्याख्याएं।",
+  "@subscriptionOfferBody": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionLoadError": "सदस्यता विकल्प लोड नहीं हो सके। कृपया फिर से कोशिश करें।",
+  "noActiveSubscription": "इस डिवाइस के लिए कोई सक्रिय सदस्यता नहीं मिली।",
+  "loadingButton": "लोड हो रहा है...",
+  "notAvailableButton": "उपलब्ध नहीं",
+  "subscribeButton": "सदस्यता लें",
+  "restorePurchases": "खरीदारी पुनर्स्थापित करें",
+
+  "contactTitle": "संपर्क करें",
+  "contactBody": "हम आपकी प्रतिक्रिया और विचारों को महत्व देते हैं — वे DreamAI को सबके लिए बेहतर बनाने में मदद करते हैं। कभी भी संपर्क करें, हम जवाब देंगे।",
+  "contactUsButton": "हमसे संपर्क करें",
+  "mailAppError": "आपका मेल ऐप नहीं खुल सका।",
+
+  "tellYourDream": "अपना सपना बताएं",
+  "pastDreams": "पिछले सपने",
+  "myPastDreamsTooltip": "मेरे पिछले सपने",
+  "openMenuTooltip": "मेनू खोलें",
+
+  "noDreamsYet": "अभी तक कोई सपना नहीं है।",
+  "unknownInterpreter": "अज्ञात व्याख्याकार",
+
+  "privacyPolicyTitle": "गोपनीयता नीति",
+  "privacySectionDreamContentHeading": "सपने की सामग्री",
+  "privacySectionDreamContentBody": "व्याख्या तैयार करने के लिए आपके सपने का टेक्स्ट OpenAI को भेजा जाता है। जवाब मिलने के बाद हम इसे किसी डेटाबेस या लॉग में नहीं रखते। अगर आप \"मेरे पिछले सपने\" में कोई परिणाम सेव करते हैं, तो वह केवल आपके डिवाइस पर रहता है — यह कभी भी हमारे सर्वर पर अपलोड नहीं होता।",
+  "privacySectionDeviceIdHeading": "डिवाइस पहचानकर्ता",
+  "privacySectionDeviceIdBody": "DreamAI एक रैंडम, ऐप-विशिष्ट डिवाइस पहचानकर्ता बनाता है (जो आपके नाम या Apple ID से जुड़ा नहीं होता)। इसका उपयोग मुफ़्त/मासिक उपयोग सीमाएं लागू करने, खरीदारी को आपके डिवाइस से मिलाने और धोखाधड़ी या दुरुपयोग रोकने के लिए किया जाता है।",
+  "privacySectionPurchasesHeading": "खरीदारी और सदस्यताएं",
+  "privacySectionPurchasesBody": "भुगतान App Store और RevenueCat द्वारा संभाले जाते हैं — हम आपके कार्ड की जानकारी कभी नहीं देखते या सहेजते। हम आपके भुगतान की गई सेवा देने के लिए आपके डिवाइस पहचानकर्ता से जुड़े सीमित रिकॉर्ड (सदस्यता स्थिति, खरीदे गए क्रेडिट की संख्या) रखते हैं।",
+  "privacySectionSupportHeading": "सहायता अनुरोध",
+  "privacySectionSupportBody": "DreamAI को किसी खाते की आवश्यकता नहीं है। अगर आप सहायता के लिए हमसे संपर्क करते हैं, तो हम केवल वही जानकारी संसाधित करते हैं जो आप उस उद्देश्य के लिए साझा करना चुनते हैं।",
+  "privacySectionUsageHeading": "हम इस जानकारी का उपयोग कैसे करते हैं",
+  "privacySectionUsageBody": "केवल व्याख्याएं तैयार करने, ऐप की मुख्य सुविधाओं को चलाने, उपयोग सीमाएं लागू करने, दुरुपयोग रोकने, सहायता अनुरोधों का जवाब देने और सेवा को भरोसेमंद बनाए रखने के लिए। हम इसका उपयोग टारगेटेड विज्ञापन या क्रॉस-ऐप ट्रैकिंग के लिए नहीं करते।",
+  "privacySectionThirdPartyHeading": "तृतीय-पक्ष सेवाएं",
+  "privacySectionThirdPartyBody": "OpenAI, RevenueCat और App Store प्रत्येक अपनी-अपनी गोपनीयता नीतियों के तहत डेटा को संसाधित करते हैं। हम केवल वही साझा करते हैं जो परिचालन रूप से आवश्यक है — इससे अधिक कभी नहीं।",
+  "privacySectionRetentionHeading": "डेटा प्रतिधारण",
+  "privacySectionRetentionBody": "जवाब तैयार होने के बाद सपने का टेक्स्ट सुरक्षित नहीं रखा जाता। \"मेरे पिछले सपने\" में स्थानीय रूप से सेव की गई कोई भी चीज़ तब तक बनी रहती है जब तक आप उसे डिलीट नहीं करते। बैकएंड उपयोग/खरीदारी रिकॉर्ड केवल सेवा चलाने के लिए ज़रूरी समय तक रखे जाते हैं।",
+  "privacySectionChoicesHeading": "आपके विकल्प",
+  "privacySectionChoicesBody": "आप किसी भी समय \"मेरे पिछले सपने\" से कोई भी सेव किया गया सपना डिलीट कर सकते हैं। हमारे सर्वर पर रखे गए रिकॉर्ड को डिलीट करने का अनुरोध करने के लिए, हमसे संपर्क करें — हम लागू कानून के अनुसार अनुरोध की समीक्षा करके उसे पूरा करेंगे।",
+  "privacySectionChildrenHeading": "बच्चों की गोपनीयता",
+  "privacySectionChildrenBody": "DreamAI को किसी खाते की आवश्यकता नहीं है और यह जानबूझकर बच्चों से नाम, ईमेल पते या अन्य प्रोफ़ाइल जानकारी एकत्र नहीं करता।",
+  "privacySectionChangesHeading": "इस नीति में बदलाव",
+  "privacySectionChangesBody": "अगर यह नीति बदलती है, तो हम अपडेट को संशोधित तारीख के साथ यहां पोस्ट करेंगे।",
+  "privacySectionContactHeading": "संपर्क करें",
+  "privacySectionContactBody": "इस नीति के बारे में सवाल हैं? हमसे a.yasiny.yilmaz@gmail.com पर संपर्क करें।",
+
+  "termsTitle": "नियम और शर्तें",
+  "termsSectionReflectionHeading": "चिंतन के लिए, निदान के लिए नहीं",
+  "termsSectionReflectionBody": "DreamAI मनोरंजन के लिए रचनात्मक और चिंतनशील व्याख्याएं प्रदान करता है। यह चिकित्सा, मानसिक स्वास्थ्य, कानूनी या पेशेवर सलाह नहीं है।",
+  "termsSectionCareHeading": "सावधानी से उपयोग करें",
+  "termsSectionCareBody": "कृपया अत्यधिक संवेदनशील या किसी और से जुड़ी जानकारी दर्ज करने से बचें। अगर कोई सपना तत्काल चिंता पैदा करता है, तो किसी योग्य पेशेवर या स्थानीय आपातकालीन सेवा से संपर्क करें।"
+}

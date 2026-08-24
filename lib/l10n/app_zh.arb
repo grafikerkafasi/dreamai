@@ -1,0 +1,104 @@
+{
+  "@@locale": "zh",
+
+  "dreamHint": "点击下方，告诉我你的梦",
+  "analyzeButton": "解析",
+
+  "dreamPlaceholder1": "一只巨大的仙鸟抓住了我，把我带上了云端。",
+  "dreamPlaceholder2": "我在一片由星星组成的海洋中游泳。",
+  "dreamPlaceholder3": "我童年的家变成了一座镜子迷宫。",
+  "dreamPlaceholder4": "我能飞，但只能离地几厘米。",
+  "dreamPlaceholder5": "一个陌生人递给我一把在黑暗中发光的钥匙。",
+
+  "chooseInterpreter": "选择一位解梦师",
+  "dreamsLeftThisMonth": "{count, plural, other{本月还剩 {count} 次解梦次数}}",
+  "@dreamsLeftThisMonth": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "freeDreamsLeft": "{count, plural, other{还剩 {count} 次免费解梦}}",
+  "@freeDreamsLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "dreamAnalysisByInterpreter": "{interpreter} 为我解析的梦境",
+  "@dreamAnalysisByInterpreter": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+  "shareButton": "分享",
+  "backTooltip": "返回",
+  "tryAgainButton": "重试",
+  "interpretingDream": "正在解析你的梦……",
+  "reflectionDisclaimer": "仅供反思与娱乐 — 并非医疗或心理健康建议。",
+  "shareText": "{interpreter} 的解梦分析 — 来自 DreamAI",
+  "@shareText": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+
+  "getMoreDreamsTitle": "获取更多解梦次数",
+  "creditPacksIntro": "次数不够了？购买一次性积分包即可充值 — 无需订阅，且永不过期。",
+  "dreamsAvailable": "{count, plural, other{还有 {count} 次可用的解梦次数}}",
+  "@dreamsAvailable": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "creditPacksLoadError": "无法加载积分包，请重试。",
+  "creditPacksUnavailable": "积分包暂时无法使用，请稍后再查看。",
+  "creditsAddedSnackbar": "积分已添加 — 尽情使用吧！",
+  "purchaseFailedGeneric": "购买未能完成，请重试。",
+  "termsOfUse": "使用条款",
+  "privacyPolicyLink": "隐私政策",
+
+  "unlockMoreDreams": "解锁更多解梦次数",
+  "subscriptionOfferBody": "每月 {price}，最多可获得 50 次解梦。",
+  "@subscriptionOfferBody": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionLoadError": "无法加载订阅选项，请重试。",
+  "noActiveSubscription": "未找到此设备的有效订阅。",
+  "loadingButton": "加载中……",
+  "notAvailableButton": "暂不可用",
+  "subscribeButton": "订阅",
+  "restorePurchases": "恢复购买项目",
+
+  "contactTitle": "联系我们",
+  "contactBody": "我们重视你的反馈和想法 — 它们帮助我们让 DreamAI 变得对每个人都更好。随时联系我们，我们会回复你。",
+  "contactUsButton": "联系我们",
+  "mailAppError": "无法打开邮件应用。",
+
+  "tellYourDream": "讲述你的梦",
+  "pastDreams": "历史梦境",
+  "myPastDreamsTooltip": "我的历史梦境",
+  "openMenuTooltip": "打开菜单",
+
+  "noDreamsYet": "还没有梦境记录。",
+  "unknownInterpreter": "未知解梦师",
+
+  "privacyPolicyTitle": "隐私政策",
+  "privacySectionDreamContentHeading": "梦境内容",
+  "privacySectionDreamContentBody": "你的梦境文本会被发送给 OpenAI 以生成解析结果。一旦返回结果，我们不会将其保留在任何数据库或日志中。如果你使用“我的历史梦境”保存结果，它只会保存在你的设备上 — 绝不会上传到我们的服务器。",
+  "privacySectionDeviceIdHeading": "设备标识符",
+  "privacySectionDeviceIdBody": "DreamAI 会生成一个随机的、仅限本应用使用的设备标识符（不与你的姓名或 Apple ID 关联）。它用于执行免费/每月使用限制、将购买记录与你的设备匹配，以及防止欺诈或滥用。",
+  "privacySectionPurchasesHeading": "购买与订阅",
+  "privacySectionPurchasesBody": "付款由 App Store 和 RevenueCat 处理 — 我们从不查看或存储你的银行卡信息。为了向你提供已付费的内容，我们会保留与你的设备标识符关联的有限记录（订阅状态、已购买的积分数量）。",
+  "privacySectionSupportHeading": "支持请求",
+  "privacySectionSupportBody": "DreamAI 不需要账户。如果你联系我们寻求支持，我们只会处理你为此目的选择分享的信息。",
+  "privacySectionUsageHeading": "我们如何使用这些信息",
+  "privacySectionUsageBody": "仅用于生成解析结果、运行应用的核心功能、执行使用限制、防止滥用、回应支持请求以及保持服务的可靠性。我们不会将其用于定向广告或跨应用追踪。",
+  "privacySectionThirdPartyHeading": "第三方服务",
+  "privacySectionThirdPartyBody": "OpenAI、RevenueCat 和 App Store 各自依据其自身的隐私政策处理数据。我们只共享运营上必需的信息 — 绝不会共享更多。",
+  "privacySectionRetentionHeading": "数据保留",
+  "privacySectionRetentionBody": "生成回复后，梦境文本不会被保留。任何通过“我的历史梦境”在本地保存的内容都会一直保留，直到你删除它。后端的使用/购买记录仅会保留运营服务所需的时间。",
+  "privacySectionChoicesHeading": "你的选择",
+  "privacySectionChoicesBody": "你可以随时从“我的历史梦境”中删除任何已保存的梦境。如需请求删除我们服务器上保存的记录，请联系我们 — 我们会依据适用法律审核并处理该请求。",
+  "privacySectionChildrenHeading": "儿童隐私",
+  "privacySectionChildrenBody": "DreamAI 不需要账户，也不会故意收集儿童的姓名、电子邮件地址或其他个人资料信息。",
+  "privacySectionChangesHeading": "本政策的变更",
+  "privacySectionChangesBody": "如果本政策发生变更，我们会在此处发布更新内容及修订日期。",
+  "privacySectionContactHeading": "联系我们",
+  "privacySectionContactBody": "对本政策有疑问？请通过 a.yasiny.yilmaz@gmail.com 与我们联系。",
+
+  "termsTitle": "条款与条件",
+  "termsSectionReflectionHeading": "用于反思，而非诊断",
+  "termsSectionReflectionBody": "DreamAI 提供富有创意和反思性的解梦内容，仅供娱乐之用。它并非医疗、心理健康、法律或专业建议。",
+  "termsSectionCareHeading": "请谨慎使用",
+  "termsSectionCareBody": "请避免输入高度敏感或属于他人的信息。如果某个梦境引发紧急担忧，请联系专业人士或当地紧急服务机构。"
+}

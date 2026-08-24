@@ -1,0 +1,104 @@
+{
+  "@@locale": "ar",
+
+  "dreamHint": "اضغط أدناه وأخبرني بحلمك",
+  "analyzeButton": "حلّل",
+
+  "dreamPlaceholder1": "طائر خرافي ضخم أمسك بي وحملني إلى الغيوم.",
+  "dreamPlaceholder2": "كنت أسبح في محيط مصنوع من النجوم.",
+  "dreamPlaceholder3": "تحوّل بيت طفولتي إلى متاهة من المرايا.",
+  "dreamPlaceholder4": "كان بإمكاني الطيران، لكن على ارتفاع بضعة سنتيمترات فقط عن الأرض.",
+  "dreamPlaceholder5": "أعطاني شخص غريب مفتاحًا يتوهّج في الظلام.",
+
+  "chooseInterpreter": "اختر مفسّرًا",
+  "dreamsLeftThisMonth": "{count, plural, zero{لم يتبقَّ أي حلم هذا الشهر} one{تبقّى حلم واحد هذا الشهر} two{تبقّى حلمان هذا الشهر} few{تبقّت {count} أحلام هذا الشهر} many{تبقّى {count} حلمًا هذا الشهر} other{تبقّى {count} حلم هذا الشهر}}",
+  "@dreamsLeftThisMonth": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "freeDreamsLeft": "{count, plural, zero{لم يتبقَّ أي حلم مجاني} one{تبقّى حلم مجاني واحد} two{تبقّى حلمان مجانيان} few{تبقّت {count} أحلام مجانية} many{تبقّى {count} حلمًا مجانيًا} other{تبقّى {count} حلم مجاني}}",
+  "@freeDreamsLeft": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "dreamAnalysisByInterpreter": "تحليل حلمي بواسطة {interpreter}",
+  "@dreamAnalysisByInterpreter": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+  "shareButton": "مشاركة",
+  "backTooltip": "رجوع",
+  "tryAgainButton": "حاول مرة أخرى",
+  "interpretingDream": "جارٍ تفسير حلمك…",
+  "reflectionDisclaimer": "للتأمل والترفيه فقط — وليس نصيحة طبية أو نفسية.",
+  "shareText": "تحليل حلم بواسطة {interpreter} — عبر DreamAI",
+  "@shareText": {
+    "placeholders": { "interpreter": { "type": "String" } }
+  },
+
+  "getMoreDreamsTitle": "احصل على المزيد من الأحلام",
+  "creditPacksIntro": "أوشكت رصيدك على النفاد؟ أعد الشحن بحزمة رصيد لمرة واحدة — دون اشتراك، ولا تنتهي صلاحيتها أبدًا.",
+  "dreamsAvailable": "{count, plural, zero{لا تتوفر أي تفسيرات أحلام} one{يتوفر تفسير حلم واحد} two{يتوفر تفسيرا حلمين} few{تتوفر {count} تفسيرات أحلام} many{يتوفر {count} تفسيرًا للأحلام} other{يتوفر {count} تفسير أحلام}}",
+  "@dreamsAvailable": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "creditPacksLoadError": "تعذّر تحميل حزم الرصيد. يُرجى المحاولة مرة أخرى.",
+  "creditPacksUnavailable": "حزم الرصيد غير متاحة حاليًا. يُرجى التحقق لاحقًا.",
+  "creditsAddedSnackbar": "تمت إضافة الرصيد — استمتع!",
+  "purchaseFailedGeneric": "تعذّر إتمام عملية الشراء. يُرجى المحاولة مرة أخرى.",
+  "termsOfUse": "شروط الاستخدام",
+  "privacyPolicyLink": "سياسة الخصوصية",
+
+  "unlockMoreDreams": "فتح المزيد من تفسيرات الأحلام",
+  "subscriptionOfferBody": "حتى 50 تفسير حلم شهريًا مقابل {price}.",
+  "@subscriptionOfferBody": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "subscriptionLoadError": "تعذّر تحميل خيارات الاشتراك. يُرجى المحاولة مرة أخرى.",
+  "noActiveSubscription": "لم يتم العثور على اشتراك نشط لهذا الجهاز.",
+  "loadingButton": "جارٍ التحميل...",
+  "notAvailableButton": "غير متاح",
+  "subscribeButton": "اشترك",
+  "restorePurchases": "استعادة المشتريات",
+
+  "contactTitle": "تواصل معنا",
+  "contactBody": "نحن نقدّر ملاحظاتك وأفكارك — فهي تساعدنا على تحسين DreamAI للجميع. تواصل معنا في أي وقت وسنردّ عليك.",
+  "contactUsButton": "تواصل معنا",
+  "mailAppError": "تعذّر فتح تطبيق البريد.",
+
+  "tellYourDream": "أخبرني بحلمك",
+  "pastDreams": "الأحلام السابقة",
+  "myPastDreamsTooltip": "أحلامي السابقة",
+  "openMenuTooltip": "فتح القائمة",
+
+  "noDreamsYet": "لا توجد أحلام بعد.",
+  "unknownInterpreter": "مفسّر غير معروف",
+
+  "privacyPolicyTitle": "سياسة الخصوصية",
+  "privacySectionDreamContentHeading": "محتوى الحلم",
+  "privacySectionDreamContentBody": "يُرسَل نص حلمك إلى OpenAI لإنشاء تفسير. نحن لا نحتفظ به في أي قاعدة بيانات أو سجلّ بعد إرجاع الرد. إذا حفظت نتيجة ما ضمن \"أحلامي السابقة\"، فإنها تبقى على جهازك فقط — ولا تُرفَع أبدًا إلى خوادمنا.",
+  "privacySectionDeviceIdHeading": "معرّف الجهاز",
+  "privacySectionDeviceIdBody": "ينشئ DreamAI معرّف جهاز عشوائيًا خاصًا بالتطبيق (غير مرتبط باسمك أو بمعرّف Apple الخاص بك). يُستخدم لتطبيق حدود الاستخدام المجاني/الشهري، ومطابقة المشتريات مع جهازك، ومنع الاحتيال أو إساءة الاستخدام.",
+  "privacySectionPurchasesHeading": "المشتريات والاشتراكات",
+  "privacySectionPurchasesBody": "تتم معالجة المدفوعات بواسطة App Store وRevenueCat — نحن لا نرى أو نخزّن بيانات بطاقتك أبدًا. نحتفظ بسجلات محدودة مرتبطة بمعرّف جهازك (حالة الاشتراك، عدد الأرصدة المشتراة) لتقديم ما دفعت مقابله.",
+  "privacySectionSupportHeading": "طلبات الدعم",
+  "privacySectionSupportBody": "لا يتطلب DreamAI حسابًا. إذا تواصلت معنا للحصول على الدعم، فإننا نعالج فقط التفاصيل التي تختار مشاركتها معنا لهذا الغرض.",
+  "privacySectionUsageHeading": "كيف نستخدم هذه المعلومات",
+  "privacySectionUsageBody": "فقط لإنشاء التفسيرات، وتشغيل الميزات الأساسية للتطبيق، وتطبيق حدود الاستخدام، ومنع إساءة الاستخدام، والرد على طلبات الدعم، والحفاظ على موثوقية الخدمة. نحن لا نستخدمها للإعلانات الموجّهة أو التتبّع عبر التطبيقات.",
+  "privacySectionThirdPartyHeading": "خدمات الأطراف الثالثة",
+  "privacySectionThirdPartyBody": "تعالج كل من OpenAI وRevenueCat وApp Store البيانات بموجب سياسات الخصوصية الخاصة بها. نحن نشارك فقط ما هو ضروري تشغيليًا — لا أكثر من ذلك أبدًا.",
+  "privacySectionRetentionHeading": "الاحتفاظ بالبيانات",
+  "privacySectionRetentionBody": "لا يُحتفظ بنص الحلم بعد إنشاء الرد. يبقى أي شيء محفوظ محليًا ضمن \"أحلامي السابقة\" حتى تقوم بحذفه. تُحفظ سجلات الاستخدام/الشراء على الخادم فقط للمدة اللازمة لتشغيل الخدمة.",
+  "privacySectionChoicesHeading": "خياراتك",
+  "privacySectionChoicesBody": "يمكنك حذف أي حلم محفوظ في أي وقت من \"أحلامي السابقة\". لطلب حذف السجلات المحفوظة على خوادمنا، تواصل معنا — سنراجع الطلب ونلبّيه وفقًا للقانون المعمول به.",
+  "privacySectionChildrenHeading": "خصوصية الأطفال",
+  "privacySectionChildrenBody": "لا يتطلب DreamAI حسابًا ولا يجمع عن قصد أسماء الأطفال أو عناوين بريدهم الإلكتروني أو أي معلومات ملف شخصي أخرى منهم.",
+  "privacySectionChangesHeading": "التغييرات على هذه السياسة",
+  "privacySectionChangesBody": "إذا تغيّرت هذه السياسة، فسننشر التحديث هنا مع تاريخ منقّح.",
+  "privacySectionContactHeading": "تواصل معنا",
+  "privacySectionContactBody": "لديك أسئلة حول هذه السياسة؟ راسلنا على a.yasiny.yilmaz@gmail.com.",
+
+  "termsTitle": "الشروط والأحكام",
+  "termsSectionReflectionHeading": "للتأمل، وليس للتشخيص",
+  "termsSectionReflectionBody": "يقدّم DreamAI تفسيرات إبداعية وتأملية لأغراض الترفيه. وهو ليس نصيحة طبية أو نفسية أو قانونية أو مهنية.",
+  "termsSectionCareHeading": "استخدمه بحذر",
+  "termsSectionCareBody": "يُرجى تجنّب إدخال معلومات حساسة للغاية أو تخصّ شخصًا آخر. إذا أثار أحد الأحلام مخاوف عاجلة، فتواصل مع مختصّ مؤهّل أو خدمة الطوارئ المحلية."
+}
