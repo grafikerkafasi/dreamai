@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../openai_service.dart';
+import '../services/contact_service.dart';
 import '../services/dream_storage_service.dart';
 import 'app_logo_button.dart';
 import 'custom_drawer.dart'; // Drawer'ı ekledik
@@ -168,7 +169,9 @@ class _AnalysisPageState extends State<AnalysisPage> {
             ),
           ),
         ),
-        body: _loading
+        body: SafeArea(
+          top: false,
+          child: _loading
             ? const Center(child: _AnalyzingProgress())
             : _errorMessage != null
                 ? _ErrorState(message: _errorMessage!, onRetry: _analyzeDream)
@@ -287,11 +290,184 @@ class _AnalysisPageState extends State<AnalysisPage> {
                             color: Colors.white54,
                           ),
                         ),
+                        if (!_loading && _errorMessage == null) ...[
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () => _showReportDialog(context),
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(0, 0),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Report this interpretation',
+                              style: GoogleFonts.kufam(
+                                fontSize: 11,
+                                color: Colors.white38,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 40),
                       ],
                     ),
                   ),
+        ),
       ),
+    );
+  }
+
+  Future<void> _showReportDialog(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _ReportContentDialog(
+        interpreter: widget.interpreter,
+        dreamText: widget.dreamText,
+        result: _result,
+      ),
+    );
+  }
+}
+
+/// Lets a user flag the AI-generated interpretation as offensive or
+/// inappropriate without leaving the app. Reuses the existing /contact
+/// backend endpoint (see ContactService, server.js) rather than a mailto
+/// link, which would hand the user off to an external mail app.
+class _ReportContentDialog extends StatefulWidget {
+  const _ReportContentDialog({
+    required this.interpreter,
+    required this.dreamText,
+    required this.result,
+  });
+
+  final String interpreter;
+  final String dreamText;
+  final String result;
+
+  @override
+  State<_ReportContentDialog> createState() => _ReportContentDialogState();
+}
+
+class _ReportContentDialogState extends State<_ReportContentDialog> {
+  final _emailController = TextEditingController();
+  final _reasonController = TextEditingController();
+  bool _submitting = false;
+  String? _error;
+
+  static const _emailPattern = r'^\S+@\S+\.\S+$';
+
+  String _truncate(String value, int maxLength) =>
+      value.length <= maxLength ? value : '${value.substring(0, maxLength)}…';
+
+  Future<void> _submit() async {
+    final email = _emailController.text.trim();
+    final reason = _reasonController.text.trim();
+    if (!RegExp(_emailPattern).hasMatch(email)) {
+      setState(() => _error = 'Please enter a valid email address.');
+      return;
+    }
+    if (reason.isEmpty) {
+      setState(() => _error = 'Please describe the issue.');
+      return;
+    }
+
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
+
+    try {
+      await ContactService.send(
+        name: 'AI Content Report',
+        email: email,
+        message: 'Interpreter: ${widget.interpreter}\n'
+            'Reason: $reason\n\n'
+            'Dream:\n${_truncate(widget.dreamText, 1500)}\n\n'
+            'Interpretation:\n${_truncate(widget.result, 1500)}',
+      );
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      Navigator.of(context).pop();
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Thanks — your report was sent.')),
+      );
+    } on ContactException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _submitting = false;
+        _error = e.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _submitting = false;
+        _error = 'Could not send the report. Please try again later.';
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Report this interpretation'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Let us know if this result is offensive or inappropriate. '
+              'We review every report.',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Your email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _reasonController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'What was wrong with it?',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: const TextStyle(color: Colors.red)),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: _submitting ? null : _submit,
+          child: _submitting
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Submit'),
+        ),
+      ],
     );
   }
 }

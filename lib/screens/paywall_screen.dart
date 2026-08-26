@@ -124,7 +124,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
             ),
           ),
         ),
-        body: Center(
+        body: SafeArea(
+          top: false,
+          child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Column(
@@ -256,6 +258,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
     );

@@ -82,7 +82,7 @@ class _DreamPageScaffoldState extends State<DreamPageScaffold> {
             ),
           ),
         ),
-        body: widget.child,
+        body: SafeArea(top: false, child: widget.child),
       ),
     );
   }

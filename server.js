@@ -205,7 +205,7 @@ app.post('/analyze', async (req, res) => {
       {
         model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a psychologist who interprets dreams.' },
+          { role: 'system', content: 'You are a reflective, creative dream interpreter. Your interpretations are for entertainment and self-reflection only — never present them as medical, mental-health, psychological, or professional advice, and never claim a clinical or diagnostic role.' },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.5,
