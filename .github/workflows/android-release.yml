@@ -32,7 +32,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          echo -n "$ANDROID_KEYSTORE_BASE64" | base64 --decode -o android/sanai-upload-key.jks
+          echo -n "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/sanai-upload-key.jks
           cat > android/key.properties <<EOF
           storePassword=$ANDROID_KEYSTORE_PASSWORD
           keyPassword=$ANDROID_KEY_PASSWORD
