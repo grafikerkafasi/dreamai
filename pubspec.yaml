@@ -32,6 +32,12 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  # flutter_native_splash's podspec isn't Swift Package Manager compatible
+  # ("public headers directory path... is invalid"), which broke iOS builds
+  # once Flutter started enabling SwiftPM integration by default. Falls back
+  # to CocoaPods, which every plugin here already supports.
+  config:
+    enable-swift-package-manager: false
   assets:
     - assets/animations/splash.json
     - assets/splash.png
