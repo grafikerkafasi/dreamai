@@ -7,6 +7,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
     steps:
       - uses: actions/checkout@v7
 
@@ -57,3 +59,13 @@ jobs:
           name: dreamai-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
           retention-days: 14
+
+      - name: Upload to Play Store (internal testing)
+        if: ${{ env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON != '' }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.sanai.dreamai
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
