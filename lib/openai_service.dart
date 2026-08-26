@@ -56,7 +56,11 @@ class OpenAIService {
       const languageDirective = 'IMPORTANT: Write your entire reply in the '
           'same language the dream above is written in. Judge that from the '
           "dream's own words, and do not switch to another language even if "
-          'these instructions are in English.';
+          'these instructions — including any quoted example opening line '
+          'above — are in English. If an example opening line is given in '
+          'English, translate it into that same language rather than '
+          'outputting it in English; the very first word of your reply must '
+          'already be in the dream\'s language.';
       final deviceId = await DeviceIdService.getId();
       final response = await _dio.post<Map<String, dynamic>>(
         '$_apiBaseUrl/analyze',
