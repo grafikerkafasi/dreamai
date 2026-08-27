@@ -77,7 +77,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
   // back wherever the paywall was opened from with no confirmation.
   Future<void> _becomeAlreadySubscribed({bool justSubscribed = false}) async {
     final managementUrl = await PurchaseService.getManagementUrl();
-    final usage = await OpenAIService.getUsage();
+    // A fresh purchase/restore races the RevenueCat webhook that flips
+    // `subscribed` on in the backend — getUsage() alone would just read
+    // whatever's there yet, so ask the backend to double-check RevenueCat
+    // directly instead of trusting a plain read right after a purchase.
+    final usage = justSubscribed
+        ? await OpenAIService.syncSubscription()
+        : await OpenAIService.getUsage();
     if (!mounted) return;
     setState(() {
       _alreadySubscribed = true;

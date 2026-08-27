@@ -143,6 +143,36 @@ class OpenAIService {
     }
   }
 
+  /// Mirrors [redeemCredits], but for the subscription side: the
+  /// RevenueCat webhook usually flips `subscribed` on within a few
+  /// seconds of a purchase, but [getUsage] alone just reads whatever's
+  /// already in the backend's DB — no self-heal — so calling it right
+  /// after a successful subscribe/restore can still show the pre-purchase
+  /// total if the webhook hasn't landed yet. This asks the backend to
+  /// double-check RevenueCat directly first.
+  static Future<UsageInfo?> syncSubscription() async {
+    if (_useDemoAnalysis || _apiBaseUrl.isEmpty) return null;
+    try {
+      final deviceId = await DeviceIdService.getId();
+      final response = await _dio.post<Map<String, dynamic>>(
+        '$_apiBaseUrl/sync-subscription',
+        options: Options(headers: {'X-Device-Id': deviceId}),
+      );
+      final data = response.data;
+      if (data == null) return null;
+      return UsageInfo(
+        subscribed: data['subscribed'] == true,
+        freeUsed: data['freeUsed'] as int? ?? 0,
+        freeLimit: data['freeLimit'] as int? ?? 0,
+        periodUsed: data['periodUsed'] as int? ?? 0,
+        periodLimit: data['periodLimit'] as int? ?? 0,
+        extraCredits: data['extraCredits'] as int? ?? 0,
+      );
+    } on DioException {
+      return null;
+    }
+  }
+
   static String _demoAnalysis(String interpreter, bool isTurkish) {
     if (isTurkish) {
       return '$interpreter bakışıyla bu rüya, gündelik hayatın dışına çıkma ve yeni bir perspektif arama isteğini simgeliyor. Bu yerel demo yorumudur; hiçbir API çağrısı yapılmadı.';

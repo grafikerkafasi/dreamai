@@ -112,6 +112,23 @@ app.post('/redeem-credits', async (req, res) => {
   res.json(await getUsage(deviceId, freeLimit, monthlyLimit));
 });
 
+// Mirrors /redeem-credits, but for the subscription side: the RevenueCat
+// webhook is the normal way `subscribed` gets flipped on, but it can lag
+// a few seconds behind the purchase actually completing, and a plain
+// GET /usage right after subscribing just reads whatever's already in
+// the DB — no self-heal. The paywall calls this right after a successful
+// purchase/restore so the total it shows doesn't depend on winning a
+// race against the webhook.
+app.post('/sync-subscription', async (req, res) => {
+  const deviceId = readDeviceId(req, res);
+  if (!deviceId) return;
+
+  if (await isEntitledOnRevenueCat(deviceId)) {
+    await applySubscriptionEvent(deviceId, 'INITIAL_PURCHASE');
+  }
+  res.json(await getUsage(deviceId, freeLimit, monthlyLimit));
+});
+
 function createMailTransport() {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) return null;
