@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../app_routes.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../main.dart' show routeObserver;
 import '../openai_service.dart';
 import '../services/purchase_service.dart';
 import 'info_screen.dart';
@@ -22,7 +23,7 @@ class BuyCreditsScreen extends StatefulWidget {
   State<BuyCreditsScreen> createState() => _BuyCreditsScreenState();
 }
 
-class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
+class _BuyCreditsScreenState extends State<BuyCreditsScreen> with RouteAware {
   Offering? _offering;
   bool _loadingOffering = true;
   String? _purchasingPackageId;
@@ -35,6 +36,24 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> {
     _loadOffering();
     _loadUsage();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  // See who_should_interpret_screen.dart's didPopNext for why this exists:
+  // reached via the drawer's own paywall, which no longer pops on
+  // subscribe, so this only refreshes reliably from here.
+  @override
+  void didPopNext() => _loadUsage();
 
   Future<void> _loadOffering() async {
     try {

@@ -18,6 +18,14 @@ void main() async {
   runApp(const DreamAIApp());
 }
 
+// Lets a screen (e.g. WhoShouldInterpretScreen) know when it's become
+// visible again after a route pushed on top of it (the paywall, the
+// credits screen) was popped, so it can refresh its own usage/credit
+// display instead of showing whatever it had at initState — otherwise
+// subscribing from the drawer's paywall leaves the underlying screen's
+// count stale until the app is fully restarted.
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 Locale resolveAppLocale(Locale? locale, Iterable<Locale> supportedLocales) {
   for (final supported in supportedLocales) {
     if (supported.languageCode == locale?.languageCode) {
@@ -39,6 +47,7 @@ class DreamAIApp extends StatelessWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       localeResolutionCallback: resolveAppLocale,
       initialRoute: AppRoutes.dream,
+      navigatorObservers: [routeObserver],
       routes: {
         AppRoutes.dream: (context) => const DreamPage(),
         AppRoutes.previousDreams: (context) => const PreviousDreamsScreen(),

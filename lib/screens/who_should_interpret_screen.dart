@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../main.dart' show routeObserver;
 import '../openai_service.dart';
 import 'analysis_page.dart';
 import 'app_logo_button.dart';
@@ -17,7 +18,8 @@ class WhoShouldInterpretScreen extends StatefulWidget {
       _WhoShouldInterpretScreenState();
 }
 
-class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
+class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen>
+    with RouteAware {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   UsageInfo? _usage;
 
@@ -26,6 +28,25 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen> {
     super.initState();
     _refreshUsage();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  // Called when a route pushed on top of this one (the paywall, the
+  // credits screen) is popped and this screen is visible again — refresh
+  // so a subscribe/purchase made there is reflected here without needing
+  // to leave and re-enter this screen.
+  @override
+  void didPopNext() => _refreshUsage();
 
   void _refreshUsage() {
     OpenAIService.getUsage().then((usage) {
