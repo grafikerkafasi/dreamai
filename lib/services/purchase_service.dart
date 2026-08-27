@@ -1,6 +1,6 @@
 import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -40,6 +40,11 @@ class PurchaseService {
       // unavailable rather than crash.
       return;
     }
+    // Temporary while we're chasing the "offerings failed to load" report on
+    // Android — surfaces the SDK's own diagnosis (missing product, Play
+    // Store connection, etc.) in logcat/Console instead of a bare
+    // PlatformException. Safe to drop once purchases are confirmed working.
+    await Purchases.setLogLevel(LogLevel.debug);
     final deviceId = await DeviceIdService.getId();
     await Purchases.configure(
       PurchasesConfiguration(apiKey)..appUserID = deviceId,
@@ -51,8 +56,13 @@ class PurchaseService {
 
   static Future<Offering?> getMonthlyOffering() async {
     if (!_configured) return null;
-    final offerings = await Purchases.getOfferings();
-    return offerings.current;
+    try {
+      final offerings = await Purchases.getOfferings();
+      return offerings.current;
+    } catch (e) {
+      debugPrint('PurchaseService.getMonthlyOffering failed: $e');
+      rethrow;
+    }
   }
 
   /// The offering holding one-time credit-pack products, or null if it
@@ -60,8 +70,13 @@ class PurchaseService {
   /// isn't configured.
   static Future<Offering?> getCreditsOffering() async {
     if (!_configured) return null;
-    final offerings = await Purchases.getOfferings();
-    return offerings.all[creditsOfferingId];
+    try {
+      final offerings = await Purchases.getOfferings();
+      return offerings.all[creditsOfferingId];
+    } catch (e) {
+      debugPrint('PurchaseService.getCreditsOffering failed: $e');
+      rethrow;
+    }
   }
 
   static Future<SubscribeOutcome> purchase(Package package) async {
@@ -72,13 +87,15 @@ class PurchaseService {
       return active ? SubscribeOutcome.success : SubscribeOutcome.notEntitled;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      debugPrint('PurchaseService.purchase failed: $errorCode / $e');
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
         return SubscribeOutcome.cancelled;
       }
       return SubscribeOutcome.failure;
-    } catch (_) {
+    } catch (e) {
       // Anything the SDK throws that isn't a PlatformException still has to
       // become an outcome, or the caller's loading indicator hangs forever.
+      debugPrint('PurchaseService.purchase failed: $e');
       return SubscribeOutcome.failure;
     }
   }
@@ -93,11 +110,13 @@ class PurchaseService {
       return SubscribeOutcome.success;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      debugPrint('PurchaseService.purchaseConsumable failed: $errorCode / $e');
       if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
         return SubscribeOutcome.cancelled;
       }
       return SubscribeOutcome.failure;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('PurchaseService.purchaseConsumable failed: $e');
       return SubscribeOutcome.failure;
     }
   }

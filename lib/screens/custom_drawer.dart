@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../app_routes.dart';
 import '../l10n/generated/app_localizations.dart';
+import 'paywall_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -45,6 +46,12 @@ class CustomDrawer extends StatelessWidget {
                 text: l10n.getMoreDreamsTitle,
                 color: const Color(0xFFFF91B3),
                 onTap: () => _push(context, AppRoutes.buyCredits),
+              ),
+              _divider(),
+              _buildDrawerButton(
+                text: l10n.goPremiumMenuItem,
+                color: const Color(0xFFFF91B3),
+                onTap: () => _pushPaywall(context),
               ),
               _divider(),
               _buildDrawerButton(
@@ -105,6 +112,20 @@ class CustomDrawer extends StatelessWidget {
   void _push(BuildContext context, String routeName) {
     Navigator.of(context).pop();
     Navigator.of(context).pushNamed(routeName);
+  }
+
+  // The paywall is otherwise only reachable by exhausting the free quota
+  // (see analysis_page.dart) — a multi-step, network-dependent path that's
+  // fragile for App Review to reproduce live. This gives a direct,
+  // one-tap way to reach it, same as "Get More Dreams" above.
+  void _pushPaywall(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PaywallScreen(message: l10n.unlockMoreDreams),
+      ),
+    );
   }
 
   void _replaceWith(BuildContext context, String routeName) {
