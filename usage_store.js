@@ -203,10 +203,39 @@ async function creditExtraDreams(deviceId, purchaseId, productId, credits) {
   return true;
 }
 
+// Reverses a previously-credited one-time purchase (RevenueCat's REFUND
+// webhook event). Idempotent the same way creditExtraDreams is idempotent
+// going the other direction: the delete only affects a row if this exact
+// purchase was actually redeemed and hasn't already been reversed, so a
+// duplicate REFUND webhook for the same purchase is a no-op. Returns true
+// if credits were actually deducted (false means this wasn't a known
+// credit-pack purchase, or it already was reversed).
+async function revokeCreditPurchase(deviceId, purchaseId) {
+  await ready;
+  const found = await client.execute({
+    sql: 'SELECT credits FROM redeemed_purchases WHERE purchase_id = ? AND device_id = ?',
+    args: [purchaseId, deviceId],
+  });
+  if (found.rows.length === 0) return false;
+  const credits = found.rows[0].credits;
+
+  const deleted = await client.execute({
+    sql: 'DELETE FROM redeemed_purchases WHERE purchase_id = ? AND device_id = ?',
+    args: [purchaseId, deviceId],
+  });
+  if (deleted.rowsAffected === 0) return false; // raced with another delete
+
+  const row = await getOrCreateRow(deviceId);
+  row.extra_credits = Math.max(0, row.extra_credits - credits);
+  await persist(row);
+  return true;
+}
+
 module.exports = {
   checkQuota,
   getUsage,
   recordSuccessfulAnalysis,
   applySubscriptionEvent,
   creditExtraDreams,
+  revokeCreditPurchase,
 };

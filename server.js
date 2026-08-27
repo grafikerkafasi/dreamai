@@ -8,6 +8,7 @@ const {
   recordSuccessfulAnalysis,
   applySubscriptionEvent,
   creditExtraDreams,
+  revokeCreditPurchase,
 } = require('./usage_store');
 const {
   isEntitledOnRevenueCat,
@@ -70,6 +71,24 @@ app.post('/revenuecat-webhook', async (req, res) => {
     const credits = productId ? creditProductMap()[productId] : undefined;
     if (purchaseId && credits) {
       await creditExtraDreams(deviceId, String(purchaseId), productId, credits);
+    }
+  } else if (eventType === 'REFUND') {
+    // Route by product, not by whether we find a matching redeemed
+    // purchase — that keeps this correct (and idempotent in the right
+    // direction) even on a duplicate REFUND webhook for the same
+    // purchase: revokeCreditPurchase is itself a no-op once already
+    // reversed, so it never falls through to also revoking a
+    // subscription that was never part of this refund.
+    const productId = event?.product_id;
+    const purchaseId = event?.transaction_id ?? event?.id;
+    const isCreditPack = productId && creditProductMap()[productId];
+    if (isCreditPack && purchaseId) {
+      await revokeCreditPurchase(deviceId, String(purchaseId));
+    } else {
+      // A subscription (or an unrecognized product) being refunded —
+      // revoke access immediately rather than waiting for the period to
+      // naturally expire.
+      await applySubscriptionEvent(deviceId, 'EXPIRATION');
     }
   } else {
     await applySubscriptionEvent(deviceId, eventType);
