@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../app_routes.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../openai_service.dart';
 import '../services/purchase_service.dart';
 
 const _privacyPolicyUrl = 'https://sanai.uk/dreamai/privacy-policy.html';
@@ -23,7 +24,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
   bool _loadingOffering = true;
   bool _purchasing = false;
   bool _alreadySubscribed = false;
+  // True only once this screen itself completed a purchase/restore this
+  // session — as opposed to the user simply already being subscribed when
+  // the paywall opened — so the back button can still tell a caller like
+  // analysis_page.dart "you can resume now" without us auto-navigating
+  // away on our own.
+  bool _justSubscribed = false;
   String? _managementUrl;
+  UsageInfo? _usage;
   String? _error;
 
   Package? get _firstAvailablePackage {
@@ -43,13 +51,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
       // buy button (or a misleading "Not available" if the offering
       // happens to come back empty for them) — just confirm their status.
       if (await PurchaseService.isEntitled()) {
-        final managementUrl = await PurchaseService.getManagementUrl();
+        await _becomeAlreadySubscribed();
         if (!mounted) return;
-        setState(() {
-          _alreadySubscribed = true;
-          _managementUrl = managementUrl;
-          _loadingOffering = false;
-        });
+        setState(() => _loadingOffering = false);
         return;
       }
       final offering = await PurchaseService.getMonthlyOffering();
@@ -65,6 +69,22 @@ class _PaywallScreenState extends State<PaywallScreen> {
         _error = AppLocalizations.of(context)!.subscriptionLoadError;
       });
     }
+  }
+
+  // Switches this same screen into the "already subscribed" state instead
+  // of navigating away — the user wants to see their new total (monthly
+  // allowance + any extra credits) right here rather than being dropped
+  // back wherever the paywall was opened from with no confirmation.
+  Future<void> _becomeAlreadySubscribed({bool justSubscribed = false}) async {
+    final managementUrl = await PurchaseService.getManagementUrl();
+    final usage = await OpenAIService.getUsage();
+    if (!mounted) return;
+    setState(() {
+      _alreadySubscribed = true;
+      if (justSubscribed) _justSubscribed = true;
+      _managementUrl = managementUrl;
+      _usage = usage;
+    });
   }
 
   Future<void> _subscribe() async {
@@ -92,9 +112,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               content: Text(
                   AppLocalizations.of(context)!.subscriptionActivatedSnackbar)),
         );
-        await Future.delayed(const Duration(milliseconds: 900));
-        if (!mounted) return;
-        Navigator.pop(context, true);
+        await _becomeAlreadySubscribed(justSubscribed: true);
         break;
       case SubscribeOutcome.cancelled:
         break;
@@ -120,9 +138,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
             content:
                 Text(AppLocalizations.of(context)!.purchasesRestoredSnackbar)),
       );
-      await Future.delayed(const Duration(milliseconds: 900));
-      if (!mounted) return;
-      Navigator.pop(context, true);
+      await _becomeAlreadySubscribed(justSubscribed: true);
     } else {
       setState(
           () => _error = AppLocalizations.of(context)!.noActiveSubscription);
@@ -148,7 +164,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            onPressed: () => Navigator.maybePop(context),
+            onPressed: () => Navigator.maybePop(context, _justSubscribed),
             icon: const Icon(
               Icons.chevron_left_rounded,
               color: Color(0xFFFF91B3),
@@ -193,6 +209,18 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     color: Colors.white70,
                   ),
                 ),
+                if (_alreadySubscribed && _usage != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.dreamsAvailable(_usage!.remaining),
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.kufam(
+                      fontSize: 16,
+                      color: const Color(0xFFFF91B3),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 32),
                 if (_error != null) ...[
                   Text(
