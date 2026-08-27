@@ -58,7 +58,11 @@
   "notAvailableButton": "Not available",
   "subscribeButton": "Subscribe",
   "restorePurchases": "Restore purchases",
+  "purchasesRestoredSnackbar": "Purchases restored!",
+  "subscriptionActivatedSnackbar": "Premium activated!",
+  "manageSubscriptionButton": "Manage Subscription",
   "goPremiumMenuItem": "Go Premium",
+  "alreadySubscribedMessage": "You're already subscribed to Premium.",
 
   "contactTitle": "Contact",
   "contactBody": "We value your feedback and ideas — they help us make DreamAI better for everyone. Reach out anytime and we'll get back to you.",

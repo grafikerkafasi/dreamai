@@ -58,7 +58,11 @@
   "notAvailableButton": "Mevcut değil",
   "subscribeButton": "Abone ol",
   "restorePurchases": "Satın alımları geri yükle",
+  "purchasesRestoredSnackbar": "Satın alımlar geri yüklendi!",
+  "subscriptionActivatedSnackbar": "Premium aktifleştirildi!",
+  "manageSubscriptionButton": "Aboneliği Yönet",
   "goPremiumMenuItem": "Premium'a Geç",
+  "alreadySubscribedMessage": "Zaten Premium'a abonesin.",
 
   "contactTitle": "İletişim",
   "contactBody": "Geri bildirimlerinize ve fikirlerinize değer veriyoruz — DreamAI'yi herkes için daha iyi hale getirmemize yardımcı oluyorlar. Bize istediğiniz zaman ulaşabilirsiniz, geri döneceğiz.",

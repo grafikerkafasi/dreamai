@@ -22,6 +22,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Offering? _offering;
   bool _loadingOffering = true;
   bool _purchasing = false;
+  bool _alreadySubscribed = false;
+  String? _managementUrl;
   String? _error;
 
   Package? get _firstAvailablePackage {
@@ -37,6 +39,19 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Future<void> _loadOffering() async {
     try {
+      // Check entitlement first: a subscribed user shouldn't be shown a
+      // buy button (or a misleading "Not available" if the offering
+      // happens to come back empty for them) — just confirm their status.
+      if (await PurchaseService.isEntitled()) {
+        final managementUrl = await PurchaseService.getManagementUrl();
+        if (!mounted) return;
+        setState(() {
+          _alreadySubscribed = true;
+          _managementUrl = managementUrl;
+          _loadingOffering = false;
+        });
+        return;
+      }
       final offering = await PurchaseService.getMonthlyOffering();
       if (!mounted) return;
       setState(() {
@@ -72,6 +87,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
     switch (outcome) {
       case SubscribeOutcome.success:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  AppLocalizations.of(context)!.subscriptionActivatedSnackbar)),
+        );
+        await Future.delayed(const Duration(milliseconds: 900));
+        if (!mounted) return;
         Navigator.pop(context, true);
         break;
       case SubscribeOutcome.cancelled:
@@ -90,6 +112,16 @@ class _PaywallScreenState extends State<PaywallScreen> {
     if (!mounted) return;
     setState(() => _purchasing = false);
     if (restored) {
+      // Restoring has no OS-level confirmation UI of its own (unlike a
+      // fresh purchase, which shows the store's own sheet) — without this,
+      // popping straight back reads as "nothing happened."
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.purchasesRestoredSnackbar)),
+      );
+      await Future.delayed(const Duration(milliseconds: 900));
+      if (!mounted) return;
       Navigator.pop(context, true);
     } else {
       setState(
@@ -152,7 +184,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  l10n.subscriptionOfferBody(priceText),
+                  _alreadySubscribed
+                      ? l10n.alreadySubscribedMessage
+                      : l10n.subscriptionOfferBody(priceText),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.kufam(
                     fontSize: 16,
@@ -168,48 +202,61 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                   const SizedBox(height: 16),
                 ],
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed:
-                        (_loadingOffering || _purchasing || package == null)
-                            ? null
-                            : _subscribe,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xDFF0F8E9),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                if (!_alreadySubscribed)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed:
+                          (_loadingOffering || _purchasing || package == null)
+                              ? null
+                              : _subscribe,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xDFF0F8E9),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: _purchasing
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            _loadingOffering
-                                ? l10n.loadingButton
-                                : package == null
-                                    ? l10n.notAvailableButton
-                                    : l10n.subscribeButton,
-                            style: GoogleFonts.kufam(
-                              fontSize: 18,
-                              color: const Color(0xFF81546F),
-                              fontWeight: FontWeight.w500,
+                      child: _purchasing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(
+                              _loadingOffering
+                                  ? l10n.loadingButton
+                                  : package == null
+                                      ? l10n.notAvailableButton
+                                      : l10n.subscribeButton,
+                              style: GoogleFonts.kufam(
+                                fontSize: 18,
+                                color: const Color(0xFF81546F),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
+                    ),
                   ),
-                ),
                 const SizedBox(height: 12),
-                TextButton(
-                  onPressed: _purchasing ? null : _restore,
-                  child: Text(
-                    l10n.restorePurchases,
-                    style: GoogleFonts.kufam(color: Colors.white70),
+                if (_alreadySubscribed && _managementUrl != null)
+                  TextButton(
+                    onPressed: () => launchUrl(
+                      Uri.parse(_managementUrl!),
+                      mode: LaunchMode.externalApplication,
+                    ),
+                    child: Text(
+                      l10n.manageSubscriptionButton,
+                      style: GoogleFonts.kufam(color: Colors.white70),
+                    ),
+                  )
+                else if (!_alreadySubscribed)
+                  TextButton(
+                    onPressed: _purchasing ? null : _restore,
+                    child: Text(
+                      l10n.restorePurchases,
+                      style: GoogleFonts.kufam(color: Colors.white70),
+                    ),
                   ),
-                ),
                 const SizedBox(height: 8),
                 Text(
                   l10n.reflectionDisclaimer,

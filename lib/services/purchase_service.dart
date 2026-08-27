@@ -54,6 +54,41 @@ class PurchaseService {
 
   static bool get isAvailable => _configured;
 
+  /// Whether this device already holds the active Premium entitlement.
+  static Future<bool> isEntitled() async {
+    if (!_configured) return false;
+    try {
+      final info = await Purchases.getCustomerInfo();
+      return info.entitlements.active.containsKey(entitlementId);
+    } catch (e) {
+      debugPrint('PurchaseService.isEntitled failed: $e');
+      return false;
+    }
+  }
+
+  /// The store's own subscription-management page — App Store Review
+  /// Guideline 3.1.2 expects subscription apps to make this reachable, and
+  /// "Restore purchases" doesn't cover it (that's a different action).
+  /// Falls back to each store's generic subscriptions page if RevenueCat
+  /// hasn't returned a per-user URL yet (e.g. before the first API call
+  /// completes).
+  static Future<String?> getManagementUrl() async {
+    if (kIsWeb) return null;
+    if (_configured) {
+      try {
+        final info = await Purchases.getCustomerInfo();
+        if (info.managementURL != null) return info.managementURL;
+      } catch (e) {
+        debugPrint('PurchaseService.getManagementUrl failed: $e');
+      }
+    }
+    if (Platform.isIOS) return 'https://apps.apple.com/account/subscriptions';
+    if (Platform.isAndroid) {
+      return 'https://play.google.com/store/account/subscriptions';
+    }
+    return null;
+  }
+
   static Future<Offering?> getMonthlyOffering() async {
     if (!_configured) return null;
     try {

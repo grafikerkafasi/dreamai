@@ -58,7 +58,11 @@
   "notAvailableButton": "暂不可用",
   "subscribeButton": "订阅",
   "restorePurchases": "恢复购买项目",
+  "purchasesRestoredSnackbar": "购买项目已恢复！",
+  "subscriptionActivatedSnackbar": "高级版已激活！",
+  "manageSubscriptionButton": "管理订阅",
   "goPremiumMenuItem": "升级至高级版",
+  "alreadySubscribedMessage": "你已订阅高级版。",
 
   "contactTitle": "联系我们",
   "contactBody": "我们重视你的反馈和想法 — 它们帮助我们让 DreamAI 变得对每个人都更好。随时联系我们，我们会回复你。",
