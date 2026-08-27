@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../app_routes.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../services/device_id_service.dart';
+import '../services/purchase_service.dart';
 import 'paywall_screen.dart';
+
+// QA-only escape hatch: without login, reinstalling no longer resets local
+// credits/subscription state (see DeviceIdService's Keychain/ANDROID_ID
+// persistence), so testers need a way to force a fresh identity without a
+// new device. Remove this drawer entry before a wide public release.
+const bool _showResetTestIdentity = true;
 
 class CustomDrawer extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -68,6 +76,14 @@ class CustomDrawer extends StatelessWidget {
                 text: l10n.termsTitle,
                 onTap: () => _push(context, AppRoutes.terms),
               ),
+              if (_showResetTestIdentity) ...[
+                _divider(),
+                _buildDrawerButton(
+                  text: 'Reset Test Identity (QA)',
+                  color: Colors.redAccent,
+                  onTap: () => _confirmAndResetIdentity(context),
+                ),
+              ],
             ],
           ),
 
@@ -125,6 +141,40 @@ class CustomDrawer extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => PaywallScreen(message: l10n.unlockMoreDreams),
       ),
+    );
+  }
+
+  Future<void> _confirmAndResetIdentity(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reset test identity?'),
+        content: const Text(
+          'Clears local credits/subscription state on this device so the '
+          'app behaves like a brand-new install. Does not cancel any real '
+          'store subscription — cancel that separately via the App Store '
+          'or Play Store if needed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    final newId = await DeviceIdService.resetForTesting();
+    await PurchaseService.switchTestIdentity(newId);
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Test identity reset.')),
     );
   }
 

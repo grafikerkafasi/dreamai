@@ -56,6 +56,26 @@ class DeviceIdService {
     return id;
   }
 
+  /// QA-only: mints a brand-new local id and overwrites every place the
+  /// old one was stored, so the app immediately behaves like a fresh
+  /// install on this device — without an actual uninstall (which, thanks
+  /// to the reinstall-survival logic above, wouldn't even produce a fresh
+  /// id anymore). Deliberately bypasses [_recoverDeviceLevelId]: on
+  /// Android that would just hand back the same ANDROID_ID-derived id, so
+  /// a real reset has to skip it. Does not touch anything store-side — a
+  /// real subscription made under the old id is still live until it's
+  /// cancelled through the App Store/Play Store.
+  static Future<String> resetForTesting() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = const Uuid().v4();
+    await prefs.setString(_key, id);
+    if (!kIsWeb && Platform.isIOS) {
+      await _secureStorage.write(key: _key, value: id);
+    }
+    _cached = id;
+    return id;
+  }
+
   static Future<String?> _recoverDeviceLevelId() async {
     if (kIsWeb) return null;
     if (Platform.isIOS) {

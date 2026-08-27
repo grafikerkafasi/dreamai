@@ -54,6 +54,17 @@ class PurchaseService {
 
   static bool get isAvailable => _configured;
 
+  /// QA-only: switches the SDK to a new local identity (see
+  /// DeviceIdService.resetForTesting) without needing an app restart.
+  static Future<void> switchTestIdentity(String newDeviceId) async {
+    if (!_configured) return;
+    try {
+      await Purchases.logIn(newDeviceId);
+    } catch (e) {
+      debugPrint('PurchaseService.switchTestIdentity failed: $e');
+    }
+  }
+
   /// Whether this device already holds the active Premium entitlement.
   static Future<bool> isEntitled() async {
     if (!_configured) return false;
