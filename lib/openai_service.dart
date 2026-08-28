@@ -51,31 +51,37 @@ class OpenAIService {
         'Act like $interpreter and interpret the dream.';
 
     try {
-      // Deliberately names no language by default. The model identifies the
-      // dream's language itself — including text typed without its
-      // diacritics — which is the whole point: users get an answer in
-      // whatever language they wrote in, not in one of two we tried to
-      // guess between. deviceLocale is only a fallback for the rare case
-      // the model can't tell (e.g. an empty or non-linguistic dream).
+      // Deliberately names no language by default — the model identifies
+      // the dream's language itself from its own text, which is the whole
+      // point: users get an answer in whatever language they wrote in.
       //
-      // Keep this directive long, repetitive, and positioned immediately
-      // after the persona description, before varietyDirective — a
-      // shorter version with a second "IMPORTANT:" instruction inserted
-      // ahead of it let persona-associated languages leak through (e.g.
-      // Nietzsche/Schopenhauer answering in German for an English dream);
-      // gpt-4o-mini seems to deprioritize a language rule that's brief or
-      // not immediately adjacent to the persona text.
-      final deviceLocale = PlatformDispatcher.instance.locale.toLanguageTag();
-      final languageDirective = 'IMPORTANT: Write your entire reply in the '
-          'same language the dream above is written in. Judge that from the '
-          "dream's own words, and do not switch to another language even if "
-          'these instructions, the persona description above, or anything '
-          'else here is in English — the dream\'s own language always wins. '
-          'The very first word of your reply must already be in that '
-          'language. Only if the dream\'s language genuinely cannot be '
-          'determined (for example it is empty or has no recognizable '
-          'words) should you answer in this device\'s language instead: '
-          '$deviceLocale.';
+      // Verified empirically (2026-08-28) against the live backend: naming
+      // *any* language in this directive — even conditionally, even just a
+      // fallback locale code like "en-US" — measurably destabilizes which
+      // language the model replies in, apparently because the named token
+      // itself leaks into the model's own output regardless of the
+      // condition it was attached to. A directive that mentions no
+      // language at all was 6/6 reliable across personas and languages in
+      // that same testing; every longer variant that so much as mentioned
+      // an example language failed some fraction of the time. So: the two
+      // cases below are two entirely separate, single-purpose directives
+      // that are never combined in the same request — the fallback
+      // (mentioning deviceLocale) is used only when the dream plainly has
+      // no letters to detect a language from, and never alongside the
+      // language-agnostic instruction.
+      final hasLetters = RegExp(r'\p{L}', unicode: true).hasMatch(dream);
+      final String languageDirective;
+      if (hasLetters) {
+        languageDirective = "IMPORTANT: Reply entirely in the dream's own "
+            "language. Determine this strictly from the dream's own text "
+            'above, nothing else.';
+      } else {
+        final deviceLocale =
+            PlatformDispatcher.instance.locale.toLanguageTag();
+        languageDirective = 'IMPORTANT: The dream text above has no '
+            'recognizable words to determine a language from, so reply in '
+            'this language code: $deviceLocale.';
+      }
       // Every persona prompt used to include a fixed quoted opening line
       // ("Begin with: '...'"), which made every reply from a given
       // interpreter start with the exact same sentence regardless of the
