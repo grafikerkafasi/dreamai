@@ -1,3 +1,5 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:dio/dio.dart';
 import 'data/interpreter_prompts.dart';
 import 'services/device_id_service.dart';
@@ -49,15 +51,31 @@ class OpenAIService {
         'Act like $interpreter and interpret the dream.';
 
     try {
-      // Deliberately names no language. The model identifies the dream's
-      // language itself — including text typed without its diacritics —
-      // which is the whole point: users get an answer in whatever language
-      // they wrote in, not in one of two we tried to guess between.
-      const languageDirective = 'IMPORTANT: Write your entire reply in the '
+      // Deliberately names no language by default. The model identifies the
+      // dream's language itself — including text typed without its
+      // diacritics — which is the whole point: users get an answer in
+      // whatever language they wrote in, not in one of two we tried to
+      // guess between. deviceLocale is only a fallback for the rare case
+      // the model can't tell (e.g. an empty or non-linguistic dream).
+      //
+      // Keep this directive long, repetitive, and positioned immediately
+      // after the persona description, before varietyDirective — a
+      // shorter version with a second "IMPORTANT:" instruction inserted
+      // ahead of it let persona-associated languages leak through (e.g.
+      // Nietzsche/Schopenhauer answering in German for an English dream);
+      // gpt-4o-mini seems to deprioritize a language rule that's brief or
+      // not immediately adjacent to the persona text.
+      final deviceLocale = PlatformDispatcher.instance.locale.toLanguageTag();
+      final languageDirective = 'IMPORTANT: Write your entire reply in the '
           'same language the dream above is written in. Judge that from the '
           "dream's own words, and do not switch to another language even if "
-          'these instructions are in English; the very first word of your '
-          'reply must already be in the dream\'s language.';
+          'these instructions, the persona description above, or anything '
+          'else here is in English — the dream\'s own language always wins. '
+          'The very first word of your reply must already be in that '
+          'language. Only if the dream\'s language genuinely cannot be '
+          'determined (for example it is empty or has no recognizable '
+          'words) should you answer in this device\'s language instead: '
+          '$deviceLocale.';
       // Every persona prompt used to include a fixed quoted opening line
       // ("Begin with: '...'"), which made every reply from a given
       // interpreter start with the exact same sentence regardless of the
@@ -75,7 +93,7 @@ class OpenAIService {
         '$_apiBaseUrl/analyze',
         data: {
           'prompt': 'Dream:\n$dream\n\n$systemMessage\n\n'
-              '$varietyDirective\n\n$languageDirective'
+              '$languageDirective\n\n$varietyDirective'
         },
         options: Options(headers: {'X-Device-Id': deviceId}),
       );
