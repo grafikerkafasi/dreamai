@@ -100,9 +100,23 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> with RouteAware {
     // unredeemed purchase RevenueCat knows about for this device and is
     // idempotent, so it also recovers a purchase that completed at the
     // store while the app saw an error.
-    final usage = outcome == SubscribeOutcome.cancelled
-        ? null
-        : await OpenAIService.redeemCredits();
+    //
+    // RevenueCat itself can take a few seconds to record a transaction
+    // after the store confirms it, so a single check right after purchase
+    // can come back empty for a purchase that actually went through —
+    // confirmed by real test purchases that briefly showed this error
+    // before landing correctly a few seconds later. Retry a couple of
+    // times before concluding it genuinely failed.
+    UsageInfo? usage;
+    if (outcome != SubscribeOutcome.cancelled) {
+      for (var attempt = 0; attempt < 3; attempt++) {
+        usage = await OpenAIService.redeemCredits();
+        if (previousCredits == null || usage.extraCredits > previousCredits) {
+          break;
+        }
+        if (attempt < 2) await Future.delayed(const Duration(seconds: 3));
+      }
+    }
     if (!mounted) return;
 
     setState(() {
