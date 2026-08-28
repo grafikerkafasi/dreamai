@@ -9,8 +9,10 @@ import 'paywall_screen.dart';
 // QA-only escape hatch: without login, reinstalling no longer resets local
 // credits/subscription state (see DeviceIdService's Keychain/ANDROID_ID
 // persistence), so testers need a way to force a fresh identity without a
-// new device. Remove this drawer entry before a wide public release.
-const bool _showResetTestIdentity = true;
+// new device. Hidden from the menu (2026-08-28 security review) since it
+// also lets any real user reset their identity to keep re-claiming the
+// free-tier quota; flip back to true only for a deliberate QA session.
+const bool _showResetTestIdentity = false;
 
 class CustomDrawer extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
