@@ -56,16 +56,26 @@ class OpenAIService {
       const languageDirective = 'IMPORTANT: Write your entire reply in the '
           'same language the dream above is written in. Judge that from the '
           "dream's own words, and do not switch to another language even if "
-          'these instructions — including any quoted example opening line '
-          'above — are in English. If an example opening line is given in '
-          'English, translate it into that same language rather than '
-          'outputting it in English; the very first word of your reply must '
-          'already be in the dream\'s language.';
+          'these instructions are in English; the very first word of your '
+          'reply must already be in the dream\'s language.';
+      // Every persona prompt used to include a fixed quoted opening line
+      // ("Begin with: '...'"), which made every reply from a given
+      // interpreter start with the exact same sentence regardless of the
+      // dream — repetitive enough to read as a templated bot. Openers are
+      // no longer specified per persona; this directive replaces them with
+      // an instruction to vary instead, shared across all interpreters.
+      const varietyDirective = 'IMPORTANT: Do not open with a fixed or '
+          'memorized phrase — invent a fresh opening line every time, '
+          'grounded in this specific dream\'s actual details rather than a '
+          'generic mood-setting sentence. Be direct, surprising, and '
+          'confidently assertive in your interpretation rather than '
+          'cautious or generic.';
       final deviceId = await DeviceIdService.getId();
       final response = await _dio.post<Map<String, dynamic>>(
         '$_apiBaseUrl/analyze',
         data: {
-          'prompt': 'Dream:\n$dream\n\n$systemMessage\n\n$languageDirective'
+          'prompt': 'Dream:\n$dream\n\n$systemMessage\n\n'
+              '$varietyDirective\n\n$languageDirective'
         },
         options: Options(headers: {'X-Device-Id': deviceId}),
       );

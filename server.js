@@ -260,9 +260,17 @@ app.post('/analyze', analyzeIpLimiter, analyzeDeviceLimiter, async (req, res) =>
     }
   }
   if (!quota.allowed) {
+    const resetDateLabel = quota.periodResetsAt
+      ? new Date(`${quota.periodResetsAt}T00:00:00Z`).toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+          timeZone: 'UTC',
+        })
+      : null;
     return res.status(402).json({
       error: quota.reason === 'MONTHLY_LIMIT_REACHED'
-        ? 'Monthly dream limit reached. It resets next billing period.'
+        ? `Monthly dream limit reached. It resets on ${resetDateLabel}.`
         : 'Your free dream interpretations are used up. Subscribe for more.',
       code: quota.reason,
       freeUsed: quota.freeUsed,
@@ -271,6 +279,7 @@ app.post('/analyze', analyzeIpLimiter, analyzeDeviceLimiter, async (req, res) =>
       periodLimit: quota.periodLimit,
       subscribed: quota.subscribed,
       extraCredits: quota.extraCredits,
+      periodResetsAt: quota.periodResetsAt,
     });
   }
 

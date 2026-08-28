@@ -59,6 +59,16 @@ function currentPeriod() {
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
+// First day of the month after periodStart ("YYYY-MM"), as an ISO date —
+// this is when a subscriber's period_used counter actually rolls over (see
+// rollPeriodIfNeeded), so it is the real answer to "when does my monthly
+// limit reset", not just a vague "next billing period".
+function periodResetDate(periodStart) {
+  const [year, month] = periodStart.split('-').map(Number);
+  const resetsAt = new Date(Date.UTC(year, month, 1));
+  return resetsAt.toISOString().slice(0, 10);
+}
+
 async function getOrCreateRow(deviceId) {
   await ready;
   const result = await client.execute({
@@ -133,6 +143,7 @@ async function checkQuota(deviceId, freeLimit, monthlyLimit) {
     subscribed,
     extraCredits: row.extra_credits,
     useExtraCredit: allowed && !withinPlan,
+    periodResetsAt: periodResetDate(row.period_start),
   };
 }
 

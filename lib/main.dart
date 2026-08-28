@@ -286,7 +286,7 @@ class _DreamPageState extends State<DreamPage> {
             textAlignVertical: TextAlignVertical.top,
             textAlign: TextAlign.center,
             style: GoogleFonts.kufam(
-              fontSize: 26,
+              fontSize: 22,
               fontWeight: FontWeight.w400,
               color: const Color(0xFFE0D4D4),
             ),
