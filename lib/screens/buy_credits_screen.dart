@@ -111,7 +111,8 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> with RouteAware {
     if (outcome != SubscribeOutcome.cancelled) {
       for (var attempt = 0; attempt < 3; attempt++) {
         usage = await OpenAIService.redeemCredits();
-        if (previousCredits == null || usage.extraCredits > previousCredits) {
+        final credits = usage?.extraCredits;
+        if (previousCredits == null || credits == null || credits > previousCredits) {
           break;
         }
         if (attempt < 2) await Future.delayed(const Duration(seconds: 3));
