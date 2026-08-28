@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const {
   checkQuota,
   getUsage,
@@ -25,8 +26,39 @@ const freeLimit = Number(process.env.FREE_DREAM_LIMIT || 3);
 const monthlyLimit = Number(process.env.MONTHLY_DREAM_LIMIT || 50);
 const revenueCatWebhookAuth = process.env.REVENUECAT_WEBHOOK_AUTH;
 
+// Render (and most PaaS hosts) sit behind a reverse proxy, so the real
+// client IP only shows up in X-Forwarded-For; without this, every request
+// looks like it comes from the same proxy IP and IP-based rate limiting
+// below would either be useless or throw (express-rate-limit refuses to
+// trust X-Forwarded-For until Express is told to).
+app.set('trust proxy', 1);
+
 app.use(cors({ origin: allowedOrigin }));
 app.use(express.json({ limit: '16kb' }));
+
+// /analyze is the one endpoint that costs real money per call (OpenAI), and
+// device_id is just a client-supplied header with no verification behind
+// it — anyone can mint a fresh one per request to get a free 3-analysis
+// quota over and over. Two layers: per-device_id catches rapid abuse of a
+// single identity; per-IP catches the "rotate device_id every request"
+// bypass of that. Limits are generous for a real user (writing and reading
+// a dream interpretation takes far longer than this allows) and tight for
+// a script.
+const analyzeDeviceLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.header('x-device-id') || ipKeyGenerator(req.ip),
+  message: { error: 'Too many requests from this device. Please wait a moment and try again.' },
+});
+const analyzeIpLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please wait a moment and try again.' },
+});
 
 function readDeviceId(req, res) {
   const deviceId = req.header('x-device-id');
@@ -157,6 +189,13 @@ app.post('/contact', async (req, res) => {
   if (name.length > 120 || email.length > 254 || message.length > 5000) {
     return res.status(400).json({ error: 'One or more fields are too long.' });
   }
+  // name lands in the email's From display name and Subject header; a
+  // known class of nodemailer CVEs is CRLF/header injection via fields
+  // like this, so reject embedded newlines rather than rely on the
+  // library to sanitize them.
+  if (/[\r\n]/.test(name)) {
+    return res.status(400).json({ error: 'Name cannot contain line breaks.' });
+  }
 
   const transporter = createMailTransport();
   if (!transporter) {
@@ -178,7 +217,7 @@ app.post('/contact', async (req, res) => {
   }
 });
 
-app.post('/analyze', async (req, res) => {
+app.post('/analyze', analyzeIpLimiter, analyzeDeviceLimiter, async (req, res) => {
   const deviceId = readDeviceId(req, res);
   if (!deviceId) return;
 
