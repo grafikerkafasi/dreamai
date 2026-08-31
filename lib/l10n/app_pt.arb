@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "Um estranho me entregou uma chave que brilhava no escuro.",
 
   "chooseInterpreter": "Escolha um Intérprete",
+  "interpreterTabAll": "Todos",
+  "interpreterTabThinkers": "Pensadores",
+  "interpreterTabCelebrities": "Celebridades",
+  "interpreterTabMystics": "Místicos",
+  "fortuneTellerName": "Vidente",
   "dreamsLeftThisMonth": "{count, plural, one{Você tem {count} sonho restante este mês} other{Você tem {count} sonhos restantes este mês}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

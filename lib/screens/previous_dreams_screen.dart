@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../data/interpreter_prompts.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../services/dream_storage_service.dart';
 import 'app_logo_button.dart';
@@ -181,7 +182,9 @@ class _DreamCardState extends State<_DreamCard> {
           ),
         ),
         title: Text(
-          widget.interpreter ?? l10n.unknownInterpreter,
+          widget.interpreter != null
+              ? interpreterDisplayName(l10n, widget.interpreter!)
+              : l10n.unknownInterpreter,
           style: GoogleFonts.kufam(
             color: const Color(0xFFFF91B3),
             fontSize: 14,

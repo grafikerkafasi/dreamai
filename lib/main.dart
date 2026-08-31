@@ -46,6 +46,20 @@ class DreamAIApp extends StatelessWidget {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       localeResolutionCallback: resolveAppLocale,
+      // The UI uses fixed-size images/fields tuned for normal system font
+      // sizes; Android's "largest" accessibility text setting can scale
+      // text 2-3x, which overlaps this fixed layout. Capping the scale
+      // factor keeps text readable-but-larger without breaking the design,
+      // and is a no-op for the vast majority of users at the default 1.0x.
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            textScaler: mediaQuery.textScaler.clamp(maxScaleFactor: 1.3),
+          ),
+          child: child!,
+        );
+      },
       initialRoute: AppRoutes.dream,
       navigatorObservers: [routeObserver],
       routes: {

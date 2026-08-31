@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "A stranger handed me a key that glowed in the dark.",
 
   "chooseInterpreter": "Choose an Interpreter",
+  "interpreterTabAll": "All",
+  "interpreterTabThinkers": "Thinkers",
+  "interpreterTabCelebrities": "Celebrities",
+  "interpreterTabMystics": "Mystics",
+  "fortuneTellerName": "Fortune Teller",
   "dreamsLeftThisMonth": "{count, plural, one{{count} dream left this month} other{{count} dreams left this month}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

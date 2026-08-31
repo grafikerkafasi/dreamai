@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "Un desconocido me entregó una llave que brillaba en la oscuridad.",
 
   "chooseInterpreter": "Elige un Intérprete",
+  "interpreterTabAll": "Todos",
+  "interpreterTabThinkers": "Pensadores",
+  "interpreterTabCelebrities": "Famosos",
+  "interpreterTabMystics": "Místicos",
+  "fortuneTellerName": "Vidente",
   "dreamsLeftThisMonth": "{count, plural, one{Te queda {count} sueño este mes} other{Te quedan {count} sueños este mes}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

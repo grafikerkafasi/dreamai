@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "一个陌生人递给我一把在黑暗中发光的钥匙。",
 
   "chooseInterpreter": "选择一位解梦师",
+  "interpreterTabAll": "全部",
+  "interpreterTabThinkers": "思想家",
+  "interpreterTabCelebrities": "名人",
+  "interpreterTabMystics": "神秘人物",
+  "fortuneTellerName": "占卜师",
   "dreamsLeftThisMonth": "{count, plural, other{本月还剩 {count} 次解梦次数}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

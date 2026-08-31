@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "Ein Fremder gab mir einen Schlüssel, der im Dunkeln leuchtete.",
 
   "chooseInterpreter": "Wähle einen Deuter",
+  "interpreterTabAll": "Alle",
+  "interpreterTabThinkers": "Denker",
+  "interpreterTabCelebrities": "Prominente",
+  "interpreterTabMystics": "Mystiker",
+  "fortuneTellerName": "Wahrsager",
   "dreamsLeftThisMonth": "{count, plural, one{Noch {count} Traum diesen Monat übrig} other{Noch {count} Träume diesen Monat übrig}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "Bir yabancı bana karanlıkta parlayan bir anahtar verdi.",
 
   "chooseInterpreter": "Bir Yorumcu Seç",
+  "interpreterTabAll": "Tümü",
+  "interpreterTabThinkers": "Düşünürler",
+  "interpreterTabCelebrities": "Ünlüler",
+  "interpreterTabMystics": "Rehberler",
+  "fortuneTellerName": "Falcı",
   "dreamsLeftThisMonth": "{count, plural, other{Bu ay {count} rüya hakkın kaldı}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

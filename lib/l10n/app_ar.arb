@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "أعطاني شخص غريب مفتاحًا يتوهّج في الظلام.",
 
   "chooseInterpreter": "اختر مفسّرًا",
+  "interpreterTabAll": "الكل",
+  "interpreterTabThinkers": "المفكرون",
+  "interpreterTabCelebrities": "المشاهير",
+  "interpreterTabMystics": "الروحانيون",
+  "fortuneTellerName": "العرافة",
   "dreamsLeftThisMonth": "{count, plural, zero{لم يتبقَّ أي حلم هذا الشهر} one{تبقّى حلم واحد هذا الشهر} two{تبقّى حلمان هذا الشهر} few{تبقّت {count} أحلام هذا الشهر} many{تبقّى {count} حلمًا هذا الشهر} other{تبقّى {count} حلم هذا الشهر}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

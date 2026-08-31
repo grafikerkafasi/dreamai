@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "Незнакомец протянул мне ключ, светившийся в темноте.",
 
   "chooseInterpreter": "Выберите толкователя",
+  "interpreterTabAll": "Все",
+  "interpreterTabThinkers": "Мыслители",
+  "interpreterTabCelebrities": "Знаменитости",
+  "interpreterTabMystics": "Мистики",
+  "fortuneTellerName": "Гадалка",
   "dreamsLeftThisMonth": "{count, plural, one{Остался {count} сон в этом месяце} few{Осталось {count} сна в этом месяце} many{Осталось {count} снов в этом месяце} other{Осталось {count} снов в этом месяце}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }

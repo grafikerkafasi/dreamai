@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../data/interpreter_prompts.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../openai_service.dart';
 import '../services/contact_service.dart';
@@ -113,7 +114,9 @@ class _AnalysisPageState extends State<AnalysisPage> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          text: AppLocalizations.of(context)!.shareText(widget.interpreter),
+          text: AppLocalizations.of(context)!.shareText(
+              interpreterDisplayName(
+                  AppLocalizations.of(context)!, widget.interpreter)),
         ),
       );
     } finally {
@@ -208,7 +211,8 @@ class _AnalysisPageState extends State<AnalysisPage> {
                                 const SizedBox(height: 16),
                                 Text(
                                   l10n.dreamAnalysisByInterpreter(
-                                      widget.interpreter),
+                                      interpreterDisplayName(
+                                          l10n, widget.interpreter)),
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.kufam(
                                     fontSize: 20,

@@ -11,6 +11,11 @@
   "dreamPlaceholder5": "एक अजनबी ने मुझे अंधेरे में चमकने वाली एक चाबी दी।",
 
   "chooseInterpreter": "एक व्याख्याकार चुनें",
+  "interpreterTabAll": "सभी",
+  "interpreterTabThinkers": "विचारक",
+  "interpreterTabCelebrities": "सेलिब्रिटी",
+  "interpreterTabMystics": "रहस्यवादी",
+  "fortuneTellerName": "भविष्यवक्ता",
   "dreamsLeftThisMonth": "{count, plural, one{इस महीने {count} सपना बचा है} other{इस महीने {count} सपने बचे हैं}}",
   "@dreamsLeftThisMonth": {
     "placeholders": { "count": { "type": "int" } }
