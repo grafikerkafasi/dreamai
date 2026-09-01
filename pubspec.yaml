@@ -1,7 +1,7 @@
 name: dream_ai
 description: A new Flutter project.
 publish_to: 'none'
-version: 1.0.0+33
+version: 1.0.0+34
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -64,6 +64,11 @@ flutter:
     - assets/images/interpreters/imam.png
     - assets/images/interpreters/rabbi.png
     - assets/images/interpreters/hindu_guru.png
+    - assets/images/interpreters/keanu_reeves.png
+    - assets/images/interpreters/dwayne_johnson.png
+    - assets/images/interpreters/freddie_mercury.png
+    - assets/images/interpreters/emma_watson.png
+    - assets/images/interpreters/bruce_lee.png
 
 flutter_native_splash:
   color: "#1C263F"

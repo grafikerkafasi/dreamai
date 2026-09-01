@@ -250,21 +250,23 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen>
         ),
         bottomNavigationBar: _usage == null
             ? null
-            : SafeArea(
-                top: false,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  color: Colors.black.withValues(alpha: 0.18),
-                  child: Text(
-                    _usage!.subscribed
-                        ? l10n.dreamsLeftThisMonth(_usage!.remaining)
-                        : l10n.freeDreamsLeft(_usage!.remaining),
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.kufam(
-                      color: const Color(0xFFFAEAD6),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w300,
+            : Container(
+                width: double.infinity,
+                color: Colors.black.withValues(alpha: 0.18),
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Text(
+                      _usage!.subscribed
+                          ? l10n.dreamsLeftThisMonth(_usage!.remaining)
+                          : l10n.freeDreamsLeft(_usage!.remaining),
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.kufam(
+                        color: const Color(0xFFFAEAD6),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
                   ),
                 ),
@@ -290,7 +292,7 @@ class _CategoryTabBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
       ),
