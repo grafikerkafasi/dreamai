@@ -20,7 +20,6 @@
     "axios": "^1.10.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "express-rate-limit": "^8.6.2",
-    "nodemailer": "^7.0.5"
+    "express-rate-limit": "^8.6.2"
   }
 }

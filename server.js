@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const nodemailer = require('nodemailer');
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const {
   checkQuota,
@@ -74,7 +73,7 @@ app.get('/', (_req, res) => {
 });
 
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, contactConfigured: Boolean(process.env.SMTP_HOST) });
+  res.json({ ok: true, contactConfigured: Boolean(process.env.RESEND_API_KEY) });
 });
 
 app.get('/usage', async (req, res) => {
@@ -161,21 +160,40 @@ app.post('/sync-subscription', async (req, res) => {
   res.json(await getUsage(deviceId, freeLimit, monthlyLimit));
 });
 
-function createMailTransport() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) return null;
+// Render's free web services block all outbound SMTP ports (25/465/587) —
+// see https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports.
+// That's why the old nodemailer/SMTP transport here always failed with
+// "Connection timeout" regardless of which SMTP provider or credentials
+// were configured: the TCP connect itself never reached the mail server.
+// Resend's API is plain HTTPS (port 443), which isn't affected, so contact
+// email goes through that instead. RESEND_FROM defaults to Resend's shared
+// onboarding@resend.dev sender, which works with zero setup but can only
+// deliver to the email address that owns the Resend account — since
+// CONTACT_RECIPIENT is always the developer's own inbox, that's fine as-is.
+// Verify a custom domain in the Resend dashboard and set RESEND_FROM if
+// this ever needs to send to a different recipient.
+async function sendContactEmail({ name, email, message }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { configured: false };
 
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT),
-    secure: process.env.SMTP_SECURE === 'true',
-    // Render's network has flaky/unroutable IPv6 for some hosts, which
-    // otherwise manifests as the TCP connect just hanging until nodemailer's
-    // own timeout ("Connection timeout") rather than failing fast.
-    family: 4,
-    connectionTimeout: 15000,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
+  await axios.post(
+    'https://api.resend.com/emails',
+    {
+      from: process.env.RESEND_FROM || 'DreamAI <onboarding@resend.dev>',
+      to: contactRecipient,
+      reply_to: email,
+      subject: `DreamAI contact form: ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      timeout: 15000,
+    }
+  );
+  return { configured: true };
 }
 
 app.post('/contact', async (req, res) => {
@@ -189,30 +207,21 @@ app.post('/contact', async (req, res) => {
   if (name.length > 120 || email.length > 254 || message.length > 5000) {
     return res.status(400).json({ error: 'One or more fields are too long.' });
   }
-  // name lands in the email's From display name and Subject header; a
-  // known class of nodemailer CVEs is CRLF/header injection via fields
-  // like this, so reject embedded newlines rather than rely on the
-  // library to sanitize them.
+  // name lands in the email's From display name and Subject header; reject
+  // embedded newlines rather than rely on the mail API to sanitize them.
   if (/[\r\n]/.test(name)) {
     return res.status(400).json({ error: 'Name cannot contain line breaks.' });
   }
 
-  const transporter = createMailTransport();
-  if (!transporter) {
+  if (!process.env.RESEND_API_KEY) {
     return res.status(503).json({ error: 'Contact email is not configured yet.' });
   }
 
   try {
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: contactRecipient,
-      replyTo: email,
-      subject: `DreamAI contact form: ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
-    });
+    await sendContactEmail({ name, email, message });
     return res.status(202).json({ ok: true });
   } catch (error) {
-    console.error('Contact email failed:', error.message);
+    console.error('Contact email failed:', error.response?.data || error.message);
     return res.status(502).json({ error: 'Your message could not be sent. Please try again later.' });
   }
 });
