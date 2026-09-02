@@ -1161,3 +1161,36 @@ go-ahead before shipping a build.
   iOS pasteboard handoff — neither was testable locally, see the risk
   note in the entry above), the fixed-aspect share image no longer
   cropping in Stories, and the splash screen's new sharpness.
+
+- **2026-09-02 — Real-device test results for `1.0.0+35`: Android
+  Instagram Story sharing works; iOS shows Instagram's own "this app
+  doesn't support sharing to Stories" error.** User tested both. Android:
+  confirmed working, story opens directly. iOS: Instagram opens but
+  rejects the hand-off with its generic camera composer + a banner
+  ("Paylaşımda bulunduğun uygulama şu anda Hikayelerde paylaşımı
+  desteklemiyor"). Likely cause found by re-reading `AppDelegate.swift`
+  against Meta's documented flow: the iOS implementation never set
+  `source_application` on the `instagram-stories://share` URL at all
+  (Android's intent correctly did, via `packageName`) — every reference
+  implementation of this API includes it, and Meta's docs list it as part
+  of the URL. Also added `.localOnly: true` to the pasteboard write
+  options (its absence can route the write through Universal
+  Clipboard/Handoff instead of making it available to Instagram locally
+  right away, a separately-documented cause of this exact failure mode).
+  Fixed both in `AppDelegate.swift` (commit `1ab025b`, pushed) — used
+  `Bundle.main.bundleIdentifier` as the `source_application` value, not a
+  registered Facebook App ID, since per Meta's docs an App ID is only
+  needed for the optional "back to app" attribution pill on the posted
+  story, not for the core sharing hand-off to work. **Caveat: this is a
+  best-diagnosis fix, not a confirmed one** — iOS's pasteboard-based
+  Stories API is undocumented/informal enough that this couldn't be
+  verified without an actual device retest, which needs a new TestFlight
+  build. User explicitly chose to hold off shipping this fix for now
+  (batching further work first) — committed and pushed, but
+  `ios-release.yml` was deliberately not triggered. Next time a build
+  ships, this needs to be the first thing re-tested; if the error
+  persists even with `source_application` set, the next real diagnostic
+  step is the same one flagged for the earlier "Not available" paywall
+  bug — an actual Console.app device log filtered to process `Runner`
+  while reproducing it, since that's the only way to see what Instagram
+  itself logs about why it rejected the pasteboard data.
