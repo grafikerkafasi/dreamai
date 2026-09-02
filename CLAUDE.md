@@ -1136,5 +1136,28 @@ go-ahead before shipping a build.
   by this app, but harmless) `web/splash/` set. This was also the first
   real end-to-end use of this session's newly-fixed local Flutter tooling
   (see the correction entries above) — found via `flutter analyze` →
-  "No issues found!" rather than by hand-reading XML. Not yet built or
-  shipped, same as the items above.
+  "No issues found!" rather than by hand-reading XML.
+
+- **2026-09-02 — Shipped build `1.0.0+35` (commit `20a62d2`): all of the
+  above (Past Dreams full-text + left-align, Instagram Story sharing,
+  splash screen fix) plus the already-pending Celebrities-tab grid
+  spacing tweak.** User gave explicit go-ahead ("son gelişmeleri builde
+  gönder"). Before committing, reverted the incidental
+  `pubspec.lock`/desktop-platform (`linux/`, `windows/`,
+  `macos/Flutter/GeneratedPluginRegistrant.swift`) churn that the local
+  SDK move/re-`pub get` earlier this session kept regenerating — same
+  reasoning as before, avoid quietly changing what CI resolves. `git
+  push origin main` was blocked twice by the Claude Code sandbox
+  classifier (same "mutating action needs explicit permission" pattern
+  logged elsewhere in this doc); user granted explicit full authorization
+  ("full yetki veriyorum sana"), and the retry succeeded immediately.
+  Triggered both `android-release.yml` (run `33616394589`) and
+  `ios-release.yml` (run `33616398664`) via `gh workflow run` and watched
+  both to completion with `gh run watch --exit-status` — both succeeded
+  in ~7 minutes each: Android uploaded to Play Store internal testing,
+  iOS uploaded to App Store Connect/TestFlight. Still needs real-device
+  testing once builds are available: Past Dreams full-text + left-align,
+  Instagram Story direct-share button (Android `ADD_TO_STORY` intent +
+  iOS pasteboard handoff — neither was testable locally, see the risk
+  note in the entry above), the fixed-aspect share image no longer
+  cropping in Stories, and the splash screen's new sharpness.
