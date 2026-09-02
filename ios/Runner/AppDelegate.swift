@@ -43,7 +43,14 @@ import UIKit
   }
 
   private static func shareToInstagramStory(imagePath: String) -> Bool {
-    guard let url = URL(string: "instagram-stories://share"),
+    // Instagram's documented URL includes `source_application` (Meta's own
+    // sample code always sets it) — every reference implementation passes
+    // it, and this one previously omitted it entirely. A bundle identifier
+    // is enough to identify the caller for the pasteboard hand-off itself;
+    // a registered Facebook App ID is only needed for the optional "back to
+    // app" attribution pill on the posted story, not for sharing to work.
+    let bundleId = Bundle.main.bundleIdentifier ?? "com.sanai.dreamai"
+    guard let url = URL(string: "instagram-stories://share?source_application=\(bundleId)"),
       UIApplication.shared.canOpenURL(url),
       let imageData = FileManager.default.contents(atPath: imagePath)
     else {
@@ -54,7 +61,13 @@ import UIKit
       "com.instagram.sharedSticker.backgroundImage": imageData
     ]
     let pasteboardOptions: [UIPasteboard.OptionsKey: Any] = [
-      .expirationDate: Date().addingTimeInterval(60 * 5)
+      .expirationDate: Date().addingTimeInterval(60 * 5),
+      // Without this, iOS may route the pasteboard write through
+      // Universal Clipboard/Handoff instead of making it available to
+      // Instagram locally right away, which can make Instagram open its
+      // generic camera composer (with the "doesn't support sharing to
+      // Stories" banner) instead of picking up our background image.
+      .localOnly: true,
     ]
     UIPasteboard.general.setItems([pasteboardItems], options: pasteboardOptions)
 
