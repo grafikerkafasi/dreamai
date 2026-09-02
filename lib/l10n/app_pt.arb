@@ -81,6 +81,10 @@
 
   "noDreamsYet": "Ainda não há sonhos.",
   "unknownInterpreter": "Intérprete desconhecido",
+  "yourDreamLabel": "Seu Sonho",
+  "interpretationLabel": "Interpretação",
+  "addToInstagramStory": "Adicionar ao Instagram Stories",
+  "storyShareFailed": "Não foi possível abrir o Instagram Stories. Tente novamente.",
 
   "privacyPolicyTitle": "Política de Privacidade",
   "privacySectionDreamContentHeading": "Conteúdo do sonho",

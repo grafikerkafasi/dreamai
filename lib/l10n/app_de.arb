@@ -81,6 +81,10 @@
 
   "noDreamsYet": "Noch keine Träume.",
   "unknownInterpreter": "Unbekannter Deuter",
+  "yourDreamLabel": "Dein Traum",
+  "interpretationLabel": "Deutung",
+  "addToInstagramStory": "Zur Instagram-Story hinzufügen",
+  "storyShareFailed": "Instagram Stories konnte nicht geöffnet werden. Bitte versuche es erneut.",
 
   "privacyPolicyTitle": "Datenschutzrichtlinie",
   "privacySectionDreamContentHeading": "Trauminhalt",

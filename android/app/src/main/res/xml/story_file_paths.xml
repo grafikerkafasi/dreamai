@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Covers getTemporaryDirectory() from path_provider, which resolves to
+     context.cacheDir on Android — where AnalysisPage writes the rendered
+     share/story PNG (dreamai_analysis.png) before handing it to Instagram. -->
+<paths>
+    <cache-path name="story_share" path="." />
+</paths>

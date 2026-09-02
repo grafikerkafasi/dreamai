@@ -225,32 +225,70 @@ class _DreamCardState extends State<_DreamCard> {
           ],
         ),
         children: [
-          if (date != null) ...[
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                date,
-                style: GoogleFonts.kufam(
-                  color: Colors.white54,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w300,
+          // ExpansionTile centers each item in `children` by default; force
+          // this whole block to the full row width so the left-alignment
+          // below actually takes effect instead of just centering a
+          // shrink-wrapped column.
+          SizedBox(
+            width: double.infinity,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (date != null) ...[
+                  Text(
+                    date,
+                    style: GoogleFonts.kufam(
+                      color: Colors.white54,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                Opacity(
+                  opacity: 0.5,
+                  child: Divider(thickness: 1, color: const Color(0x80E0E3E7)),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-          Opacity(
-            opacity: 0.5,
-            child: Divider(thickness: 1, color: const Color(0x80E0E3E7)),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.resultText,
-            style: GoogleFonts.kufam(
-              color: const Color(0xFFE0D4D4),
-              fontSize: 15,
-              height: 1.5,
-              fontWeight: FontWeight.w300,
+                const SizedBox(height: 8),
+                Text(
+                  l10n.yourDreamLabel,
+                  style: GoogleFonts.kufam(
+                    color: const Color(0xFFFF91B3),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.dreamText,
+                  style: GoogleFonts.kufam(
+                    color: Colors.white,
+                    fontSize: 15,
+                    height: 1.5,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.interpretationLabel,
+                  style: GoogleFonts.kufam(
+                    color: const Color(0xFFFF91B3),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.resultText,
+                  style: GoogleFonts.kufam(
+                    color: const Color(0xFFE0D4D4),
+                    fontSize: 15,
+                    height: 1.5,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

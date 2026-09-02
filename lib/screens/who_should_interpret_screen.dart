@@ -195,7 +195,7 @@ class _WhoShouldInterpretScreenState extends State<WhoShouldInterpretScreen>
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 8,
+                  mainAxisSpacing: 18,
                   crossAxisSpacing: 12,
                   childAspectRatio: 0.9,
                 ),

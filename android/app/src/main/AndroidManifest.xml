@@ -30,6 +30,18 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- Hands a rendered share image to Instagram as the direct Stories
+             background (MainActivity.shareToInstagramStory / ADD_TO_STORY intent). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.storyprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/story_file_paths" />
+        </provider>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -40,6 +52,13 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Needed (Android 11+ package visibility) so MainActivity can check
+             whether Instagram is installed and resolve the ADD_TO_STORY intent
+             for direct-to-Instagram-Story sharing. -->
+        <package android:name="com.instagram.android"/>
+        <intent>
+            <action android:name="com.instagram.share.ADD_TO_STORY"/>
         </intent>
     </queries>
 </manifest>

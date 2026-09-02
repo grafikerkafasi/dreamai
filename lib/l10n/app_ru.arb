@@ -81,6 +81,10 @@
 
   "noDreamsYet": "Пока нет снов.",
   "unknownInterpreter": "Неизвестный толкователь",
+  "yourDreamLabel": "Ваш сон",
+  "interpretationLabel": "Толкование",
+  "addToInstagramStory": "Добавить в Instagram Stories",
+  "storyShareFailed": "Не удалось открыть Instagram Stories. Попробуйте ещё раз.",
 
   "privacyPolicyTitle": "Политика конфиденциальности",
   "privacySectionDreamContentHeading": "Содержание сна",

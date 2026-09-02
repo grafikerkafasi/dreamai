@@ -81,6 +81,10 @@
 
   "noDreamsYet": "Henüz rüya yok.",
   "unknownInterpreter": "Bilinmeyen yorumcu",
+  "yourDreamLabel": "Rüyan",
+  "interpretationLabel": "Tabir",
+  "addToInstagramStory": "Instagram Hikayesine Ekle",
+  "storyShareFailed": "Instagram Hikayeleri açılamadı. Lütfen tekrar dene.",
 
   "privacyPolicyTitle": "Gizlilik Politikası",
   "privacySectionDreamContentHeading": "Rüya içeriği",

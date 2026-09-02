@@ -81,6 +81,10 @@
 
   "noDreamsYet": "अभी तक कोई सपना नहीं है।",
   "unknownInterpreter": "अज्ञात व्याख्याकार",
+  "yourDreamLabel": "आपका सपना",
+  "interpretationLabel": "व्याख्या",
+  "addToInstagramStory": "Instagram Story में जोड़ें",
+  "storyShareFailed": "Instagram Stories नहीं खुल सका। कृपया फिर से कोशिश करें।",
 
   "privacyPolicyTitle": "गोपनीयता नीति",
   "privacySectionDreamContentHeading": "सपने की सामग्री",

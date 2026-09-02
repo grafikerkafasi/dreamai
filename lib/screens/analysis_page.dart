@@ -11,6 +11,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../openai_service.dart';
 import '../services/contact_service.dart';
 import '../services/dream_storage_service.dart';
+import '../services/instagram_story_service.dart';
 import 'app_logo_button.dart';
 import 'custom_drawer.dart'; // Drawer'ı ekledik
 import 'history_button.dart';
@@ -38,12 +39,18 @@ class _AnalysisPageState extends State<AnalysisPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>(); // Drawer için
   final GlobalKey _shareCardKey = GlobalKey();
+  final GlobalKey _storyShareCardKey = GlobalKey();
   bool _sharing = false;
+  bool _sharingToStory = false;
+  bool _instagramAvailable = false;
 
   @override
   void initState() {
     super.initState();
     _analyzeDream();
+    InstagramStoryService.isAvailable().then((available) {
+      if (mounted) setState(() => _instagramAvailable = available);
+    });
   }
 
   Future<void> _analyzeDream() async {
@@ -91,36 +98,61 @@ class _AnalysisPageState extends State<AnalysisPage> {
     }
   }
 
+  /// Rasterizes the off-screen [_StoryShareCard] (fixed 9:16, see below) and
+  /// writes it to a temp PNG. Shared by both the generic OS share sheet and
+  /// the direct-to-Instagram-Story button so every share path — including a
+  /// user manually picking Instagram from the share sheet and posting to
+  /// their story — uses an image that already matches Stories' canvas
+  /// instead of relying on Instagram's own (cropping) auto-fit.
+  Future<File?> _captureStoryImage() async {
+    final boundary = _storyShareCardKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
+    if (boundary == null) return null;
+
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final image = await boundary.toImage(
+      pixelRatio: pixelRatio < 3.0 ? 3.0 : pixelRatio,
+    );
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    if (byteData == null) return null;
+
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/dreamai_analysis.png');
+    await file.writeAsBytes(byteData.buffer.asUint8List());
+    return file;
+  }
+
   Future<void> _shareResult() async {
     if (_result.isEmpty || _sharing) return;
     setState(() => _sharing = true);
     try {
-      final boundary = _shareCardKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (boundary == null) return;
-
-      final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-      final image = await boundary.toImage(
-        pixelRatio: pixelRatio < 2.5 ? 2.5 : pixelRatio,
-      );
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
-
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/dreamai_analysis.png');
-      await file.writeAsBytes(byteData.buffer.asUint8List());
-
-      if (!mounted) return;
+      final file = await _captureStoryImage();
+      if (file == null || !mounted) return;
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          text: AppLocalizations.of(context)!.shareText(
-              interpreterDisplayName(
-                  AppLocalizations.of(context)!, widget.interpreter)),
+          text: AppLocalizations.of(context)!.shareText(interpreterDisplayName(
+              AppLocalizations.of(context)!, widget.interpreter)),
         ),
       );
     } finally {
       if (mounted) setState(() => _sharing = false);
+    }
+  }
+
+  Future<void> _shareToInstagramStory() async {
+    if (_result.isEmpty || _sharingToStory) return;
+    setState(() => _sharingToStory = true);
+    try {
+      final file = await _captureStoryImage();
+      if (file == null || !mounted) return;
+      final ok = await InstagramStoryService.shareToStory(file.path);
+      if (!mounted || ok) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.storyShareFailed)),
+      );
+    } finally {
+      if (mounted) setState(() => _sharingToStory = false);
     }
   }
 
@@ -172,151 +204,228 @@ class _AnalysisPageState extends State<AnalysisPage> {
             ),
           ),
         ),
-        body: SafeArea(
-          top: false,
-          child: _loading
-            ? const Center(child: _AnalyzingProgress())
-            : _errorMessage != null
-                ? _ErrorState(message: _errorMessage!, onRetry: _analyzeDream)
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        RepaintBoundary(
-                          key: _shareCardKey,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 28),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              image: const DecorationImage(
-                                image:
-                                    AssetImage('assets/images/homepage-bg.png'),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: Image.asset(
-                                    imagePath,
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  l10n.dreamAnalysisByInterpreter(
-                                      interpreterDisplayName(
-                                          l10n, widget.interpreter)),
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.kufam(
-                                    fontSize: 20,
-                                    color: const Color(0xFFFF91B3),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  _result,
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.kufam(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                                Image.asset(
-                                  'assets/images/logo.png',
-                                  height: 26,
-                                  fit: BoxFit.contain,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(
-                                Icons.chevron_left_rounded,
-                                size: 26,
-                                color: Colors.white70,
-                              ),
-                              tooltip: l10n.backTooltip,
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: TextButton.icon(
-                                  onPressed: _sharing ? null : _shareResult,
-                                  icon: _sharing
-                                      ? const SizedBox(
-                                          width: 22,
-                                          height: 22,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Icon(Icons.ios_share_rounded,
-                                          size: 26, color: Colors.white),
-                                  label: Text(
-                                    l10n.shareButton,
-                                    style: GoogleFonts.kufam(
-                                      fontSize: 24,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
+        body: Stack(
+          children: [
+            SafeArea(
+              top: false,
+              child: _loading
+                  ? const Center(child: _AnalyzingProgress())
+                  : _errorMessage != null
+                      ? _ErrorState(
+                          message: _errorMessage!, onRetry: _analyzeDream)
+                      : SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              RepaintBoundary(
+                                key: _shareCardKey,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 28),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(24),
+                                    image: const DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/homepage-bg.png'),
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
+                                  child: Column(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        child: Image.asset(
+                                          imagePath,
+                                          width: 120,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        l10n.dreamAnalysisByInterpreter(
+                                            interpreterDisplayName(
+                                                l10n, widget.interpreter)),
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.kufam(
+                                          fontSize: 20,
+                                          color: const Color(0xFFFF91B3),
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      Text(
+                                        _result,
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.kufam(
+                                          fontSize: 18,
+                                          color: Colors.white,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+                                      Image.asset(
+                                        'assets/images/logo.png',
+                                        height: 26,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 40),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.reflectionDisclaimer,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.kufam(
-                            fontSize: 11,
-                            color: Colors.white54,
-                          ),
-                        ),
-                        if (!_loading && _errorMessage == null) ...[
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () => _showReportDialog(context),
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: const Size(0, 0),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: Text(
-                              'Report this interpretation',
-                              style: GoogleFonts.kufam(
-                                fontSize: 11,
-                                color: Colors.white38,
-                                decoration: TextDecoration.underline,
+                              const SizedBox(height: 40),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: const Icon(
+                                      Icons.chevron_left_rounded,
+                                      size: 26,
+                                      color: Colors.white70,
+                                    ),
+                                    tooltip: l10n.backTooltip,
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: TextButton.icon(
+                                        onPressed:
+                                            _sharing ? null : _shareResult,
+                                        icon: _sharing
+                                            ? const SizedBox(
+                                                width: 22,
+                                                height: 22,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                            : const Icon(
+                                                Icons.ios_share_rounded,
+                                                size: 26,
+                                                color: Colors.white),
+                                        label: Text(
+                                          l10n.shareButton,
+                                          style: GoogleFonts.kufam(
+                                            fontSize: 24,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 40,
+                                    child: _instagramAvailable
+                                        ? Center(
+                                            child: IconButton(
+                                              padding: EdgeInsets.zero,
+                                              tooltip: l10n.addToInstagramStory,
+                                              onPressed: _sharingToStory
+                                                  ? null
+                                                  : _shareToInstagramStory,
+                                              icon: _sharingToStory
+                                                  ? const SizedBox(
+                                                      width: 18,
+                                                      height: 18,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: Colors.white,
+                                                      ),
+                                                    )
+                                                  : Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        gradient:
+                                                            LinearGradient(
+                                                          begin: Alignment
+                                                              .bottomLeft,
+                                                          end: Alignment
+                                                              .topRight,
+                                                          colors: [
+                                                            Color(0xFFFEDA75),
+                                                            Color(0xFFFA7E1E),
+                                                            Color(0xFFD62976),
+                                                            Color(0xFF962FBF),
+                                                            Color(0xFF4F5BD5),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons
+                                                            .camera_alt_rounded,
+                                                        size: 15,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                ],
                               ),
-                            ),
+                              const SizedBox(height: 16),
+                              Text(
+                                l10n.reflectionDisclaimer,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.kufam(
+                                  fontSize: 11,
+                                  color: Colors.white54,
+                                ),
+                              ),
+                              if (!_loading && _errorMessage == null) ...[
+                                const SizedBox(height: 8),
+                                TextButton(
+                                  onPressed: () => _showReportDialog(context),
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(0, 0),
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    'Report this interpretation',
+                                    style: GoogleFonts.kufam(
+                                      fontSize: 11,
+                                      color: Colors.white38,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 40),
+                            ],
                           ),
-                        ],
-                        const SizedBox(height: 40),
-                      ],
-                    ),
-                  ),
+                        ),
+            ),
+            // Rendered off-screen, fixed to a 9:16 canvas so the exported
+            // share image always matches Instagram Stories' aspect ratio —
+            // never composited on screen, only captured via toImage().
+            if (_result.isNotEmpty)
+              Positioned(
+                left: -10000,
+                top: 0,
+                child: _StoryShareCard(
+                  shareKey: _storyShareCardKey,
+                  imagePath: imagePath,
+                  title: l10n.dreamAnalysisByInterpreter(
+                      interpreterDisplayName(l10n, widget.interpreter)),
+                  result: _result,
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -472,6 +581,93 @@ class _ReportContentDialogState extends State<_ReportContentDialog> {
               : const Text('Submit'),
         ),
       ],
+    );
+  }
+}
+
+/// The image actually captured for "Share" — a fixed 9:16 canvas so it
+/// drops straight into Instagram Stories (and similar) without getting
+/// cropped, regardless of how long the interpretation text is. Rendered
+/// off-screen (see the `Positioned(left: -10000, ...)` in [AnalysisPage]);
+/// never shown to the user directly, only captured via [RepaintBoundary].
+class _StoryShareCard extends StatelessWidget {
+  const _StoryShareCard({
+    required this.shareKey,
+    required this.imagePath,
+    required this.title,
+    required this.result,
+  });
+
+  final GlobalKey shareKey;
+  final String imagePath;
+  final String title;
+  final String result;
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      key: shareKey,
+      child: SizedBox(
+        width: 360,
+        height: 360 * 16 / 9,
+        child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/homepage-bg.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: SizedBox(
+                width: 300,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        imagePath,
+                        width: 110,
+                        height: 110,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.kufam(
+                        fontSize: 20,
+                        color: const Color(0xFFFF91B3),
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      result,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.kufam(
+                        fontSize: 18,
+                        color: Colors.white,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Image.asset(
+                      'assets/images/logo.png',
+                      height: 26,
+                      fit: BoxFit.contain,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

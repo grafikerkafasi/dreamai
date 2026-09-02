@@ -81,6 +81,10 @@
 
   "noDreamsYet": "لا توجد أحلام بعد.",
   "unknownInterpreter": "مفسّر غير معروف",
+  "yourDreamLabel": "حلمك",
+  "interpretationLabel": "التفسير",
+  "addToInstagramStory": "إضافة إلى قصة إنستغرام",
+  "storyShareFailed": "تعذّر فتح قصص إنستغرام. حاول مرة أخرى.",
 
   "privacyPolicyTitle": "سياسة الخصوصية",
   "privacySectionDreamContentHeading": "محتوى الحلم",

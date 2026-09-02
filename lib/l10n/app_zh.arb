@@ -81,6 +81,10 @@
 
   "noDreamsYet": "还没有梦境记录。",
   "unknownInterpreter": "未知解梦师",
+  "yourDreamLabel": "你的梦境",
+  "interpretationLabel": "解析",
+  "addToInstagramStory": "添加到 Instagram 快拍",
+  "storyShareFailed": "无法打开 Instagram 快拍，请重试。",
 
   "privacyPolicyTitle": "隐私政策",
   "privacySectionDreamContentHeading": "梦境内容",
