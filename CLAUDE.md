@@ -1253,3 +1253,12 @@ go-ahead before shipping a build.
   Store (TestFlight-only builds under the same marketing version are
   fine to keep incrementing just the build number; a public App Store
   submission is not).
+  Both workflows triggered and succeeded: Android run `33868255972`
+  (7m19s, uploaded to Play internal testing) and iOS run `33868252153`
+  (12m28s, uploaded to App Store Connect/TestFlight). `1.0.1+36` is now
+  processing on Apple's side. **Still needed, manual in App Store
+  Connect**: click "+ Version or Platform" to create the `1.0.1` iOS
+  version, wait for the new build to finish processing, attach it, fill
+  in the public "What's New" text and the separate "App Review
+  Information → Notes" reviewer text (both drafted earlier in this
+  session), then Submit for Review.
