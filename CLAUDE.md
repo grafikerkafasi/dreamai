@@ -1194,3 +1194,62 @@ go-ahead before shipping a build.
   bug — an actual Console.app device log filtered to process `Runner`
   while reproducing it, since that's the only way to see what Instagram
   itself logs about why it rejected the pasteboard data.
+
+- **2026-09-04 — App Store review status update, planning next update.**
+  User reported "Build 32" (App Store Connect's own binary counter, not
+  the `1.0.0+NN` pubspec version — this project has had well over 30
+  distinct iOS uploads across the session history logged above, several
+  reusing the same pubspec build number) was **accepted** by Apple review
+  and is expected to be live/listed within ~24h of acceptance. `1.0.0+35`
+  (already built and committed, including the iOS Instagram Story
+  `source_application`/`localOnly` fix from commit `1ab025b`, which is
+  still unverified on a real device) is queued as the *next* update,
+  intentionally **not yet submitted**. Agreed plan, given to the user:
+  wait until the accepted build is confirmed live in the public App Store
+  listing (not just "Approved" in App Store Connect) before submitting
+  `1.0.0+35`, to keep review cycles from overlapping and to get a clean
+  regression baseline; ideally smoke-test the new Instagram Story button
+  on a real device via TestFlight before submitting, since a failed
+  review costs another 24-48h queue wait. Drafted App Review notes for
+  the `1.0.0+35` submission (covering: the new Instagram Story share
+  button and its graceful-fallback behavior, the fixed 9:16 share-image
+  canvas, full-text Past Dreams, splash image quality; plus reviewer
+  testing directions — no login required, "Go Premium"/"Get More Dreams"
+  drawer entries to reach the paywall/credit screens directly). Not yet
+  submitted or triggered as of this note — waiting on the user to confirm
+  Build 32 is live first.
+
+- **2026-09-04 — Build 32 live on the App Store; discovered `1.0.0+35`
+  can't be submitted as-is, bumped to `1.0.1+36`.** User confirmed Build
+  32 published. Before triggering the next iOS submission, checked
+  `pubspec.yaml`'s git history and found the marketing version
+  (`CFBundleShortVersionString`) has been `1.0.0` for every single build
+  from `+1` through `+35` — only the build number after `+` ever
+  changed. Since the just-published Build 32 was necessarily also
+  marketing version `1.0.0`, Apple won't accept a new review submission
+  under that same version string (a released App Store version can't be
+  resubmitted), and the already-uploaded `1.0.0+35` TestFlight binary
+  carries that same now-unusable `1.0.0` in its Info.plist — it can't be
+  attached to a new App Store Connect "Version" entry either. Fixed by
+  bumping `pubspec.yaml` to `1.0.1+36` (both the marketing string and the
+  build number, for a clean binary Apple will actually let us select),
+  committing, and triggering both `android-release.yml` and
+  `ios-release.yml` so the two platforms stay on the same version
+  together. **Still needed after this build finishes uploading**: in App
+  Store Connect, click "+ Version or Platform" to create the `1.0.1` iOS
+  version, attach the new build once it finishes processing, fill in the
+  public "What's New" text (draft given to the user in this session,
+  Turkish) and the separate "App Review Information → Notes" reviewer
+  text (English draft also given, covering the new Instagram Story share
+  button, the 9:16 share-image fix, full-text Past Dreams, and splash
+  image quality — plus reviewer test directions: no login required,
+  "Go Premium"/"Get More Dreams" drawer entries reach the paywall/credit
+  screens directly), then Submit for Review. None of that App Store
+  Connect UI work can be done by Claude — it's manual, in the browser.
+  **Lesson for future version bumps**: always check whether the
+  marketing version (the part before `+` in `pubspec.yaml`) needs to
+  increment too, not just the build number — it does, every time the
+  previous marketing version has already been released live on the App
+  Store (TestFlight-only builds under the same marketing version are
+  fine to keep incrementing just the build number; a public App Store
+  submission is not).
