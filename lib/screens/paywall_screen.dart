@@ -3,12 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../app_routes.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../openai_service.dart';
 import '../services/purchase_service.dart';
 
 const _privacyPolicyUrl = 'https://sanai.uk/dreamai/privacy-policy.html';
+// Apple's Standard License Agreement — this app uses Apple's standard EULA
+// (App Information > License Agreement in App Store Connect), so per
+// Apple's own guidance for Guideline 3.1.2(c) the functional link shown to
+// users in the purchase flow must point here, not to an in-app disclaimer
+// screen. Same URL must also appear in the App Store Description.
+const _termsOfUseUrl =
+    'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 
 class PaywallScreen extends StatefulWidget {
   final String message;
@@ -306,8 +312,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     TextButton(
-                      onPressed: () =>
-                          Navigator.of(context).pushNamed(AppRoutes.terms),
+                      onPressed: () => launchUrl(
+                        Uri.parse(_termsOfUseUrl),
+                        mode: LaunchMode.externalApplication,
+                      ),
                       child: Text(
                         l10n.termsOfUse,
                         style: GoogleFonts.kufam(
