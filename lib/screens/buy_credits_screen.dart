@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../app_routes.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../main.dart' show routeObserver;
 import '../openai_service.dart';
@@ -11,6 +10,12 @@ import '../services/purchase_service.dart';
 import 'info_screen.dart';
 
 const _privacyPolicyUrl = 'https://sanai.uk/dreamai/privacy-policy.html';
+// Same fix as paywall_screen.dart: this app uses Apple's Standard License
+// Agreement (App Information > License Agreement), so the functional Terms
+// of Use link shown in any purchase flow (subscription or one-time credit
+// packs) must point here, not to the in-app wellness-disclaimer screen.
+const _termsOfUseUrl =
+    'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 
 /// Lets a user top up with a one-time credit pack, independent of whether
 /// their free/monthly quota is exhausted — a subscriber who just burns
@@ -205,8 +210,10 @@ class _BuyCreditsScreenState extends State<BuyCreditsScreen> with RouteAware {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(AppRoutes.terms),
+                onPressed: () => launchUrl(
+                  Uri.parse(_termsOfUseUrl),
+                  mode: LaunchMode.externalApplication,
+                ),
                 child: Text(
                   l10n.termsOfUse,
                   style: GoogleFonts.kufam(
