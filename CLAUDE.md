@@ -1567,3 +1567,80 @@ on CI:**
    meaningful to pass as an external ID; every device is anonymous to
    OneSignal, tracked only by its own auto-generated player ID. Revisit
    if/when the app ever gains real user accounts.
+
+## 2026-09-07 (cont.) — OneSignal CI rollout: 3 sequential ios-release.yml failures found and fixed, ending in a genuine "green but actually failed" bug
+
+A separate Claude session completed the portal/config side (Apple
+Developer NSE App ID + provisioning profiles, GitHub secrets including
+`IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE`, OneSignal dashboard APNs
+connection). From here, the user then triggered `ios-release.yml`
+themselves run by run, reporting each real failure log back for a fix —
+four rounds in total:
+
+1. **Run #48 — build number collision.** `1.0.1+38` was already the live
+   App Store build; bumped to `1.0.1+39` (commit `80199a6`, same commit
+   that landed all the pending OneSignal code from the prior session in
+   one go — `main.dart`, `onesignal_service.dart`, the iOS NSE files,
+   `AndroidManifest.xml`, `ios-release.yml`'s NSE provisioning-profile
+   import — since pubspec.yaml already had the uncommitted
+   `onesignal_flutter` dependency line mixed in with the version bump,
+   and shipping the version bump alone without the code that uses it
+   would've been an inconsistent partial state).
+2. **Run #48 (same run, later step) — CocoaPods embedded-target
+   mismatch.** `pod install` failed: "Runner (true) and
+   OneSignalNotificationServiceExtension (false) do not both set
+   use_frameworks!". Fixed by adding `use_frameworks!` to the NSE's own
+   Podfile target block (commit `c563967`) — CocoaPods requires an
+   embedded target and its host app to agree on this setting.
+3. **Run #49 — "Multiple commands produce" XCFramework conflict.**
+   Diagnosed by actually fetching OneSignalXCFramework's real podspec
+   from CocoaPods' CDN (`cdn.cocoapods.org`, path keyed by the pod name's
+   MD5 hash) rather than guessing: `onesignal_flutter`'s own podspec
+   depends on plain `OneSignalXCFramework` with no subspec, which
+   resolves to `default_subspecs` (`OneSignalComplete` — the entire SDK)
+   on Runner; the NSE's Podfile block separately declared the `/OneSignal`
+   subspec, a near-total subset of that same set. Both targets ended up
+   vendoring the same XCFrameworks (OneSignalCore, OneSignalExtension,
+   OneSignalFramework, etc. — exactly the frameworks listed in Xcode's
+   error), and its new build system rejects two targets' script build
+   phases both declaring the same sliced-XCFramework output path. Fixed
+   with two changes together (commit `5ce84ab`): the NSE now depends on
+   the much lighter `OneSignalXCFramework/OneSignalExtension` subspec
+   (all it actually needs — Confirmed Delivery, image attachments, action
+   buttons) instead of the full `/OneSignal` one; and added
+   `install! 'cocoapods', :disable_input_output_paths => true` to the
+   Podfile, since OneSignalCore/OneSignalOutcomes are still legitimately
+   shared between Runner and the NSE even with the lighter subspec — this
+   is the same documented CocoaPods fix Flutter's own Podfile templates
+   use for this exact class of error (stops Xcode from treating a shared
+   script-phase output as ambiguous).
+4. **Run #52 — genuinely dangerous one: GitHub showed all-green, but the
+   real `xcrun altool --upload-app` log showed the upload was rejected by
+   Apple** (`409 Invalid Pre-Release Train` — `1.0.1`'s pre-release train
+   was closed since it's already publicly released — plus
+   `CFBundleShortVersionString 1.0.1` not higher than the already-approved
+   `1.0.1`). `altool`'s own process still exited `0` despite reporting
+   these errors in its own output, so the workflow step showed success
+   with nothing actually reaching App Store Connect. Two fixes together
+   (commit `deeda6e`): bumped `pubspec.yaml` to `1.0.2+39` (marketing
+   version has to increase, not just the build number, once the prior
+   marketing version is publicly live — same rule already logged for the
+   `+35 → 1.0.1+36` bump, now confirmed it also silently defeats a
+   same-version rebuild's upload even when the build number itself is
+   fresh); and hardened `ios-release.yml`'s "Upload to App Store Connect"
+   step to `tee` altool's real output to a log, check its actual exit
+   code via `${PIPESTATUS[0]}`, and additionally `grep` the log for
+   `UPLOAD FAILED` / `Failed to upload package.` / `^ERROR:` markers —
+   failing the step for real (`exit 1`) if any appear, rather than
+   trusting altool's process exit code alone.
+
+**Lesson for any future CI step wrapping an Apple CLI tool
+(`altool`, `notarytool`, etc.):** a `0` exit code is not sufcient proof
+of success — check the tool's own printed output for its own
+success/failure markers too, since Apple's tools are known to report
+partial-success/rejected-at-validation outcomes without a matching
+non-zero exit code.
+
+Status as of this note: `deeda6e` pushed to `main`, not yet triggered —
+the user runs each release attempt themselves and reports back the real
+log on failure, rather than Claude triggering the workflow.
