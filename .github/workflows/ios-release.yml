@@ -126,12 +126,32 @@ jobs:
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        shell: bash
         run: |
+          set -o pipefail
+
           xcrun altool --upload-app \
             -f build/ios/ipa/*.ipa \
             -t ios \
             --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" 2>&1 | tee altool_upload.log
+          ALTOOL_EXIT=${PIPESTATUS[0]}
+
+          if [ "$ALTOOL_EXIT" -ne 0 ]; then
+            echo "::error::altool exited with status $ALTOOL_EXIT"
+            exit 1
+          fi
+
+          # altool can print "UPLOAD FAILED" / per-error "ERROR: ..." lines
+          # and still exit 0 (seen in run #52: Apple rejected the upload at
+          # validation time with 409s, but altool's own process exit code
+          # stayed 0, so this step showed green while the build never
+          # actually reached App Store Connect). Treat those markers as a
+          # hard failure instead of trusting the exit code alone.
+          if grep -qE "UPLOAD FAILED|Failed to upload package\.|^ERROR:" altool_upload.log; then
+            echo "::error::altool reported a failure in its output despite exiting 0 - treating this as a failed upload. See the log above for details."
+            exit 1
+          fi
 
       - name: Upload IPA as artifact
         if: always()
