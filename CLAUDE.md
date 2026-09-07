@@ -1262,3 +1262,308 @@ go-ahead before shipping a build.
   in the public "What's New" text and the separate "App Review
   Information → Notes" reviewer text (both drafted earlier in this
   session), then Submit for Review.
+
+## 2026-09-05 — Build 36 (1.0.1) rejected: Guideline 3.1.2(c), missing functional Terms of Use link
+
+Apple rejected the 1.0.1 (36) submission — not the earlier issue, a new one:
+**Guideline 3.1.2(c) (Business – Payments – Subscriptions)**. Their exact
+finding: the paywall doesn't show a functional link to the Terms of Use
+(EULA) alongside the subscription's Privacy Policy link, and the App
+Description doesn't include the EULA link either. (Apple asked for the
+missing info to be added to the App Review Information → Notes field for
+future submissions, plus a screen recording confirming the fix.)
+
+**Root cause found in the code**: `paywall_screen.dart`'s "Terms of Use"
+button was wired to `Navigator.pushNamed(AppRoutes.terms)` — an in-app
+route that renders a wellness disclaimer ("For reflection, not
+diagnosis" / "Use with care"), not an actual Terms of Use/EULA document.
+It *looked* like a Terms of Use link to a human tester but wasn't
+functionally one per Apple's requirement. Confirmed App Information →
+License Agreement is set to **Apple's Standard License Agreement** (not a
+custom EULA), which decides the fix: link to Apple's own standard EULA
+URL, not a self-hosted page (this domain only has a privacy policy and a
+support page — no terms page to host on).
+
+**Fix applied and committed to disk** (`lib/screens/paywall_screen.dart`):
+added a `_termsOfUseUrl` constant = `https://www.apple.com/legal/internet-services/itunes/dev/stdeula/`
+(right after the existing `_privacyPolicyUrl` constant), changed the
+"Terms of Use" button's `onPressed` from the internal `Navigator.pushNamed`
+call to `launchUrl(Uri.parse(_termsOfUseUrl), mode: LaunchMode.externalApplication)`
+— same pattern already used for the Privacy Policy button right next to
+it — and removed the now-unused `import '../app_routes.dart';` (verified
+`AppRoutes` has no remaining references in this file; the drawer's own
+separate "Terms and Conditions" menu item in `custom_drawer.dart`, which
+correctly points to the in-app disclaimer screen under its own honest
+label, was deliberately left untouched — that one was never the problem).
+
+**This change is only on disk on the Mac right now — it has not been
+git-committed, built, or uploaded.** This Cowork session has no shell
+access to the Mac (no `device_bash` in this session, only file
+stage/commit), so it cannot run git, bump `pubspec.yaml`, or trigger
+GitHub Actions. **What Claude Code (or the user) needs to do next:**
+1. `git add lib/screens/paywall_screen.dart && git commit` (diff is
+   already sitting on disk, described above — verify it first).
+2. Bump `pubspec.yaml` from `1.0.1+36` to `1.0.1+37` — **only the build
+   number**, not the marketing version. Unlike the `+35 → 1.0.1+36` bump,
+   this one doesn't need a marketing-version bump because `1.0.1` was
+   never released publicly (it was rejected, not shipped) — same rule as
+   the "lesson for future version bumps" logged above.
+3. Trigger `ios-release.yml` (and `android-release.yml` for parity, even
+   though Android wasn't the rejection reason).
+4. In App Store Connect: attach the new build to the existing `1.0.1`
+   version once it finishes processing (replaces the rejected build 36 in
+   the same version slot — no need to create a new Version entry), then
+   resubmit for review.
+5. Apple's rejection also wants a screen recording showing the fix
+   working — needs a real device/TestFlight build, can't be produced from
+   this session.
+
+**Separately flagged and deliberately left alone**: the app's interpreter
+roster includes five real, named public figures used as AI personas
+(Keanu Reeves, Dwayne Johnson, Freddie Mercury, Emma Watson, Bruce Lee —
+see `who_should_interpret_screen.dart` and `data/interpreter_prompts.dart`),
+with the AI prompted to "speak as" them. This is a real right-of-publicity/
+personality-rights risk independent of Apple's guidelines and could itself
+trigger a future rejection or legal complaint. Raised explicitly with the
+user; **the user's explicit decision was to leave it as-is and accept the
+risk** — do not remove, rename, or alter this feature on your own
+initiative.
+
+**Also still pending** (browser-only work, being done in this same
+Cowork session): append the same EULA URL to the end of the App Store
+Description text, and update the App Review Information → Notes field
+per Apple's request.
+
+## 2026-09-05 (cont.) — Same Terms of Use bug found in `buy_credits_screen.dart`; fixed, bumped to `1.0.1+38`
+
+User (testing build 37's paywall fix) noticed the "Get More Dreams" credit-pack
+screen has the identical bug: its "Terms of Use" button also pushed
+`Navigator.pushNamed(AppRoutes.terms)` (the in-app wellness disclaimer), not
+a real EULA. Strictly, Guideline 3.1.2(c) only covers auto-renewable
+subscriptions, so this screen wasn't the actual rejection cause — but it's
+the same mislabeled link, and worth fixing for consistency/correctness while
+already in this area rather than leaving a second copy of the bug.
+
+Fixed identically to `paywall_screen.dart`: added a local `_termsOfUseUrl`
+constant (same Apple standard EULA URL) to `buy_credits_screen.dart`,
+changed the "Terms of Use" button's `onPressed` to `launchUrl(...,
+mode: LaunchMode.externalApplication)`, removed the now-unused
+`import '../app_routes.dart';` (confirmed via grep — no other `AppRoutes`
+reference in this file). Committed to disk on the Mac via the Cowork
+session's device bridge (no shell access from that session, so — same as
+the paywall fix — this is committed to the filesystem only, not yet
+`git commit`-ed).
+
+Since build 37 was already built/tested (confirmed working: paywall's Terms
+of Use → Apple's stdeula page, Privacy Policy → sanai.uk page) *before* this
+second fix existed, this credit-pack screen fix isn't in that binary. Bumped
+`pubspec.yaml` to `1.0.1+38` (build number only, still no marketing-version
+bump needed — 1.0.1 still hasn't shipped) so the next build picks up both
+fixes together rather than needing a third round. **Still needs, same as
+before**: git commit both changed files
+(`lib/screens/buy_credits_screen.dart`, `pubspec.yaml`), trigger
+`ios-release.yml` (+ `android-release.yml` for parity), then attach build 38
+to the 1.0.1 App Store Connect version and resubmit — build 37 should not be
+submitted on its own now that 38 supersedes it.
+
+## 2026-09-06 — Build 38 committed, released, and resubmitted to Apple; 1.0.1 now "Waiting for Review"
+
+Local Claude Code session (shell access via VS Code) picked up the pending
+`buy_credits_screen.dart` + `pubspec.yaml` (1.0.1+38) changes: ran
+`dart format` / `flutter analyze` (clean), committed as `845cba5` "Fix
+purchase terms link for App Store review" on `main`, pushed, and triggered
+both `ios-release.yml` (run `34018711578`) and `android-release.yml` (run
+`34018713673`) — both succeeded. Build 38 finished processing on
+TestFlight/App Store Connect shortly after.
+
+User recorded and provided a screen-recording (optimized to 6.4MB —
+`build38-terms-of-use-privacy-policy-opt.mp4`, in
+`/Users/macbook/Desktop/ahmet/dreamai`) showing the paywall's price/duration
+text plus both "Terms of Use" and "Privacy Policy" links opening correctly.
+
+Final resubmission steps (done from the Cowork session, browser-driven):
+1. Removed build 36 from the 1.0.1 version, attached build 38 instead.
+2. Re-saved App Description (already had the EULA link from the previous
+   pass) and App Review Information → Notes (added a short "Update (build
+   38)" paragraph noting the buy-credits-screen fix and describing what the
+   attached video shows).
+3. Uploaded the video to the App Review Information → Attachment field.
+4. Clicked through App Store Connect's "Update Review" → confirmed the
+   pending localized Name/Subtitle changes bundle (unrelated, pre-existing,
+   harmless) → landed on the Resolution Center thread (same Submission ID
+   as the original rejection, `749b80bb-1214-4eaa-bd80-aa9aa0c4128c` —
+   Apple reuses the thread rather than opening a new one) → clicked
+   "Resubmit to App Review".
+
+**Current status: 1.0.1 (build 38) is "Waiting for Review".** Nothing
+further needed on our end until Apple responds. If rejected again, read
+their message in this same Resolution Center thread before doing anything
+else — don't assume it's the same 3.1.2(c) issue.
+
+Also checked RevenueCat production data while investigating conversion:
+0 active subscriptions, $0 MRR/revenue in the last 28 days, 91 active
+(non-paying) users. Sandbox data (1 fake active subscription, $155 fake MRR)
+should never be confused with this — always toggle "Sandbox data" off in
+the RevenueCat dashboard before reporting real numbers.
+
+## 2026-09-07 — 1.0.1 (build 38) approved and live on both stores; OneSignal push SDK integrated (code only — not built/shipped yet)
+
+User confirmed 1.0.1 is published. Same session, user asked to integrate
+OneSignal for engagement/push notifications (App ID
+`0f45eed0-1f24-49a3-ac90-96e29ccc7618`), following OneSignal's own
+Flutter AI integration guide
+(`https://raw.githubusercontent.com/OneSignal/sdk-ai-prompts/main/docs/flutter/ai-prompt.md`).
+User chose: cover both iOS and Android, and work directly on `main`
+(no `onesignal-integration` branch, despite other unrelated uncommitted
+changes already sitting on `main` at the time — those were left alone).
+
+**What shipped in code:**
+- `pubspec.yaml`: `onesignal_flutter: 5.5.2` (exact-pinned, not `^`, per
+  the guide's instruction to always pin the exact Stable version read
+  from `https://onesignal.github.io/sdk-releases/releases.json` — Flutter
+  stable was `5.5.2`, iOS native/XCFramework stable was `5.5.1`, used for
+  the NSE's Podfile pod version below).
+- `lib/services/onesignal_service.dart` (new): centralized static-class
+  wrapper mirroring the existing `PurchaseService` pattern — every direct
+  `package:onesignal_flutter` call lives here (init, login/logout,
+  email/SMS, tags, log level, permission request, push-subscription-id
+  listener). No-ops safely on unsupported platforms (web/desktop) via a
+  `kIsWeb`/`Platform.isAndroid||isIOS` guard, so it's safe to call from
+  shared code that also runs on desktop builds.
+- `lib/main.dart`: `OneSignalService.initialize()` called in `main()`
+  before `runApp()`. Added the OneSignal-required "push subscription
+  verification" flow to `_DreamPageState` (the home screen) — registers
+  a listener in `initState()`, retained as the State's own field (per
+  the guide's requirement that the observer must be retained, not a
+  bare local closure, since OneSignal holds it weakly), shows a
+  one-time `AlertDialog` with the guide's exact required title/body/
+  button text ("Your OneSignal SDK integration is complete!" / "Got
+  it") once a real server-assigned subscription ID appears (guarded
+  against the SDK's `local-`-prefixed placeholder ID), and requests
+  push permission only on that button tap — this is intentionally the
+  *only* place push permission is ever requested, per the guide's
+  constraint against prompting elsewhere.
+- Android: added an explicit `<uses-permission
+  android:name="android.permission.INTERNET"/>` to
+  `android/app/src/main/AndroidManifest.xml` (release manifest didn't
+  declare it before — likely already covered transitively via another
+  plugin's merged manifest since the app already does release-mode
+  network calls, but added explicitly per the OneSignal checklist).
+  `minSdk 23` / `compileSdk` (Flutter-tracked, already 33+) already
+  satisfied the SDK's floor; no `google-services.json` or Google
+  Services Gradle plugin needed (OneSignal registers for FCM itself).
+- iOS — the heavier half, since this project has never had any push
+  infrastructure before: added the required Notification Service
+  Extension (NSE) + shared App Group, per the guide's "Shared iOS Push
+  Infrastructure" section (Confirmed Delivery, rich push images, and
+  badge counts silently fail without this):
+  - New `ios/OneSignalNotificationServiceExtension/` folder:
+    `NotificationService.swift` (forwards to
+    `OneSignalExtension.didReceiveNotificationExtensionRequest`),
+    `Info.plist`, `OneSignalNotificationServiceExtension.entitlements`.
+  - New `ios/Runner/Runner.entitlements` (main app target didn't have
+    one before): `aps-environment: development` (Xcode auto-promotes
+    this to `production` at App Store export time — standard behavior)
+    + the shared App Group.
+  - App Group used throughout: `group.com.sanai.dreamai.onesignal`,
+    derived from the existing main-app bundle ID
+    (`com.sanai.dreamai`) per the guide's required format.
+  - `ios/Runner/Info.plist`: added `UIBackgroundModes` =
+    `remote-notification`.
+  - `ios/Podfile`: this project uses CocoaPods (confirmed — SPM is
+    explicitly disabled in `pubspec.yaml` for the
+    `flutter_native_splash` podspec-compatibility fix logged
+    2026-08-26), so per the guide's CocoaPods path, added a sibling
+    `target 'OneSignalNotificationServiceExtension'` block pinned to
+    `pod 'OneSignalXCFramework/OneSignal', '5.5.1'` (not nested under
+    Runner — the NSE needs its own linked copy, unlike `RunnerTests`
+    which only needs search paths).
+  - `ios/Runner.xcodeproj/project.pbxproj`: hand-edited (no Xcode GUI
+    available on this machine — see the long-standing local-tooling
+    notes above; this project has no `PBXFileSystemSynchronizedRootGroup`
+    entries, i.e. it's a classic pre-Xcode-16 group-based project, so
+    used the guide's "classic projects" path). Added: the NSE
+    `PBXNativeTarget` (empty Sources/Frameworks/Resources phases —
+    CocoaPods' `pod install` fills in Frameworks linkage and the
+    Pods-OneSignalNotificationServiceExtension xcconfig automatically
+    once it recognizes the matching Podfile target name), its own
+    Debug/Release/Profile `XCBuildConfiguration`s (this project has 3
+    configs per target, not the guide's generic 2 — Debug/Profile use
+    `CODE_SIGN_STYLE = Automatic` matching Runner's own Debug/Profile;
+    Release uses `CODE_SIGN_STYLE = Manual` +
+    `DEVELOPMENT_TEAM = 2DT2XFC2B9` + `CODE_SIGN_IDENTITY = "Apple
+    Distribution"` matching Runner's Release, plus a new
+    `PROVISIONING_PROFILE_SPECIFIER = "DreamAI OneSignal NSE App
+    Store"` — see the unresolved manual step below), the `.appex`
+    product reference, the `Embed Foundation Extensions` copy-files
+    phase wired into Runner's target (after `Embed Frameworks`), the
+    `PBXTargetDependency`/`PBXContainerItemProxy` making Runner depend
+    on the NSE, and `CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements`
+    added to all 3 of Runner's own build configs (it had none before).
+    Generated 22 fresh random 24-hex-char object IDs (checked against
+    every existing ID in the file for collisions) rather than reusing
+    the guide's literal `NSE0000...` placeholder strings, since those
+    contain non-hex characters (`N`, `S`) and aren't safe to use as
+    real pbxproj object IDs.
+  - `.github/workflows/ios-release.yml`: updated to import a **second**
+    provisioning profile secret,
+    `IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE` (fails the step early with
+    a clear `::error::` message if unset, rather than a cryptic
+    PlistBuddy failure), and added a matching
+    `provisioningProfiles:com.sanai.dreamai.OneSignalNotificationServiceExtension`
+    entry to the manual `ExportOptions.plist` PlistBuddy step — the
+    existing workflow only ever imported/exported one profile, scoped
+    to the main app's bundle ID alone, which would fail archiving now
+    that a second signed target (with its own bundle ID) exists.
+
+**Verified locally, as much as this machine allows** (no Xcode.app or
+CocoaPods installed here — same long-standing constraint logged above,
+iOS native builds still can only be fully verified via CI):
+`flutter pub get` (resolved `onesignal_flutter 5.5.2` cleanly), `flutter
+analyze` ("No issues found!"), `dart format --set-exit-if-changed` on the
+two touched Dart files (already formatted), `plutil -lint` on the
+rewritten `project.pbxproj` and all 4 new/touched `.plist`/`.entitlements`
+files (all OK), and a Python cross-reference pass converting the pbxproj
+to JSON to confirm every new object ID referenced (fileRef, target,
+productReference, targetProxy, buildConfigurationList, dependencies,
+buildPhases, children, files, etc.) actually resolves to a real object
+with no dangling or colliding IDs.
+
+**Not done / genuinely needs the user, before this can ship or even build
+on CI:**
+1. **Apple Developer portal (manual, in the browser — nothing Claude can
+   do here):** register a new App ID for
+   `com.sanai.dreamai.OneSignalNotificationServiceExtension` with the
+   App Groups capability enabled (and Push Notifications, inherited from
+   the extension type), add it to the existing App Group
+   `group.com.sanai.dreamai.onesignal` (create the group if Xcode
+   auto-registration doesn't do it first), then create an **App Store
+   distribution provisioning profile** for that new App ID. Its exact
+   name **must** be `DreamAI OneSignal NSE App Store` to match what's
+   now hardcoded in both `project.pbxproj` and
+   `ios-release.yml`'s `ExportOptions.plist` step (or both need updating
+   together if a different name is used).
+2. Base64-encode that new `.mobileprovision` file
+   (`base64 -i profile.mobileprovision | pbcopy` works) and add it as a
+   new GitHub Actions repo secret, `IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE`
+   (same pattern as the existing `IOS_PROVISIONING_PROFILE` secret).
+3. The main app's own existing App ID (`com.sanai.dreamai`) also needs
+   Push Notifications + the same App Group capability added/confirmed in
+   the portal — it never had either before this change, since the app
+   had no entitlements file at all until now.
+4. Only after 1–3 are done: trigger `ios-release.yml` (and
+   `android-release.yml` for parity) to actually verify the NSE target
+   builds, archives, and exports correctly, and confirmed on a real
+   device that the OneSignal "integration complete" verification dialog
+   appears and a subscription shows up in the OneSignal dashboard.
+   **Deliberately not triggered yet** — per standing preference, batch
+   further fixes and wait for explicit go-ahead before shipping a build,
+   and this one specifically cannot succeed on CI until steps 1–2 above
+   are done by the user first.
+5. Not implemented (out of scope for this pass, no user request yet):
+   calling `OneSignalService.login()` with any real user identifier —
+   this app has no accounts/login system (see the credit-pack-durability
+   architecture gap logged earlier), so there's currently nothing
+   meaningful to pass as an external ID; every device is anonymous to
+   OneSignal, tracked only by its own auto-generated player ID. Revisit
+   if/when the app ever gains real user accounts.

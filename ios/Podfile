@@ -36,6 +36,13 @@ target 'Runner' do
   end
 end
 
+target 'OneSignalNotificationServiceExtension' do
+  # Pin to the exact OneSignal iOS / XCFramework Stable version from
+  # https://onesignal.github.io/sdk-releases/releases.json — do not use a
+  # version range.
+  pod 'OneSignalXCFramework/OneSignal', '5.5.1'
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)

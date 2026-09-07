@@ -37,10 +37,12 @@ jobs:
           IOS_DIST_CERTIFICATE_P12: ${{ secrets.IOS_DIST_CERTIFICATE_P12 }}
           IOS_DIST_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DIST_CERTIFICATE_PASSWORD }}
           IOS_PROVISIONING_PROFILE: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+          IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE: ${{ secrets.IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE }}
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_DIST_CERTIFICATE_PASSWORD }}
         run: |
           CERT_PATH=$RUNNER_TEMP/distribution.p12
           PROFILE_PATH=$RUNNER_TEMP/profile.mobileprovision
+          NSE_PROFILE_PATH=$RUNNER_TEMP/nse_profile.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/signing.keychain-db
 
           echo -n "$IOS_DIST_CERTIFICATE_P12" | base64 --decode -o $CERT_PATH
@@ -52,6 +54,24 @@ jobs:
           security import $CERT_PATH -P "$IOS_DIST_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH login.keychain
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          mkdir -p ~/Library/MobileDevice/"Provisioning Profiles"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< "$(security cms -D -i $PROFILE_PATH)")
+          cp $PROFILE_PATH ~/Library/MobileDevice/"Provisioning Profiles"/"$PROFILE_UUID".mobileprovision
+
+          # OneSignalNotificationServiceExtension's own provisioning profile
+          # (bundle ID com.sanai.dreamai.OneSignalNotificationServiceExtension,
+          # App Groups capability). Must be created in the Apple Developer
+          # portal and stored as this secret before this workflow can
+          # archive successfully; see the OneSignal integration PR summary
+          # for the one-time setup steps.
+          if [ -z "$IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE" ]; then
+            echo "::error::IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE secret is not set. Create an App Store distribution provisioning profile for com.sanai.dreamai.OneSignalNotificationServiceExtension in the Apple Developer portal, base64-encode it, and add it as this repo secret before running this workflow."
+            exit 1
+          fi
+          echo -n "$IOS_ONESIGNAL_NSE_PROVISIONING_PROFILE" | base64 --decode -o $NSE_PROFILE_PATH
+          NSE_PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< "$(security cms -D -i $NSE_PROFILE_PATH)")
+          cp $NSE_PROFILE_PATH ~/Library/MobileDevice/"Provisioning Profiles"/"$NSE_PROFILE_UUID".mobileprovision
 
           mkdir -p ~/Library/MobileDevice/"Provisioning Profiles"
           PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin <<< "$(security cms -D -i $PROFILE_PATH)")
@@ -93,6 +113,7 @@ jobs:
           /usr/libexec/PlistBuddy -c "Set :signingStyle manual" ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c "Add :provisioningProfiles dict" ios/ExportOptions.plist
           /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:com.sanai.dreamai string 'DreamAI App Store'" ios/ExportOptions.plist
+          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:com.sanai.dreamai.OneSignalNotificationServiceExtension string 'DreamAI OneSignal NSE App Store'" ios/ExportOptions.plist
 
       - name: Export IPA
         run: |

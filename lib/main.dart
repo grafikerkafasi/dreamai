@@ -11,9 +11,11 @@ import 'screens/contact_screen.dart';
 import 'screens/history_button.dart';
 import 'screens/info_screen.dart';
 import 'services/purchase_service.dart';
+import 'services/onesignal_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  OneSignalService.initialize();
   await PurchaseService.configure();
   runApp(const DreamAIApp());
 }
@@ -158,6 +160,8 @@ class _DreamPageState extends State<DreamPage> {
   String _hintText = '';
   bool _typewriterStarted = false;
 
+  bool _oneSignalDialogShown = false;
+
   @override
   void initState() {
     super.initState();
@@ -165,6 +169,55 @@ class _DreamPageState extends State<DreamPage> {
       setState(() {
         _isFocused = _focusNode.hasFocus;
       });
+    });
+    _setUpOneSignalVerification();
+  }
+
+  // A real, server-assigned subscription ID is non-empty and not the
+  // `local-` placeholder the SDK assigns before the device registers.
+  bool _isRegisteredWithOneSignal(String? subscriptionId) =>
+      subscriptionId != null &&
+      subscriptionId.isNotEmpty &&
+      !subscriptionId.startsWith('local-');
+
+  void _setUpOneSignalVerification() {
+    OneSignalService.addPushSubscriptionIdListener(
+      _maybeShowOneSignalIntegrationDialog,
+    );
+    // The ID may already be assigned before the listener above attaches,
+    // so evaluate the current value immediately too.
+    _maybeShowOneSignalIntegrationDialog(
+      OneSignalService.currentPushSubscriptionId,
+    );
+  }
+
+  void _maybeShowOneSignalIntegrationDialog(String? subscriptionId) {
+    if (!_isRegisteredWithOneSignal(subscriptionId) || _oneSignalDialogShown) {
+      return;
+    }
+    _oneSignalDialogShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Your OneSignal SDK integration is complete!'),
+          content: const Text(
+            'You can now send Push Notifications & In-App Messages through '
+            'OneSignal. Tap below to enable push notifications.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                OneSignalService.requestPermission();
+              },
+              child: const Text('Got it'),
+            ),
+          ],
+        ),
+      );
     });
   }
 
