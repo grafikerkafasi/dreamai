@@ -37,6 +37,11 @@ target 'Runner' do
 end
 
 target 'OneSignalNotificationServiceExtension' do
+  # Must match Runner's use_frameworks! setting — CocoaPods requires an
+  # embedded target (the NSE) and its host app target to agree on this,
+  # otherwise `pod install` fails with "do not both set use_frameworks!".
+  use_frameworks!
+
   # Pin to the exact OneSignal iOS / XCFramework Stable version from
   # https://onesignal.github.io/sdk-releases/releases.json — do not use a
   # version range.
