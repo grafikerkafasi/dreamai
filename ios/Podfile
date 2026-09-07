@@ -4,6 +4,15 @@ platform :ios, '15.0'
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
+# Runner (via onesignal_flutter's own podspec dependency) and the
+# OneSignalNotificationServiceExtension target below both vendor
+# overlapping OneSignal XCFrameworks (OneSignalCore, OneSignalOutcomes,
+# OneSignalExtension). Xcode's build system rejects that as "Multiple
+# commands produce ...xcframework" unless CocoaPods' generated script
+# build phases stop declaring explicit input/output paths for them —
+# this is CocoaPods' own documented fix for that class of error.
+install! 'cocoapods', :disable_input_output_paths => true
+
 project 'Runner', {
   'Debug' => :debug,
   'Profile' => :release,
@@ -42,10 +51,14 @@ target 'OneSignalNotificationServiceExtension' do
   # otherwise `pod install` fails with "do not both set use_frameworks!".
   use_frameworks!
 
-  # Pin to the exact OneSignal iOS / XCFramework Stable version from
+  # The NSE only needs the lightweight OneSignalExtension subspec (Confirmed
+  # Delivery, image attachments, action buttons) — not the full `OneSignal`
+  # umbrella subspec, which is what Runner already links via onesignal_flutter
+  # and would otherwise duplicate the same vendored XCFrameworks into both
+  # targets. Pin to the exact OneSignal iOS / XCFramework Stable version from
   # https://onesignal.github.io/sdk-releases/releases.json — do not use a
   # version range.
-  pod 'OneSignalXCFramework/OneSignal', '5.5.1'
+  pod 'OneSignalXCFramework/OneSignalExtension', '5.5.1'
 end
 
 post_install do |installer|
