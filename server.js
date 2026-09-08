@@ -21,7 +21,7 @@ const port = Number(process.env.PORT || 3000);
 const apiKey = process.env.OPENAI_API_KEY;
 const allowedOrigin = process.env.ALLOWED_ORIGIN || true;
 const contactRecipient = process.env.CONTACT_RECIPIENT || 'a.yasiny.yilmaz@gmail.com';
-const freeLimit = Number(process.env.FREE_DREAM_LIMIT || 3);
+const freeLimit = Number(process.env.FREE_DREAM_LIMIT || 6);
 const monthlyLimit = Number(process.env.MONTHLY_DREAM_LIMIT || 50);
 const revenueCatWebhookAuth = process.env.REVENUECAT_WEBHOOK_AUTH;
 

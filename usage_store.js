@@ -91,11 +91,19 @@ async function getOrCreateRow(deviceId) {
   };
 }
 
+// Rolls both the subscriber's monthly quota (period_used) and the free
+// tier's quota (free_used) over together whenever the calendar month
+// changes — both share the same period_start marker, so a free user's
+// allowance now renews monthly instead of being a lifetime-only grant.
+// Resetting free_used for an already-subscribed row is harmless: checkQuota
+// only ever reads free_used on the non-subscribed branch, so it's just kept
+// consistent in case the user downgrades later in the same period.
 function rollPeriodIfNeeded(row) {
   const period = currentPeriod();
   if (row.period_start !== period) {
     row.period_start = period;
     row.period_used = 0;
+    row.free_used = 0;
   }
   return row;
 }
