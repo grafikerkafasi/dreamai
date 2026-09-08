@@ -196,29 +196,7 @@ class _DreamPageState extends State<DreamPage> {
       return;
     }
     _oneSignalDialogShown = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          title: const Text('Your OneSignal SDK integration is complete!'),
-          content: const Text(
-            'You can now send Push Notifications & In-App Messages through '
-            'OneSignal. Tap below to enable push notifications.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                OneSignalService.requestPermission();
-              },
-              child: const Text('Got it'),
-            ),
-          ],
-        ),
-      );
-    });
+    OneSignalService.requestPermission();
   }
 
   @override
@@ -312,7 +290,10 @@ class _DreamPageState extends State<DreamPage> {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                  _scaffoldKey.currentState?.openDrawer();
+                },
                 child: Image.asset('assets/images/menu.png', width: 35),
               ),
               const Spacer(),

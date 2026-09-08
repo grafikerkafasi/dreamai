@@ -53,12 +53,24 @@ class _AnalysisPageState extends State<AnalysisPage> {
     });
   }
 
+  static const _maxSilentRetries = 2;
+  static const _retryDelay = Duration(seconds: 3);
+
   Future<void> _analyzeDream() async {
     setState(() {
       _loading = true;
       _errorMessage = null;
     });
+    await _runAnalysis();
+  }
 
+  // Transient connectivity hiccups with the backend are common enough that
+  // surfacing the "Unable to analyze" screen on the very first failure gives
+  // a worse experience than it needs to: silently retry a couple of times
+  // in the background first, keeping the same progress screen on-screen the
+  // whole time, and only fall back to the error/"Try again" state once every
+  // retry has also failed.
+  Future<void> _runAnalysis({int attempt = 0}) async {
     try {
       final result = await OpenAIService.analyzeDream(
         widget.dreamText,
@@ -90,6 +102,11 @@ class _AnalysisPageState extends State<AnalysisPage> {
         Navigator.pop(context);
       }
     } catch (error) {
+      if (attempt < _maxSilentRetries) {
+        await Future.delayed(_retryDelay);
+        if (!mounted) return;
+        return _runAnalysis(attempt: attempt + 1);
+      }
       if (!mounted) return;
       setState(() {
         _errorMessage = error.toString();
