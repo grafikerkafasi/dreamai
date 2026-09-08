@@ -1634,6 +1634,65 @@ four rounds in total:
    failing the step for real (`exit 1`) if any appear, rather than
    trusting altool's process exit code alone.
 
+## 2026-09-08 — OneSignal onboarding popup removed; input-focus/drawer fix and silent analysis-retry (code only, not built yet); free dream limit raised to 6 and made to renew monthly (backend, shipped)
+
+**OneSignal test popup removed.** User reported the stock OneSignal
+"Your OneSignal SDK integration is complete!" dialog appearing on every
+app launch — this was never meant to ship, just the SDK's own onboarding
+verification prompt from the integration work logged above
+(`main.dart`'s `_maybeShowOneSignalIntegrationDialog`, tied to
+`_setUpOneSignalVerification()`/`OneSignalService.addPushSubscriptionIdListener`).
+Removed the dialog UI itself, but kept the underlying push-permission
+request intact: previously permission was only requested from inside the
+dialog's "Got it" button tap, so `_maybeShowOneSignalIntegrationDialog`
+now just calls `OneSignalService.requestPermission()` directly — same
+one-time trigger condition (fires once, right after the device gets a
+real server-assigned OneSignal subscription ID), same point in the app
+lifecycle, just no visible popup. Everything else about the OneSignal
+integration/permission flow is untouched.
+
+**Two UX fixes to `lib/main.dart` / `lib/screens/analysis_page.dart`
+(code only, not built/shipped):**
+- Opening the hamburger drawer while the dream-input `TextField` was
+  focused left the keyboard/focus state stuck behind the drawer. Fixed
+  by calling `FocusScope.of(context).unfocus()` right before
+  `_scaffoldKey.currentState?.openDrawer()` on the menu icon's tap
+  handler in `main.dart`.
+- The "Unable to analyze the dream" error screen (`_ErrorState` in
+  `analysis_page.dart`) showed immediately on any single failed
+  `/analyze` call, even a transient one (e.g. the backend cold-starting).
+  Added a silent retry: `_analyzeDream()`/`_runAnalysis()` now retries up
+  to 2 more times, 3 seconds apart, keeping the existing progress screen
+  (`_AnalyzingProgress`) on screen the whole time — the error/"Try
+  again" state only appears once every retry has also failed. The
+  `PaywallRequiredException` path (and everything else in
+  `_analyzeDream`) is unchanged.
+Verified via `flutter analyze` (clean, using the `~/development/flutter`
+3.35.7 toolchain — see the local-tooling notes above) — not yet
+committed or built/shipped, per standing preference to batch fixes and
+wait for explicit go-ahead.
+
+**Free dream limit raised 3 → 6, and made to renew monthly instead of
+being a lifetime-only grant (backend-only, shipped immediately —
+`0235119`, pushed to `main`, Render auto-deployed).** User asked to
+raise the free count and have it reset every month; investigating
+`usage_store.js` found the free tier had never actually reset at
+all — `free_used` was a lifetime counter with no rollover logic, unlike
+subscribers' `period_used`, which already resets monthly via
+`rollPeriodIfNeeded` keyed off `period_start`. Two changes: bumped the
+`FREE_DREAM_LIMIT` env var's code default from `3` to `6` in
+`server.js` (note: if Render has this var explicitly set to `3` rather
+than relying on the code default, that also needs updating by hand in
+Render's dashboard — unverified, no way to check Render env vars from
+here); and changed `rollPeriodIfNeeded` in `usage_store.js` to zero
+`free_used` alongside `period_used` whenever the calendar month rolls
+over, regardless of subscription status (harmless for already-subscribed
+rows since `checkQuota` only ever reads `free_used` on the
+non-subscribed branch). No app rebuild needed — existing installs pick
+this up immediately since it's a pure backend/quota change, and the
+Flutter UI already renders `freeLimit`/`freeUsed` dynamically from the
+`/usage` and `/analyze` responses rather than hardcoding "3" anywhere.
+
 **Lesson for any future CI step wrapping an Apple CLI tool
 (`altool`, `notarytool`, etc.):** a `0` exit code is not sufcient proof
 of success — check the tool's own printed output for its own
